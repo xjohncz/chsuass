@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindowClass)
 {
     ui->setupUi(this);
+    /*FIXME: place DB connection into single function with parameters */
 
     db = QSqlDatabase::addDatabase("QMYSQL");
     db.setDatabaseName("assistant_schema");
@@ -22,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     db.setUserName("root");
     db.setPassword("1");
 
+    /*FIXME:codepage*/
     if(!db.open())
         QMessageBox::critical(this, tr("Ошибка подключения к БД"), tr("Попытка подключения к БД MySQL завершилась неудачей"));
 
@@ -86,6 +88,7 @@ void MainWindow::authenticationClient(QString username, QString passHash, int cl
     query.prepare("SELECT * FROM users WHERE userName=?");
     query.bindValue(0, username);
     query.exec();
+
     if(query.next()) {
         QByteArray password = query.value(2).toByteArray();
         QString hash = QCryptographicHash::hash(password, QCryptographicHash::Md5).toHex();
@@ -147,6 +150,7 @@ void MainWindow::studentRequestGrantedSlot() {
     if(currentExamTypeID == 1) {
         QString task = ui->currentExamCardQuestionsTextEdit->toPlainText();
         task.replace(QRegExp("\n"), "\r\n");
+    /*FIXME:codepage*/
         studentTask = tr("Билет: ") + ui->currentExamCardNumberEdit->text() + "\r\n" + task;
     } else if(currentExamTypeID == 2) {
         studentTask = ui->currentExamThemeTextEdit->toPlainText();
@@ -169,6 +173,7 @@ void MainWindow::saveStudentResultsSlot(int studentID, QString username, int mar
     if(query.next()) {
         memberID = query.value(0).toInt();
     } else {
+    /*FIXME:codepage*/
         QMessageBox::warning(this, tr("Ошибка сохранения результатов студента"),
                              tr("Поступившие от %1 результаты не могут быть сохранены,\nт.к. такой член комиссии с таким именем не найден"));
         return;
@@ -366,6 +371,7 @@ void MainWindow::submitChanges(QSqlTableModel *model) {
         model->database().commit();
     else {
         model->database().rollback();
+    /*FIXME:codepage*/
         QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных сообщила об ошибке: %1").arg(model->lastError().text()));
     }
 
@@ -479,6 +485,7 @@ void MainWindow::on_filterButton_clicked()
     if(query.next())
         groupID = query.value(0).toInt();
     else {
+    /*FIXME:codepage*/
         QMessageBox::information(this, tr("Группа не найдена"), tr("Нет группы, удовлетворяющей условиям фильтрации"));
         return;
     }
@@ -503,6 +510,7 @@ void MainWindow::on_fillCurrentExamButton_clicked()
         currentExamTypeID = query.value(1).toInt();
     }
     else {
+    /*FIXME:codepage*/
         QMessageBox::warning(this, tr("Ошибка поиска экзамена"), tr("Нет признака текущего ни у одного экзамена в БД"));
         return;
     }
@@ -521,6 +529,7 @@ void MainWindow::on_serverButton_clicked()
 {
     if(!daemon->isListening()) {
         if(!daemon->listen())
+    /*FIXME:codepage*/
             QMessageBox::critical(this, tr("Ошибка запуска сервера"), tr("Не удалось запустить TCP-сервер"));
         ui->portLabel->setText(tr("Номер порта: %1").arg(daemon->serverPort()));
     }
