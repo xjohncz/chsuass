@@ -6,11 +6,19 @@
  </data>
  <data>
   <variable>RunConfiguration0-ProFile</variable>
-  <value type="QString" >C:/Users/123/Qt Projects/DAssistant_150309/DAssistant.pro</value>
+  <value type="QString" >DAssistant.pro</value>
  </data>
  <data>
   <variable>RunConfiguration0-RunConfiguration.name</variable>
   <value type="QString" >DAssistant</value>
+ </data>
+ <data>
+  <variable>RunConfiguration0-UseDyldImageSuffix</variable>
+  <value type="bool" >false</value>
+ </data>
+ <data>
+  <variable>RunConfiguration0-UseTerminal</variable>
+  <value type="bool" >false</value>
  </data>
  <data>
   <variable>RunConfiguration0-UserSetName</variable>
@@ -34,7 +42,7 @@
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
    <value key="QtVersionId" type="int" >0</value>
    <value key="addQDumper" type="" ></value>
-   <value key="buildDirectory" type="QString" >C:\Users\123\Qt Projects\DAssistant_150309</value>
+   <value key="buildDirectory" type="QString" >/home/domi/Projects/Диплом/chsuass/assistant_serv</value>
   </valuemap>
  </data>
  <data>
@@ -50,6 +58,65 @@
   <variable>buildconfiguration-Debug-buildstep0</variable>
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList" >
+    <value type="QString" >ALSA_PLUGINS_DIR=/usr/lib/alsa-lib</value>
+    <value type="QString" >DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-ZnxjPpAeNS,guid=494488c70bbb277aa4f63d9049fd8912</value>
+    <value type="QString" >DESKTOP_STARTUP_ID=</value>
+    <value type="QString" >DISPLAY=:0</value>
+    <value type="QString" >GS_LIB=/home/domi/.fonts</value>
+    <value type="QString" >GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/home/domi/.gtkrc-2.0::/home/domi/.kde4/share/config/gtkrc-2.0</value>
+    <value type="QString" >GTK_RC_FILES=/etc/gtk/gtkrc:/home/domi/.gtkrc::/home/domi/.kde4/share/config/gtkrc</value>
+    <value type="QString" >G_BROKEN_FILENAMES=1</value>
+    <value type="QString" >HISTCONTROL=erasedups</value>
+    <value type="QString" >HISTSIZE=1000</value>
+    <value type="QString" >HOME=/home/domi</value>
+    <value type="QString" >HUSHLOGIN=FALSE</value>
+    <value type="QString" >INPUTRC=/etc/inputrc</value>
+    <value type="QString" >KDEDIRS=/usr:/opt/kde</value>
+    <value type="QString" >KDE_FULL_SESSION=true</value>
+    <value type="QString" >KDE_MULTIHEAD=false</value>
+    <value type="QString" >KDE_SESSION_UID=1000</value>
+    <value type="QString" >KDE_SESSION_VERSION=4</value>
+    <value type="QString" >LANG=en_US.utf8</value>
+    <value type="QString" >LANGUAGE=</value>
+    <value type="QString" >LC_COLLATE=C</value>
+    <value type="QString" >LD_LIBRARY_PATH=/usr/lib/qtcreator:</value>
+    <value type="QString" >LESS=-R</value>
+    <value type="QString" >LOGNAME=domi</value>
+    <value type="QString" >MAIL=/var/spool/mail/domi</value>
+    <value type="QString" >MOZ_PLUGIN_PATH=/usr/lib/mozilla/plugins:/opt/mozilla/lib/plugins</value>
+    <value type="QString" >PATH=/usr/bin:/bin:/usr/bin:/sbin:/usr/sbin:/opt/kde/bin:/usr/bin/perlbin/site:/usr/bin/perlbin/vendor:/usr/bin/perlbin/core:/opt/qt/bin</value>
+    <value type="QString" >PKG_CONFIG_PATH=/usr/lib/pkgconfig:/opt/kde/lib/pkgconfig:/opt/qt/lib/pkgconfig</value>
+    <value type="QString" >PS3=> </value>
+    <value type="QString" >PS4=+ </value>
+    <value type="QString" >PWD=/home/domi</value>
+    <value type="QString" >QTDIR=/usr</value>
+    <value type="QString" >QT_PLUGIN_PATH=/home/domi/.kde4/lib/kde4/plugins/:/usr/lib/kde4/plugins/</value>
+    <value type="QString" >QT_XFT=true</value>
+    <value type="QString" >SESSION_MANAGER=local/archdesktop:@/tmp/.ICE-unix/3637,unix/archdesktop:/tmp/.ICE-unix/3637</value>
+    <value type="QString" >SHELL=/bin/bash</value>
+    <value type="QString" >SHLVL=3</value>
+    <value type="QString" >TERM=linux</value>
+    <value type="QString" >USER=domi</value>
+    <value type="QString" >WINDOWPATH=7</value>
+    <value type="QString" >XAUTHORITY=/home/domi/.Xauthority</value>
+    <value type="QString" >XCURSOR_THEME=Oxygen_White</value>
+    <value type="QString" >XDG_CACHE_HOME=/home/domi/.cache</value>
+    <value type="QString" >XDG_CONFIG_DIRS=/etc/xdg:/opt/kde/etc/xdg</value>
+    <value type="QString" >XDG_CONFIG_HOME=/home/domi/.config</value>
+    <value type="QString" >XDG_DATA_DIRS=/usr/share:/usr/local/share:/opt/kde/share</value>
+    <value type="QString" >XDG_DATA_HOME=/home/domi/.local/share</value>
+   </valuelist>
+   <valuelist key="abstractProcess.arguments" type="QVariantList" >
+    <value type="QString" >/home/domi/Projects/Диплом/chsuass/assistant_serv/DAssistant.pro</value>
+    <value type="QString" >-spec</value>
+    <value type="QString" >/usr/share/qt/mkspecs/linux-g++-64</value>
+    <value type="QString" >-r</value>
+    <value type="QString" >CONFIG+=debug_and_release</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString" >/usr/bin/qmake</value>
+   <value key="abstractProcess.enabled" type="bool" >false</value>
+   <value key="abstractProcess.workingDirectory" type="QString" >/home/domi/Projects/Диплом/chsuass/assistant_serv</value>
   </valuemap>
  </data>
  <data>
@@ -57,171 +124,67 @@
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList" >
-    <value type="QString" >ALLUSERSPROFILE=C:\ProgramData</value>
-    <value type="QString" >APPDATA=C:\Users\123\AppData\Roaming</value>
-    <value type="QString" >COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
-    <value type="QString" >COMPUTERNAME=DOMICOMP</value>
-    <value type="QString" >COMSPEC=C:\Windows\system32\cmd.exe</value>
-    <value type="QString" >FP_NO_HOST_CHECK=NO</value>
-    <value type="QString" >HOME=C:\Users\123</value>
-    <value type="QString" >HOMEDRIVE=C:</value>
-    <value type="QString" >HOMEPATH=\Users\123</value>
-    <value type="QString" >LOCALAPPDATA=C:\Users\123\AppData\Local</value>
-    <value type="QString" >LOGONSERVER=\\DOMICOMP</value>
-    <value type="QString" >NUMBER_OF_PROCESSORS=2</value>
-    <value type="QString" >NUTSUFFIX=1</value>
-    <value type="QString" >NUT_SUFFIXED_SEARCHING=1</value>
-    <value type="QString" >OS=Windows_NT</value>
-    <value type="QString" >PATH=C:\MinGW\bin;C:\Qt\4.4.3\bin;C:\Development\Borland\Delphi7\Bin;C:\Development\Borland\Delphi7\Projects\Bpl\;C:\DEVELO~1\Borland\CBUILD~1\Bin;C:\DEVELO~1\Borland\CBUILD~1\Projects\Bpl;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;c:\Program Files\Common Files\Roxio Shared\DLLShared\;c:\Program Files\Common Files\Roxio Shared\DLLShared\;c:\Program Files\Common Files\Roxio Shared\9.0\DLLShared\;C:\Program Files\Hewlett-Packard\IAM\bin;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Development\Rational\common;c:\Program Files\Microsoft SQL Server\90\Tools\binn\;C:\Qt\4.4.3\bin;C:\MinGW\bin;C:\MinGW\libexec\gcc\mingw32\3.4.2;C:\msys\1.0\bin;C:\MySQL\bin</value>
-    <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC</value>
-    <value type="QString" >PROCESSOR_ARCHITECTURE=x86</value>
-    <value type="QString" >PROCESSOR_IDENTIFIER=x86 Family 6 Model 15 Stepping 13, GenuineIntel</value>
-    <value type="QString" >PROCESSOR_LEVEL=6</value>
-    <value type="QString" >PROCESSOR_REVISION=0f0d</value>
-    <value type="QString" >PROGRAMDATA=C:\ProgramData</value>
-    <value type="QString" >PROGRAMFILES=C:\Program Files</value>
-    <value type="QString" >PUBLIC=C:\Users\Public</value>
-    <value type="QString" >QTDIR=C:/Qt/4.4.3</value>
-    <value type="QString" >RATL_RTHOME=C:\Development\Rational\Rational Test</value>
-    <value type="QString" >ROXIOCENTRAL=c:\Program Files\Common Files\Roxio Shared\9.0\Roxio Central33\</value>
-    <value type="QString" >SESSIONNAME=Console</value>
-    <value type="QString" >SYSTEMDRIVE=C:</value>
-    <value type="QString" >SYSTEMROOT=C:\Windows</value>
-    <value type="QString" >TEMP=C:\Users\123\AppData\Local\Temp</value>
-    <value type="QString" >TMP=C:\Users\123\AppData\Local\Temp</value>
-    <value type="QString" >TMPDIR=C:\Users\123\AppData\Local\Temp</value>
-    <value type="QString" >USERDOMAIN=DOMICOMP</value>
-    <value type="QString" >USERNAME=123</value>
-    <value type="QString" >USERPROFILE=C:\Users\123</value>
-    <value type="QString" >VS90COMNTOOLS=C:\Development\Microsoft Visual Studio 9.0\Common7\Tools\</value>
-    <value type="QString" >WINDIR=C:\Windows</value>
+    <value type="QString" >ALSA_PLUGINS_DIR=/usr/lib/alsa-lib</value>
+    <value type="QString" >DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-ZnxjPpAeNS,guid=494488c70bbb277aa4f63d9049fd8912</value>
+    <value type="QString" >DESKTOP_STARTUP_ID=</value>
+    <value type="QString" >DISPLAY=:0</value>
+    <value type="QString" >GS_LIB=/home/domi/.fonts</value>
+    <value type="QString" >GTK2_RC_FILES=/etc/gtk-2.0/gtkrc:/home/domi/.gtkrc-2.0::/home/domi/.kde4/share/config/gtkrc-2.0</value>
+    <value type="QString" >GTK_RC_FILES=/etc/gtk/gtkrc:/home/domi/.gtkrc::/home/domi/.kde4/share/config/gtkrc</value>
+    <value type="QString" >G_BROKEN_FILENAMES=1</value>
+    <value type="QString" >HISTCONTROL=erasedups</value>
+    <value type="QString" >HISTSIZE=1000</value>
+    <value type="QString" >HOME=/home/domi</value>
+    <value type="QString" >HUSHLOGIN=FALSE</value>
+    <value type="QString" >INPUTRC=/etc/inputrc</value>
+    <value type="QString" >KDEDIRS=/usr:/opt/kde</value>
+    <value type="QString" >KDE_FULL_SESSION=true</value>
+    <value type="QString" >KDE_MULTIHEAD=false</value>
+    <value type="QString" >KDE_SESSION_UID=1000</value>
+    <value type="QString" >KDE_SESSION_VERSION=4</value>
+    <value type="QString" >LANG=en_US.utf8</value>
+    <value type="QString" >LANGUAGE=</value>
+    <value type="QString" >LC_COLLATE=C</value>
+    <value type="QString" >LD_LIBRARY_PATH=/usr/lib/qtcreator:</value>
+    <value type="QString" >LESS=-R</value>
+    <value type="QString" >LOGNAME=domi</value>
+    <value type="QString" >MAIL=/var/spool/mail/domi</value>
+    <value type="QString" >MOZ_PLUGIN_PATH=/usr/lib/mozilla/plugins:/opt/mozilla/lib/plugins</value>
+    <value type="QString" >PATH=/usr/bin:/bin:/usr/bin:/sbin:/usr/sbin:/opt/kde/bin:/usr/bin/perlbin/site:/usr/bin/perlbin/vendor:/usr/bin/perlbin/core:/opt/qt/bin</value>
+    <value type="QString" >PKG_CONFIG_PATH=/usr/lib/pkgconfig:/opt/kde/lib/pkgconfig:/opt/qt/lib/pkgconfig</value>
+    <value type="QString" >PS3=> </value>
+    <value type="QString" >PS4=+ </value>
+    <value type="QString" >PWD=/home/domi</value>
+    <value type="QString" >QTDIR=/usr</value>
+    <value type="QString" >QT_PLUGIN_PATH=/home/domi/.kde4/lib/kde4/plugins/:/usr/lib/kde4/plugins/</value>
+    <value type="QString" >QT_XFT=true</value>
+    <value type="QString" >SESSION_MANAGER=local/archdesktop:@/tmp/.ICE-unix/3637,unix/archdesktop:/tmp/.ICE-unix/3637</value>
+    <value type="QString" >SHELL=/bin/bash</value>
+    <value type="QString" >SHLVL=3</value>
+    <value type="QString" >TERM=linux</value>
+    <value type="QString" >USER=domi</value>
+    <value type="QString" >WINDOWPATH=7</value>
+    <value type="QString" >XAUTHORITY=/home/domi/.Xauthority</value>
+    <value type="QString" >XCURSOR_THEME=Oxygen_White</value>
+    <value type="QString" >XDG_CACHE_HOME=/home/domi/.cache</value>
+    <value type="QString" >XDG_CONFIG_DIRS=/etc/xdg:/opt/kde/etc/xdg</value>
+    <value type="QString" >XDG_CONFIG_HOME=/home/domi/.config</value>
+    <value type="QString" >XDG_DATA_DIRS=/usr/share:/usr/local/share:/opt/kde/share</value>
+    <value type="QString" >XDG_DATA_HOME=/home/domi/.local/share</value>
    </valuelist>
    <valuelist key="abstractProcess.arguments" type="QVariantList" >
-    <value type="QString" >C:/Users/123/Qt Projects/DAssistant_150309/DAssistant.pro</value>
-    <value type="QString" >-spec</value>
-    <value type="QString" >win32-g++</value>
-    <value type="QString" >-r</value>
-    <value type="QString" >CONFIG+=debug_and_release</value>
-   </valuelist>
-   <value key="abstractProcess.command" type="QString" >C:/Qt/4.4.3/bin/qmake.exe</value>
-   <value key="abstractProcess.enabled" type="bool" >true</value>
-   <value key="abstractProcess.workingDirectory" type="QString" >C:/Users/123/Qt Projects/DAssistant_150309</value>
-   <value key="buildConfiguration" type="int" >10</value>
-  </valuemap>
- </data>
- <data>
-  <variable>buildconfiguration-Debug-buildstep2</variable>
-  <valuemap type="QVariantMap" >
-   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
-   <valuelist key="abstractProcess.Environment" type="QVariantList" >
-    <value type="QString" >ALLUSERSPROFILE=C:\ProgramData</value>
-    <value type="QString" >APPDATA=C:\Users\123\AppData\Roaming</value>
-    <value type="QString" >COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
-    <value type="QString" >COMPUTERNAME=DOMICOMP</value>
-    <value type="QString" >COMSPEC=C:\Windows\system32\cmd.exe</value>
-    <value type="QString" >FP_NO_HOST_CHECK=NO</value>
-    <value type="QString" >HOME=C:\Users\123</value>
-    <value type="QString" >HOMEDRIVE=C:</value>
-    <value type="QString" >HOMEPATH=\Users\123</value>
-    <value type="QString" >LOCALAPPDATA=C:\Users\123\AppData\Local</value>
-    <value type="QString" >LOGONSERVER=\\DOMICOMP</value>
-    <value type="QString" >NUMBER_OF_PROCESSORS=2</value>
-    <value type="QString" >NUTSUFFIX=1</value>
-    <value type="QString" >NUT_SUFFIXED_SEARCHING=1</value>
-    <value type="QString" >OS=Windows_NT</value>
-    <value type="QString" >PATH=C:\MinGW\bin;C:\Qt\4.4.3\bin;C:\Development\Borland\Delphi7\Bin;C:\Development\Borland\Delphi7\Projects\Bpl\;C:\DEVELO~1\Borland\CBUILD~1\Bin;C:\DEVELO~1\Borland\CBUILD~1\Projects\Bpl;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;c:\Program Files\Common Files\Roxio Shared\DLLShared\;c:\Program Files\Common Files\Roxio Shared\DLLShared\;c:\Program Files\Common Files\Roxio Shared\9.0\DLLShared\;C:\Program Files\Hewlett-Packard\IAM\bin;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Development\Rational\common;c:\Program Files\Microsoft SQL Server\90\Tools\binn\;C:\Qt\4.4.3\bin;C:\MinGW\bin;C:\MinGW\libexec\gcc\mingw32\3.4.2;C:\msys\1.0\bin;C:\MySQL\bin</value>
-    <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC</value>
-    <value type="QString" >PROCESSOR_ARCHITECTURE=x86</value>
-    <value type="QString" >PROCESSOR_IDENTIFIER=x86 Family 6 Model 15 Stepping 13, GenuineIntel</value>
-    <value type="QString" >PROCESSOR_LEVEL=6</value>
-    <value type="QString" >PROCESSOR_REVISION=0f0d</value>
-    <value type="QString" >PROGRAMDATA=C:\ProgramData</value>
-    <value type="QString" >PROGRAMFILES=C:\Program Files</value>
-    <value type="QString" >PUBLIC=C:\Users\Public</value>
-    <value type="QString" >QTDIR=C:/Qt/4.4.3</value>
-    <value type="QString" >RATL_RTHOME=C:\Development\Rational\Rational Test</value>
-    <value type="QString" >ROXIOCENTRAL=c:\Program Files\Common Files\Roxio Shared\9.0\Roxio Central33\</value>
-    <value type="QString" >SESSIONNAME=Console</value>
-    <value type="QString" >SYSTEMDRIVE=C:</value>
-    <value type="QString" >SYSTEMROOT=C:\Windows</value>
-    <value type="QString" >TEMP=C:\Users\123\AppData\Local\Temp</value>
-    <value type="QString" >TMP=C:\Users\123\AppData\Local\Temp</value>
-    <value type="QString" >TMPDIR=C:\Users\123\AppData\Local\Temp</value>
-    <value type="QString" >USERDOMAIN=DOMICOMP</value>
-    <value type="QString" >USERNAME=123</value>
-    <value type="QString" >USERPROFILE=C:\Users\123</value>
-    <value type="QString" >VS90COMNTOOLS=C:\Development\Microsoft Visual Studio 9.0\Common7\Tools\</value>
-    <value type="QString" >WINDIR=C:\Windows</value>
-   </valuelist>
-   <valuelist key="abstractProcess.arguments" type="QVariantList" >
-    <value type="QString" >debug</value>
     <value type="QString" >-w</value>
    </valuelist>
-   <value key="abstractProcess.command" type="QString" >C:/MinGW/bin/mingw32-make.exe</value>
+   <value key="abstractProcess.command" type="QString" >/usr/bin/make</value>
    <value key="abstractProcess.enabled" type="bool" >true</value>
-   <value key="abstractProcess.workingDirectory" type="QString" >C:/Users/123/Qt Projects/DAssistant_150309</value>
-   <valuelist key="makeargs" type="QVariantList" >
-    <value type="QString" >debug</value>
-   </valuelist>
+   <value key="abstractProcess.workingDirectory" type="QString" >/home/domi/Projects/Диплом/chsuass/assistant_serv</value>
+   <value key="buildConfiguration" type="int" >10</value>
   </valuemap>
  </data>
  <data>
   <variable>buildconfiguration-Debug-cleanstep0</variable>
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
-  </valuemap>
- </data>
- <data>
-  <variable>buildconfiguration-Debug-cleanstep1</variable>
-  <valuemap type="QVariantMap" >
-   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Debug</value>
-   <valuelist key="abstractProcess.Environment" type="QVariantList" >
-    <value type="QString" >ALLUSERSPROFILE=C:\ProgramData</value>
-    <value type="QString" >APPDATA=C:\Users\123\AppData\Roaming</value>
-    <value type="QString" >COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
-    <value type="QString" >COMPUTERNAME=DOMICOMP</value>
-    <value type="QString" >COMSPEC=C:\Windows\system32\cmd.exe</value>
-    <value type="QString" >FP_NO_HOST_CHECK=NO</value>
-    <value type="QString" >HOME=C:\Users\123</value>
-    <value type="QString" >HOMEDRIVE=C:</value>
-    <value type="QString" >HOMEPATH=\Users\123</value>
-    <value type="QString" >LOCALAPPDATA=C:\Users\123\AppData\Local</value>
-    <value type="QString" >LOGONSERVER=\\DOMICOMP</value>
-    <value type="QString" >NUMBER_OF_PROCESSORS=2</value>
-    <value type="QString" >NUTSUFFIX=1</value>
-    <value type="QString" >NUT_SUFFIXED_SEARCHING=1</value>
-    <value type="QString" >OS=Windows_NT</value>
-    <value type="QString" >PATH=C:\MinGW\bin;C:\Qt\4.4.3\bin;C:\Development\Borland\Delphi7\Bin;C:\Development\Borland\Delphi7\Projects\Bpl\;C:\DEVELO~1\Borland\CBUILD~1\Bin;C:\DEVELO~1\Borland\CBUILD~1\Projects\Bpl;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;c:\Program Files\Common Files\Roxio Shared\DLLShared\;c:\Program Files\Common Files\Roxio Shared\DLLShared\;c:\Program Files\Common Files\Roxio Shared\9.0\DLLShared\;C:\Program Files\Hewlett-Packard\IAM\bin;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Development\Rational\common;c:\Program Files\Microsoft SQL Server\90\Tools\binn\;C:\Qt\4.4.3\bin;C:\MinGW\bin;C:\MinGW\libexec\gcc\mingw32\3.4.2;C:\MySQL\bin</value>
-    <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC</value>
-    <value type="QString" >PROCESSOR_ARCHITECTURE=x86</value>
-    <value type="QString" >PROCESSOR_IDENTIFIER=x86 Family 6 Model 15 Stepping 13, GenuineIntel</value>
-    <value type="QString" >PROCESSOR_LEVEL=6</value>
-    <value type="QString" >PROCESSOR_REVISION=0f0d</value>
-    <value type="QString" >PROGRAMDATA=C:\ProgramData</value>
-    <value type="QString" >PROGRAMFILES=C:\Program Files</value>
-    <value type="QString" >PUBLIC=C:\Users\Public</value>
-    <value type="QString" >QTDIR=C:/Qt/4.4.3</value>
-    <value type="QString" >RATL_RTHOME=C:\Development\Rational\Rational Test</value>
-    <value type="QString" >ROXIOCENTRAL=c:\Program Files\Common Files\Roxio Shared\9.0\Roxio Central33\</value>
-    <value type="QString" >SESSIONNAME=Console</value>
-    <value type="QString" >SYSTEMDRIVE=C:</value>
-    <value type="QString" >SYSTEMROOT=C:\Windows</value>
-    <value type="QString" >TEMP=C:\Users\123\AppData\Local\Temp</value>
-    <value type="QString" >TMP=C:\Users\123\AppData\Local\Temp</value>
-    <value type="QString" >TMPDIR=C:\Users\123\AppData\Local\Temp</value>
-    <value type="QString" >USERDOMAIN=DOMICOMP</value>
-    <value type="QString" >USERNAME=123</value>
-    <value type="QString" >USERPROFILE=C:\Users\123</value>
-    <value type="QString" >VS90COMNTOOLS=C:\Development\Microsoft Visual Studio 9.0\Common7\Tools\</value>
-    <value type="QString" >WINDIR=C:\Windows</value>
-   </valuelist>
-   <valuelist key="abstractProcess.arguments" type="QVariantList" >
-    <value type="QString" >clean</value>
-    <value type="QString" >-w</value>
-   </valuelist>
-   <value key="abstractProcess.command" type="QString" >C:/MinGW/bin/mingw32-make.exe</value>
-   <value key="abstractProcess.enabled" type="bool" >true</value>
-   <value key="abstractProcess.workingDirectory" type="QString" >C:/Users/123/Qt Projects/DAssistant_150309</value>
   </valuemap>
  </data>
  <data>
@@ -278,98 +241,9 @@
   </valuemap>
  </data>
  <data>
-  <variable>buildconfiguration-Release-buildstep2</variable>
-  <valuemap type="QVariantMap" >
-   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Release</value>
-   <valuelist key="abstractProcess.Environment" type="QVariantList" >
-    <value type="QString" >DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-vAf1iqwZXB,guid=bec595acec37a76e66456e8c49b24f24</value>
-    <value type="QString" >DESKTOP_SESSION=gnome</value>
-    <value type="QString" >DESKTOP_STARTUP_ID=</value>
-    <value type="QString" >DISPLAY=:0.0</value>
-    <value type="QString" >GDMSESSION=gnome</value>
-    <value type="QString" >GDM_LANG=en_US.UTF-8</value>
-    <value type="QString" >GDM_XSERVER_LOCATION=local</value>
-    <value type="QString" >GNOME_DESKTOP_SESSION_ID=Default</value>
-    <value type="QString" >GNOME_KEYRING_PID=3113</value>
-    <value type="QString" >GNOME_KEYRING_SOCKET=/tmp/keyring-J6gisr/socket</value>
-    <value type="QString" >GPG_AGENT_INFO=/tmp/seahorse-v4zg5w/S.gpg-agent:3172:1</value>
-    <value type="QString" >GTK_RC_FILES=/etc/gtk/gtkrc:/home/domi/.gtkrc-1.2-gnome2</value>
-    <value type="QString" >HOME=/home/domi</value>
-    <value type="QString" >LANG=en_US.UTF-8</value>
-    <value type="QString" >LOGNAME=domi</value>
-    <value type="QString" >ORBIT_SOCKETDIR=/tmp/orbit-domi</value>
-    <value type="QString" >PATH=/usr/bin:/usr/local/bin:/usr/bin:/bin:/usr/games</value>
-    <value type="QString" >PWD=/home/domi</value>
-    <value type="QString" >QTDIR=/usr</value>
-    <value type="QString" >SESSION_MANAGER=local/domideb:@/tmp/.ICE-unix/3114,unix/domideb:/tmp/.ICE-unix/3114</value>
-    <value type="QString" >SHELL=/bin/bash</value>
-    <value type="QString" >SHLVL=0</value>
-    <value type="QString" >SSH_AUTH_SOCK=/tmp/keyring-J6gisr/ssh</value>
-    <value type="QString" >USER=domi</value>
-    <value type="QString" >USERNAME=domi</value>
-    <value type="QString" >WINDOWPATH=7</value>
-    <value type="QString" >XAUTHORITY=/home/domi/.Xauthority</value>
-    <value type="QString" >XDG_DATA_DIRS=/usr/local/share/:/usr/share/:/usr/share/gdm/</value>
-   </valuelist>
-   <valuelist key="abstractProcess.arguments" type="QVariantList" >
-    <value type="QString" >release</value>
-    <value type="QString" >-w</value>
-   </valuelist>
-   <value key="abstractProcess.command" type="QString" >/usr/bin/make</value>
-   <value key="abstractProcess.enabled" type="bool" >true</value>
-   <value key="abstractProcess.workingDirectory" type="QString" >/home/domi/Projects/Qt/DAssistant</value>
-   <valuelist key="makeargs" type="QVariantList" >
-    <value type="QString" >release</value>
-   </valuelist>
-  </valuemap>
- </data>
- <data>
   <variable>buildconfiguration-Release-cleanstep0</variable>
   <valuemap type="QVariantMap" >
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Release</value>
-  </valuemap>
- </data>
- <data>
-  <variable>buildconfiguration-Release-cleanstep1</variable>
-  <valuemap type="QVariantMap" >
-   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" >Release</value>
-   <valuelist key="abstractProcess.Environment" type="QVariantList" >
-    <value type="QString" >DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-wKyMbk6jWD,guid=9d72d5257cf3285630c0e1d449aeaedf</value>
-    <value type="QString" >DESKTOP_SESSION=gnome</value>
-    <value type="QString" >DESKTOP_STARTUP_ID=</value>
-    <value type="QString" >DISPLAY=:0.0</value>
-    <value type="QString" >GDMSESSION=gnome</value>
-    <value type="QString" >GDM_LANG=en_US.UTF-8</value>
-    <value type="QString" >GDM_XSERVER_LOCATION=local</value>
-    <value type="QString" >GNOME_DESKTOP_SESSION_ID=Default</value>
-    <value type="QString" >GNOME_KEYRING_PID=3104</value>
-    <value type="QString" >GNOME_KEYRING_SOCKET=/tmp/keyring-vaYBUz/socket</value>
-    <value type="QString" >GPG_AGENT_INFO=/tmp/seahorse-KMrWD5/S.gpg-agent:3163:1</value>
-    <value type="QString" >GTK_RC_FILES=/etc/gtk/gtkrc:/home/domi/.gtkrc-1.2-gnome2</value>
-    <value type="QString" >HOME=/home/domi</value>
-    <value type="QString" >LANG=en_US.UTF-8</value>
-    <value type="QString" >LOGNAME=domi</value>
-    <value type="QString" >ORBIT_SOCKETDIR=/tmp/orbit-domi</value>
-    <value type="QString" >PATH=/usr/bin:/usr/local/bin:/usr/bin:/bin:/usr/games</value>
-    <value type="QString" >PWD=/home/domi</value>
-    <value type="QString" >QTDIR=/usr</value>
-    <value type="QString" >SESSION_MANAGER=local/domideb:@/tmp/.ICE-unix/3105,unix/domideb:/tmp/.ICE-unix/3105</value>
-    <value type="QString" >SHELL=/bin/bash</value>
-    <value type="QString" >SHLVL=0</value>
-    <value type="QString" >SSH_AUTH_SOCK=/tmp/keyring-vaYBUz/ssh</value>
-    <value type="QString" >USER=domi</value>
-    <value type="QString" >USERNAME=domi</value>
-    <value type="QString" >WINDOWPATH=7</value>
-    <value type="QString" >XAUTHORITY=/home/domi/.Xauthority</value>
-    <value type="QString" >XDG_DATA_DIRS=/usr/local/share/:/usr/share/:/usr/share/gdm/</value>
-   </valuelist>
-   <valuelist key="abstractProcess.arguments" type="QVariantList" >
-    <value type="QString" >clean</value>
-    <value type="QString" >-w</value>
-   </valuelist>
-   <value key="abstractProcess.command" type="QString" >/usr/bin/make</value>
-   <value key="abstractProcess.enabled" type="bool" >true</value>
-   <value key="abstractProcess.workingDirectory" type="QString" >/home/domi/Projects/Qt/DAssistant</value>
   </valuemap>
  </data>
  <data>
@@ -393,15 +267,8 @@
   </valuemap>
  </data>
  <data>
-  <variable>buildstep2</variable>
-  <valuemap type="QVariantMap" >
-   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" ></value>
-  </valuemap>
- </data>
- <data>
   <variable>buildsteps</variable>
   <valuelist type="QVariantList" >
-   <value type="QString" >trolltech.qt4projectmanager.gdbmaros</value>
    <value type="QString" >trolltech.qt4projectmanager.qmake</value>
    <value type="QString" >trolltech.qt4projectmanager.make</value>
   </valuelist>
@@ -414,16 +281,8 @@
   </valuemap>
  </data>
  <data>
-  <variable>cleanstep1</variable>
-  <valuemap type="QVariantMap" >
-   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString" ></value>
-   <value key="clean" type="bool" >true</value>
-  </valuemap>
- </data>
- <data>
   <variable>cleansteps</variable>
   <valuelist type="QVariantList" >
-   <value type="QString" >trolltech.qt4projectmanager.gdbmaros</value>
    <value type="QString" >trolltech.qt4projectmanager.make</value>
   </valuelist>
  </data>
