@@ -558,8 +558,8 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
 
     QString modelQuery;
     modelQuery = QString("SELECT username, surname, name, patronymic, mark1, mark2, mark3, mark4, mark5, memberResultMark "
-                            "FROM Users INNER JOIN (SACMembers INNER JOIN ExamMarks ON SACMembers.memberID = ExamMarks.memberID) ON Users.userID = SACMembers.userID "
-                            "WHERE (((ExamMarks.examID)=%1) AND ((ExamMarks.studentID)=%2))").arg(currentExamID).arg(currentExamSelectedStudentID);
+                            "FROM users INNER JOIN (sacmembers INNER JOIN exammarks ON sacmembers.memberID = exammarks.memberID) ON users.userID = sacmembers.userID "
+                            "WHERE (((exammarks.examID)=%1) AND ((exammarks.studentID)=%2))").arg(currentExamID).arg(currentExamSelectedStudentID);
     currentExamStudenMarksModel->setQuery(modelQuery, db);
 
     ui->currentExamStudentMarksTableView->setModel(currentExamStudenMarksModel);

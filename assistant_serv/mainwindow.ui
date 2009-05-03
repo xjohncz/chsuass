@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>920</width>
-    <height>719</height>
+    <width>916</width>
+    <height>715</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -146,13 +146,6 @@
                   </size>
                  </property>
                 </spacer>
-               </item>
-               <item>
-                <widget class="QPushButton" name="marksImportButton">
-                 <property name="text">
-                  <string>Импорт оценок</string>
-                 </property>
-                </widget>
                </item>
                <item>
                 <widget class="QPushButton" name="deleteStudentButton">
