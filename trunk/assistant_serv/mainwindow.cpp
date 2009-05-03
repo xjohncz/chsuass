@@ -14,18 +14,13 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindowClass)
 {
     ui->setupUi(this);
-    /*FIXME: place DB connection into single function with parameters */
 
-    db = QSqlDatabase::addDatabase("QMYSQL");
-    db.setDatabaseName("assistant_schema");
-    db.setHostName("localhost");
-    db.setPort(3306);
-    db.setUserName("root");
-    db.setPassword("1");
+    fillDBConnection(QString("root"),QString("1"));
+    /* Do we need auth info prompt? */
 
     /*FIXME:codepage*/
     if(!db.open())
-        QMessageBox::critical(this, tr("Ошибка подключения к БД"), tr("Попытка подключения к БД MySQL завершилась неудачей"));
+        QMessageBox::critical(this, tr("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ"), tr("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ MySQL пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"));
 
     ui->categoryList->setCurrentRow(0);
     ui->stackedWidget->setCurrentIndex(0);
@@ -59,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
     currentExamStudentListModel = new QSqlQueryModel(this);
     currentExamStudenMarksModel = new QSqlQueryModel(this);
 
-    //QString student = "Бекешкин";
+    //QString student = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ";
     //QByteArray buffer = student.toAscii();
     //QString n(buffer);
     //QMessageBox::information(this, n, n);
@@ -151,7 +146,7 @@ void MainWindow::studentRequestGrantedSlot() {
         QString task = ui->currentExamCardQuestionsTextEdit->toPlainText();
         task.replace(QRegExp("\n"), "\r\n");
     /*FIXME:codepage*/
-        studentTask = tr("Билет: ") + ui->currentExamCardNumberEdit->text() + "\r\n" + task;
+        studentTask = tr("пїЅпїЅпїЅпїЅпїЅ: ") + ui->currentExamCardNumberEdit->text() + "\r\n" + task;
     } else if(currentExamTypeID == 2) {
         studentTask = ui->currentExamThemeTextEdit->toPlainText();
     }
@@ -174,8 +169,8 @@ void MainWindow::saveStudentResultsSlot(int studentID, QString username, int mar
         memberID = query.value(0).toInt();
     } else {
     /*FIXME:codepage*/
-        QMessageBox::warning(this, tr("Ошибка сохранения результатов студента"),
-                             tr("Поступившие от %1 результаты не могут быть сохранены,\nт.к. такой член комиссии с таким именем не найден"));
+        QMessageBox::warning(this, tr("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"),
+                             tr("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ %1 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ,\nпїЅ.пїЅ. пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"));
         return;
     }
 
@@ -344,6 +339,17 @@ void MainWindow::initExamTypes() {
 
 }
 
+void MainWindow::fillDBConnection(QString dbuser, dbpass, dbname QString, dbhost QString, dbport QString)
+{
+    db = QSqlDatabase::addDatabase("QMYSQL");
+
+    db.setDatabaseName= dbname;
+    db.setHostName= dbhost;
+    db.setPort= dbport;
+    db.setUserName= dbuser;
+    db.setPassword= dbpass;
+}
+
 void MainWindow::deleteRowFromTableModel(QSqlTableModel *model, QTableView *view) {
 
     QModelIndex index = view->selectionModel()->selectedIndexes().at(0);
@@ -372,7 +378,7 @@ void MainWindow::submitChanges(QSqlTableModel *model) {
     else {
         model->database().rollback();
     /*FIXME:codepage*/
-        QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных сообщила об ошибке: %1").arg(model->lastError().text()));
+        QMessageBox::warning(this, tr("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"), tr("пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ: %1").arg(model->lastError().text()));
     }
 
 }
@@ -486,7 +492,7 @@ void MainWindow::on_filterButton_clicked()
         groupID = query.value(0).toInt();
     else {
     /*FIXME:codepage*/
-        QMessageBox::information(this, tr("Группа не найдена"), tr("Нет группы, удовлетворяющей условиям фильтрации"));
+        QMessageBox::information(this, tr("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"), tr("пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"));
         return;
     }
 
@@ -511,7 +517,7 @@ void MainWindow::on_fillCurrentExamButton_clicked()
     }
     else {
     /*FIXME:codepage*/
-        QMessageBox::warning(this, tr("Ошибка поиска экзамена"), tr("Нет признака текущего ни у одного экзамена в БД"));
+        QMessageBox::warning(this, tr("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"), tr("пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ"));
         return;
     }
 
@@ -530,8 +536,8 @@ void MainWindow::on_serverButton_clicked()
     if(!daemon->isListening()) {
         if(!daemon->listen())
     /*FIXME:codepage*/
-            QMessageBox::critical(this, tr("Ошибка запуска сервера"), tr("Не удалось запустить TCP-сервер"));
-        ui->portLabel->setText(tr("Номер порта: %1").arg(daemon->serverPort()));
+            QMessageBox::critical(this, tr("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"), tr("пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ TCP-пїЅпїЅпїЅпїЅпїЅпїЅ"));
+        ui->portLabel->setText(tr("пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ: %1").arg(daemon->serverPort()));
     }
 }
 
