@@ -37,6 +37,8 @@ private:
     void initMembers();
     void initUsers();
     void initExamTypes();
+    
+    void fillDBConnection(QString dbuser, dbpass, dbname=QString("assistant_schema"), dbhost=QString("localhost"), dbport=QString("3306"));
 
     void deleteRowFromTableModel(QSqlTableModel *, QTableView *);
     void addRowToTableModel(QSqlTableModel *);
