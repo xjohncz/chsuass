@@ -17,3 +17,7 @@ HEADERS += mainwindow.h \
     dialog.h
 FORMS += mainwindow.ui \
     dialog.ui
+
+win32 {
+    LIBS += -lwsock32
+}
