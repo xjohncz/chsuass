@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading ui file 'mainwindow.ui'
 **
-** Created: Sun May 3 22:35:56 2009
+** Created: Mon May 4 01:04:46 2009
 **      by: Qt User Interface Compiler version 4.5.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!
@@ -63,10 +63,23 @@ public:
     QTableView *studentsTableView;
     QHBoxLayout *horizontalLayout_3;
     QSpacerItem *horizontalSpacer_2;
+    QPushButton *showStudentInfoButton;
     QPushButton *deleteStudentButton;
     QPushButton *addStudentButton;
     QPushButton *cancelStudentsButton;
     QPushButton *applyStudentsButton;
+    QWidget *page_4;
+    QHBoxLayout *horizontalLayout_33;
+    QGroupBox *groupBox_12;
+    QVBoxLayout *verticalLayout_16;
+    QTableView *subjectsTableView;
+    QHBoxLayout *horizontalLayout_34;
+    QSpacerItem *horizontalSpacer_11;
+    QPushButton *importSubjectsButton;
+    QPushButton *deleteSubjectButton;
+    QPushButton *addSubjectButton;
+    QPushButton *cancelSubkectsButton;
+    QPushButton *applySubjectsButton;
     QWidget *cardsPage;
     QHBoxLayout *horizontalLayout_4;
     QGroupBox *groupBox_9;
@@ -275,6 +288,7 @@ public:
         new QListWidgetItem(categoryList);
         new QListWidgetItem(categoryList);
         new QListWidgetItem(categoryList);
+        new QListWidgetItem(categoryList);
         categoryList->setObjectName(QString::fromUtf8("categoryList"));
         categoryList->setMaximumSize(QSize(170, 16777215));
         splitter->addWidget(categoryList);
@@ -349,6 +363,11 @@ public:
 
         horizontalLayout_3->addItem(horizontalSpacer_2);
 
+        showStudentInfoButton = new QPushButton(groupBox_7);
+        showStudentInfoButton->setObjectName(QString::fromUtf8("showStudentInfoButton"));
+
+        horizontalLayout_3->addWidget(showStudentInfoButton);
+
         deleteStudentButton = new QPushButton(groupBox_7);
         deleteStudentButton->setObjectName(QString::fromUtf8("deleteStudentButton"));
 
@@ -377,6 +396,62 @@ public:
         horizontalLayout_10->addWidget(splitter_2);
 
         stackedWidget->addWidget(groupsPage);
+        page_4 = new QWidget();
+        page_4->setObjectName(QString::fromUtf8("page_4"));
+        horizontalLayout_33 = new QHBoxLayout(page_4);
+        horizontalLayout_33->setSpacing(6);
+        horizontalLayout_33->setMargin(11);
+        horizontalLayout_33->setObjectName(QString::fromUtf8("horizontalLayout_33"));
+        groupBox_12 = new QGroupBox(page_4);
+        groupBox_12->setObjectName(QString::fromUtf8("groupBox_12"));
+        verticalLayout_16 = new QVBoxLayout(groupBox_12);
+        verticalLayout_16->setSpacing(6);
+        verticalLayout_16->setMargin(11);
+        verticalLayout_16->setObjectName(QString::fromUtf8("verticalLayout_16"));
+        subjectsTableView = new QTableView(groupBox_12);
+        subjectsTableView->setObjectName(QString::fromUtf8("subjectsTableView"));
+
+        verticalLayout_16->addWidget(subjectsTableView);
+
+        horizontalLayout_34 = new QHBoxLayout();
+        horizontalLayout_34->setSpacing(6);
+        horizontalLayout_34->setObjectName(QString::fromUtf8("horizontalLayout_34"));
+        horizontalSpacer_11 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_34->addItem(horizontalSpacer_11);
+
+        importSubjectsButton = new QPushButton(groupBox_12);
+        importSubjectsButton->setObjectName(QString::fromUtf8("importSubjectsButton"));
+
+        horizontalLayout_34->addWidget(importSubjectsButton);
+
+        deleteSubjectButton = new QPushButton(groupBox_12);
+        deleteSubjectButton->setObjectName(QString::fromUtf8("deleteSubjectButton"));
+
+        horizontalLayout_34->addWidget(deleteSubjectButton);
+
+        addSubjectButton = new QPushButton(groupBox_12);
+        addSubjectButton->setObjectName(QString::fromUtf8("addSubjectButton"));
+
+        horizontalLayout_34->addWidget(addSubjectButton);
+
+        cancelSubkectsButton = new QPushButton(groupBox_12);
+        cancelSubkectsButton->setObjectName(QString::fromUtf8("cancelSubkectsButton"));
+
+        horizontalLayout_34->addWidget(cancelSubkectsButton);
+
+        applySubjectsButton = new QPushButton(groupBox_12);
+        applySubjectsButton->setObjectName(QString::fromUtf8("applySubjectsButton"));
+
+        horizontalLayout_34->addWidget(applySubjectsButton);
+
+
+        verticalLayout_16->addLayout(horizontalLayout_34);
+
+
+        horizontalLayout_33->addWidget(groupBox_12);
+
+        stackedWidget->addWidget(page_4);
         cardsPage = new QWidget();
         cardsPage->setObjectName(QString::fromUtf8("cardsPage"));
         horizontalLayout_4 = new QHBoxLayout(cardsPage);
@@ -397,6 +472,7 @@ public:
 
         groupBox_8 = new QGroupBox(groupBox_9);
         groupBox_8->setObjectName(QString::fromUtf8("groupBox_8"));
+        groupBox_8->setFlat(false);
         formLayout_4 = new QFormLayout(groupBox_8);
         formLayout_4->setSpacing(6);
         formLayout_4->setMargin(11);
@@ -1341,7 +1417,7 @@ public:
         retranslateUi(MainWindowClass);
         QObject::connect(categoryList, SIGNAL(currentRowChanged(int)), stackedWidget, SLOT(setCurrentIndex(int)));
 
-        stackedWidget->setCurrentIndex(0);
+        stackedWidget->setCurrentIndex(1);
         tabWidget->setCurrentIndex(2);
         tabWidget_2->setCurrentIndex(0);
         tabWidget_3->setCurrentIndex(0);
@@ -1363,15 +1439,17 @@ public:
         QListWidgetItem *___qlistwidgetitem = categoryList->item(0);
         ___qlistwidgetitem->setText(QApplication::translate("MainWindowClass", "\320\223\321\200\321\203\320\277\320\277\321\213/\321\201\321\202\321\203\320\264\320\265\320\275\321\202\321\213", 0, QApplication::UnicodeUTF8));
         QListWidgetItem *___qlistwidgetitem1 = categoryList->item(1);
-        ___qlistwidgetitem1->setText(QApplication::translate("MainWindowClass", "\320\221\320\270\320\273\320\265\321\202\321\213", 0, QApplication::UnicodeUTF8));
+        ___qlistwidgetitem1->setText(QApplication::translate("MainWindowClass", "\320\224\320\270\321\201\321\206\320\270\320\277\320\273\320\270\320\275\321\213", 0, QApplication::UnicodeUTF8));
         QListWidgetItem *___qlistwidgetitem2 = categoryList->item(2);
-        ___qlistwidgetitem2->setText(QApplication::translate("MainWindowClass", "\320\222\321\213\320\277\321\203\321\201\320\272\320\275\321\213\320\265 \321\202\320\265\320\274\321\213", 0, QApplication::UnicodeUTF8));
+        ___qlistwidgetitem2->setText(QApplication::translate("MainWindowClass", "\320\221\320\270\320\273\320\265\321\202\321\213", 0, QApplication::UnicodeUTF8));
         QListWidgetItem *___qlistwidgetitem3 = categoryList->item(3);
-        ___qlistwidgetitem3->setText(QApplication::translate("MainWindowClass", "\320\247\320\273\320\265\320\275\321\213 \320\272\320\276\320\274\320\270\321\201\321\201\320\270\320\270", 0, QApplication::UnicodeUTF8));
+        ___qlistwidgetitem3->setText(QApplication::translate("MainWindowClass", "\320\222\321\213\320\277\321\203\321\201\320\272\320\275\321\213\320\265 \321\202\320\265\320\274\321\213", 0, QApplication::UnicodeUTF8));
         QListWidgetItem *___qlistwidgetitem4 = categoryList->item(4);
-        ___qlistwidgetitem4->setText(QApplication::translate("MainWindowClass", "\320\237\320\276\320\273\321\214\320\267\320\276\320\262\320\260\321\202\320\265\320\273\320\270", 0, QApplication::UnicodeUTF8));
+        ___qlistwidgetitem4->setText(QApplication::translate("MainWindowClass", "\320\247\320\273\320\265\320\275\321\213 \320\272\320\276\320\274\320\270\321\201\321\201\320\270\320\270", 0, QApplication::UnicodeUTF8));
         QListWidgetItem *___qlistwidgetitem5 = categoryList->item(5);
-        ___qlistwidgetitem5->setText(QApplication::translate("MainWindowClass", "\320\255\320\272\320\267\320\260\320\274\320\265\320\275\321\213", 0, QApplication::UnicodeUTF8));
+        ___qlistwidgetitem5->setText(QApplication::translate("MainWindowClass", "\320\237\320\276\320\273\321\214\320\267\320\276\320\262\320\260\321\202\320\265\320\273\320\270", 0, QApplication::UnicodeUTF8));
+        QListWidgetItem *___qlistwidgetitem6 = categoryList->item(6);
+        ___qlistwidgetitem6->setText(QApplication::translate("MainWindowClass", "\320\255\320\272\320\267\320\260\320\274\320\265\320\275\321\213", 0, QApplication::UnicodeUTF8));
         categoryList->setSortingEnabled(__sortingEnabled);
 
         groupBox_5->setTitle(QApplication::translate("MainWindowClass", " \320\223\321\200\321\203\320\277\320\277\321\213 ", 0, QApplication::UnicodeUTF8));
@@ -1380,10 +1458,17 @@ public:
         cancelGroupsButton->setText(QApplication::translate("MainWindowClass", "\320\236\321\202\320\274\320\265\320\275\320\270\321\202\321\214", 0, QApplication::UnicodeUTF8));
         applyGroupsButton->setText(QApplication::translate("MainWindowClass", "\320\237\321\200\320\270\320\274\320\265\320\275\320\270\321\202\321\214", 0, QApplication::UnicodeUTF8));
         groupBox_7->setTitle(QApplication::translate("MainWindowClass", " \320\241\321\202\321\203\320\264\320\265\320\275\321\202\321\213", 0, QApplication::UnicodeUTF8));
+        showStudentInfoButton->setText(QApplication::translate("MainWindowClass", "\320\237\320\276\320\264\321\200\320\276\320\261\320\275\320\265\320\265...", 0, QApplication::UnicodeUTF8));
         deleteStudentButton->setText(QApplication::translate("MainWindowClass", "\320\243\320\264\320\260\320\273\320\270\321\202\321\214", 0, QApplication::UnicodeUTF8));
         addStudentButton->setText(QApplication::translate("MainWindowClass", "\320\224\320\276\320\261\320\260\320\262\320\270\321\202\321\214", 0, QApplication::UnicodeUTF8));
         cancelStudentsButton->setText(QApplication::translate("MainWindowClass", "\320\236\321\202\320\274\320\265\320\275\320\270\321\202\321\214", 0, QApplication::UnicodeUTF8));
         applyStudentsButton->setText(QApplication::translate("MainWindowClass", "\320\237\321\200\320\270\320\274\320\265\320\275\320\270\321\202\321\214", 0, QApplication::UnicodeUTF8));
+        groupBox_12->setTitle(QApplication::translate("MainWindowClass", " \320\224\320\270\321\201\321\206\320\270\320\277\320\273\320\270\320\275\321\213 ", 0, QApplication::UnicodeUTF8));
+        importSubjectsButton->setText(QApplication::translate("MainWindowClass", "\320\230\320\274\320\277\320\276\321\200\321\202...", 0, QApplication::UnicodeUTF8));
+        deleteSubjectButton->setText(QApplication::translate("MainWindowClass", "\320\243\320\264\320\260\320\273\320\270\321\202\321\214", 0, QApplication::UnicodeUTF8));
+        addSubjectButton->setText(QApplication::translate("MainWindowClass", "\320\224\320\276\320\261\320\260\320\262\320\270\321\202\321\214", 0, QApplication::UnicodeUTF8));
+        cancelSubkectsButton->setText(QApplication::translate("MainWindowClass", "\320\237\321\200\320\270\320\274\320\265\320\275\320\270\321\202\321\214", 0, QApplication::UnicodeUTF8));
+        applySubjectsButton->setText(QApplication::translate("MainWindowClass", "\320\236\321\202\320\274\320\265\320\275\320\270\321\202\321\214", 0, QApplication::UnicodeUTF8));
         groupBox_9->setTitle(QApplication::translate("MainWindowClass", " \320\255\320\272\320\267\320\260\320\274\320\265\320\275\320\260\321\206\320\270\320\276\320\275\320\275\321\213\320\265 \320\261\320\270\320\273\320\265\321\202\321\213 ", 0, QApplication::UnicodeUTF8));
         groupBox_8->setTitle(QApplication::translate("MainWindowClass", " \320\224\320\265\321\202\320\260\320\273\320\270 ", 0, QApplication::UnicodeUTF8));
         label_11->setText(QApplication::translate("MainWindowClass", "\320\235\320\276\320\274\320\265\321\200:", 0, QApplication::UnicodeUTF8));
