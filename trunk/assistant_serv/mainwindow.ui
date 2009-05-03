@@ -34,6 +34,11 @@
        </item>
        <item>
         <property name="text">
+         <string>Дисциплины</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
          <string>Билеты</string>
         </property>
        </item>
@@ -60,7 +65,7 @@
       </widget>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="groupsPage">
         <layout class="QHBoxLayout" name="horizontalLayout_10">
@@ -148,6 +153,13 @@
                 </spacer>
                </item>
                <item>
+                <widget class="QPushButton" name="showStudentInfoButton">
+                 <property name="text">
+                  <string>Подробнее...</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <widget class="QPushButton" name="deleteStudentButton">
                  <property name="text">
                   <string>Удалить</string>
@@ -183,6 +195,74 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="page_4">
+        <layout class="QHBoxLayout" name="horizontalLayout_33">
+         <item>
+          <widget class="QGroupBox" name="groupBox_12">
+           <property name="title">
+            <string> Дисциплины </string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_16">
+            <item>
+             <widget class="QTableView" name="subjectsTableView"/>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_34">
+              <item>
+               <spacer name="horizontalSpacer_11">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="importSubjectsButton">
+                <property name="text">
+                 <string>Импорт...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="deleteSubjectButton">
+                <property name="text">
+                 <string>Удалить</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="addSubjectButton">
+                <property name="text">
+                 <string>Добавить</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="cancelSubkectsButton">
+                <property name="text">
+                 <string>Применить</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="applySubjectsButton">
+                <property name="text">
+                 <string>Отменить</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
        <widget class="QWidget" name="cardsPage">
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
@@ -205,6 +285,9 @@
              <widget class="QGroupBox" name="groupBox_8">
               <property name="title">
                <string> Детали </string>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
               </property>
               <layout class="QFormLayout" name="formLayout_4">
                <item row="0" column="0">

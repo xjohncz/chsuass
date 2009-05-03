@@ -9,15 +9,15 @@ SOURCES += main.cpp \
     mainwindow.cpp \
     serverdaemon.cpp \
     daemonservice.cpp \
-    dialog.cpp
+    dialog.cpp \
+    marksdialog.cpp
 HEADERS += mainwindow.h \
     protocol.h \
     serverdaemon.h \
     daemonservice.h \
-    dialog.h
+    dialog.h \
+    marksdialog.h
 FORMS += mainwindow.ui \
-    dialog.ui
-
-win32 {
-    LIBS += -lwsock32
-}
+    dialog.ui \
+    marksdialog.ui
+win32:LIBS += -lwsock32

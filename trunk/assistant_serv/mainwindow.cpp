@@ -221,7 +221,7 @@ void MainWindow::initGroups() {
 
     groupsTableModel->select();
 
-    ui->groupsTableView->setColumnHidden(0, true);    
+    ui->groupsTableView->setColumnHidden(0, true);
 
     studentsTableModel = new QSqlTableModel(this, db);
     studentsTableModel->setTable("students");
@@ -610,6 +610,12 @@ void MainWindow::on_deleteStudentButton_clicked()
 void MainWindow::on_addStudentButton_clicked()
 {
     addRowToTableModel(studentsTableModel);
+
+    int row = studentsTableModel->rowCount() - 1;
+    int selectedGroupRow = ui->groupsTableView->selectionModel()->selectedIndexes().at(0).row();
+    QModelIndex selectedGroupIndex = groupsTableModel->index(selectedGroupRow, 0);
+    QModelIndex newStudentIndex = studentsTableModel->index(row, 5);
+    studentsTableModel->setData(newStudentIndex, groupsTableModel->data(selectedGroupIndex));
 }
 
 void MainWindow::on_cancelStudentsButton_clicked()
