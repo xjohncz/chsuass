@@ -27,7 +27,7 @@ void dbservice::connect(QString dbuser, QString dbpass, QString dbname, QString 
     }
 }
 
-dbservice::disconnect()
+void dbservice::disconnect()
 {
     db.close();
     connected = false;

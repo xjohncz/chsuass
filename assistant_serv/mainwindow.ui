@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>916</width>
-    <height>715</height>
+    <width>914</width>
+    <height>713</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -65,7 +65,7 @@
       </widget>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="groupsPage">
         <layout class="QHBoxLayout" name="horizontalLayout_10">

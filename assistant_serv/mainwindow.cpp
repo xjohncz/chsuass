@@ -6,9 +6,7 @@
 #include <QAbstractItemModel>
 #include <string.h>
 #include "protocol.h"
-//#include "xlreader/book.h"
-//#include "xlreader/sheet.h"
-//#include "xlreader/cell.h"
+#include "xlsreader.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindowClass)
@@ -37,13 +35,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(daemon, SIGNAL(studentRequestGranted()), this, SLOT(studentRequestGrantedSlot()));
     connect(daemon, SIGNAL(saveStudentResults(int,QString,int,int,int,int,int,int)), this, SLOT(saveStudentResultsSlot(int,QString,int,int,int,int,int,int)));
 
-//    QByteArray buff;
-//    int a = 160;
-//    char *str = new char[sizeof(int) + 1];
-//    memset(str, 0, sizeof(int) + 1);
-//    memcpy(str, &a, sizeof(int));
-//    buff.append(str);
-//    a = 5;
     initGroups();
     initCards();
     initThemes();
@@ -54,11 +45,8 @@ MainWindow::MainWindow(QWidget *parent)
     currentExamStudentListModel = new QSqlQueryModel(this);
     currentExamStudenMarksModel = new QSqlQueryModel(this);
 
-    //QString student = "��������";
-    //QByteArray buffer = student.toAscii();
-    //QString n(buffer);
-    //QMessageBox::information(this, n, n);
-    //int i = 0;
+    //xlsreader xread("/home/domi/o21.xls");
+    //xread.convertToCSV("/home/domi/o21.csv");
 }
 
 MainWindow::~MainWindow()
