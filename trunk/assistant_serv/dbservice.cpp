@@ -1,5 +1,5 @@
+#include <QtSql>
 #include "dbservice.h"
-#include "daemonservice.h"
 
 dbservice::dbservice()
 {
