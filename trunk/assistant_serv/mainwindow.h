@@ -1,12 +1,13 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "serverdaemon.h"
-
 #include <QtSql>
 #include <QtGui>
 #include <QCloseEvent>
 #include <QStandardItemModel>
+
+#include "serverdaemon.h"
+#include "dbservice.h"
 
 enum IdType {
     Student,
@@ -47,6 +48,8 @@ private:
     void showSelectDialog(const QString &tableName, IdType type);
 
     Ui::MainWindowClass *ui;
+
+    dbservice *dbServ;
 
     QSqlDatabase db;
     QSqlTableModel *groupsTableModel;
