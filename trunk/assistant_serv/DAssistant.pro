@@ -10,13 +10,15 @@ SOURCES += main.cpp \
     serverdaemon.cpp \
     daemonservice.cpp \
     dialog.cpp \
-    marksdialog.cpp
+    marksdialog.cpp \
+    xlsreader.cpp
 HEADERS += mainwindow.h \
     protocol.h \
     serverdaemon.h \
     daemonservice.h \
     dialog.h \
-    marksdialog.h
+    marksdialog.h \
+    xlsreader.h
 FORMS += mainwindow.ui \
     dialog.ui \
     marksdialog.ui
