@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->examTaskStackedWidget->setVisible(false);
 
     daemon = new ServerDaemon(this);
+    /*FIXME:hardcode*/
     QHostAddress address("192.168.1.5");
 
     selectedGroupID = 0;
