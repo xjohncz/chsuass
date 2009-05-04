@@ -339,15 +339,15 @@ void MainWindow::initExamTypes() {
 
 }
 
-void MainWindow::fillDBConnection(QString dbuser, dbpass, dbname QString, dbhost QString, dbport QString)
+void MainWindow::fillDBConnection(QString dbuser, QString dbpass, QString dbname, QString dbhost,int dbport)
 {
     db = QSqlDatabase::addDatabase("QMYSQL");
 
-    db.setDatabaseName= dbname;
-    db.setHostName= dbhost;
-    db.setPort= dbport;
-    db.setUserName= dbuser;
-    db.setPassword= dbpass;
+    db.setDatabaseName(dbname);
+    db.setHostName(dbhost);
+    db.setPort(dbport);
+    db.setUserName(dbuser);
+    db.setPassword(dbpass);
 }
 
 void MainWindow::deleteRowFromTableModel(QSqlTableModel *model, QTableView *view) {
