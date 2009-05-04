@@ -1,11 +1,12 @@
+#include <QCryptographicHash>
+#include <QAbstractItemModel>
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "dialog.h"
-
-#include <QCryptographicHash>
-#include <QAbstractItemModel>
-#include <string.h>
 #include "protocol.h"
+#include "dbservice.h"
+
 #include "xlsreader.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -13,11 +14,15 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    /*will be removed*/
     fillDBConnection(QString("root"),QString("1"));
-    /* Do we need auth info prompt? */
-
+    
     if(!db.open())
         QMessageBox::critical(this, tr("Ошибка подключения к БД"), tr("Попытка подключения к БД MySQL завершилась неудачей!"));
+
+    /*dbServ = new dbservice();
+    dbServ->connect(QString("root"),QString("1"));*/
+    /* need to check connection */
 
     ui->categoryList->setCurrentRow(0);
     ui->stackedWidget->setCurrentIndex(0);
@@ -25,8 +30,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->examTaskStackedWidget->setVisible(false);
 
     daemon = new ServerDaemon(this);
-    /*FIXME:hardcode*/
-    QHostAddress address("192.168.1.5");
 
     selectedGroupID = 0;
 
@@ -51,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    //delete dbServ;
     delete ui;
 }
 
@@ -65,8 +69,19 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     event->accept();
 }
 
-void MainWindow::authenticationClient(QString username, QString passHash, int client) {
-
+void MainWindow::authenticationClient(QString username, QString passHash, int client)
+{
+    /*int uid;
+    bool status = (dbServ->userAuth(username, passHash, uid));
+    if ( !status && (-1 == uid)) {
+        daemon->getAuthenticationResult(OpcodeUserNotFound, client);        
+    } else {
+        if (!status && (uid <> -1)) {
+            daemon->getAuthenticationResult(OpcodeUserPassIncorrect, client);
+        } else { 
+            daemon->getAuthenticationResult(OpcodeAccessGranted, client);
+        }
+    }*/
     QSqlQuery query(db);
     query.prepare("SELECT * FROM users WHERE userName=?");
     query.bindValue(0, username);
@@ -98,7 +113,6 @@ void MainWindow::authenticationClient(QString username, QString passHash, int cl
     } else {
         daemon->getAuthenticationResult(OpcodeUserNotFound, client);
     }
-
 }
 
 void MainWindow::removeUserSlot(QString username) {
