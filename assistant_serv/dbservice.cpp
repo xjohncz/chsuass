@@ -30,11 +30,7 @@ void dbservice::connect(QString dbuser, QString dbpass, QString dbname, QString 
     }
 }
 
-<<<<<<< .mine
 bool dbservice::userAuth(QString username, QString passHash, int &userID)
-=======
-void dbservice::disconnect()
->>>>>>> .r15
 {
     bool status = false;
     if (connected) {
