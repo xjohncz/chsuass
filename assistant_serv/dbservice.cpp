@@ -1,10 +1,13 @@
 #include <QtSql>
+#include <QCryptographicHash>
+#include <QMessageBox>
+#include <QObject>
 #include "dbservice.h"
 
 dbservice::dbservice()
 {
     /* do nothing */
-    this->connected = false;
+    connected = false;
 }
 
 void dbservice::connect(QString dbuser, QString dbpass, QString dbname, QString dbhost, int dbport)
@@ -21,10 +24,41 @@ void dbservice::connect(QString dbuser, QString dbpass, QString dbname, QString 
 
         if(!db.open())
         {
-            QMessageBox::critical(this, tr("Connection error"), tr("An error occured while connecting to MySQL."));
+            QMessageBox::critical(0, tr("Connection error"), tr("An error occured while connecting to MySQL."));
         }
         connected = true;
     }
+}
+
+<<<<<<< .mine
+bool dbservice::userAuth(QString username, QString passHash, int &userID)
+=======
+void dbservice::disconnect()
+>>>>>>> .r15
+{
+    bool status = false;
+    if (connected) {
+        QSqlQuery query(db);
+        query.prepare("SELECT * FROM users WHERE userName=?");
+        query.bindValue(0, username);
+        query.exec();
+
+        if(query.next()) {
+            QByteArray password = query.value(2).toByteArray();
+            QString hash = QCryptographicHash::hash(password, QCryptographicHash::Md5).toHex();
+            if (passHash == hash) {
+                userID = query.value(0).toInt();
+                status = true; /* username ok, pass ok */
+            } else {
+                userID = query.value(0).toInt();
+                status = false; /* username ok, pass fail */
+            }
+        } else {
+            userID = -1;
+            status = false; /* username not found */
+        }
+    }
+    return status;
 }
 
 void dbservice::disconnect()
