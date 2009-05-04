@@ -6,6 +6,7 @@ QT += network \
 TARGET = DAssistant
 TEMPLATE = app
 SOURCES += main.cpp \
+    dbservice.cpp \
     mainwindow.cpp \
     serverdaemon.cpp \
     daemonservice.cpp \
@@ -13,6 +14,7 @@ SOURCES += main.cpp \
     marksdialog.cpp \
     xlsreader.cpp
 HEADERS += mainwindow.h \
+    dbservice.h \
     protocol.h \
     serverdaemon.h \
     daemonservice.h \
