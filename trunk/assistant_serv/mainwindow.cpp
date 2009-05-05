@@ -10,7 +10,12 @@
 #include "xlsreader.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindowClass)
+    : QMainWindow(parent),
+    ui(new Ui::MainWindowClass),
+    selectedGroupID(0),
+    daemon(new ServerDaemon(this)),
+    currentExamStudentListModel(new QSqlQueryModel(this)),
+    currentExamStudenMarksModel(new QSqlQueryModel(this))
 {
     ui->setupUi(this);
 
@@ -29,10 +34,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->examTaskStackedWidget->setVisible(false);
 
-    daemon = new ServerDaemon(this);
-
-    selectedGroupID = 0;
-
     connect(daemon, SIGNAL(authentication(QString,QString,int)), this, SLOT(authenticationClient(QString,QString,int)));
     connect(daemon, SIGNAL(removeUser(QString)), this, SLOT(removeUserSlot(QString)));
     connect(daemon, SIGNAL(studentRequestGranted()), this, SLOT(studentRequestGrantedSlot()));
@@ -44,9 +45,6 @@ MainWindow::MainWindow(QWidget *parent)
     initMembers();
     initUsers();
     initExamTypes();
-
-    currentExamStudentListModel = new QSqlQueryModel(this);
-    currentExamStudenMarksModel = new QSqlQueryModel(this);
 
     //xlsreader xread("/home/domi/o21.xls");
     //xread.convertToCSV("/home/domi/o21.csv");
