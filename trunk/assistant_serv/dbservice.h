@@ -9,6 +9,7 @@ public:
     dbservice();
     void connect(QString dbuser, QString dbpass, QString dbname=QString("assistant_schema"), QString dbhost=QString("localhost"), int dbport=3306);
     void disconnect();
+    bool userAuth(QString username, QString passHash, int &userID);
     ~dbservice();
 private:
     QSqlDatabase db;

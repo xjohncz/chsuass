@@ -12,8 +12,8 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
     ui(new Ui::MainWindowClass),
-    selectedGroupID(0),
     daemon(new ServerDaemon(this)),
+    selectedGroupID(0),
     currentExamStudentListModel(new QSqlQueryModel(this)),
     currentExamStudenMarksModel(new QSqlQueryModel(this))
 {
