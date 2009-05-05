@@ -1,7 +1,5 @@
-#include <QtSql>
 #include <QCryptographicHash>
 #include <QMessageBox>
-#include <QObject>
 #include "dbservice.h"
 
 dbservice::dbservice()
@@ -24,12 +22,13 @@ void dbservice::connect(QString dbuser, QString dbpass, QString dbname, QString 
 
         if(!db.open())
         {
-            QMessageBox::critical(0, tr("Connection error"), tr("An error occured while connecting to MySQL."));
+            QMessageBox::critical(0, QObject::tr("Connection error"), QObject::tr("An error occured while connecting to MySQL."));
         }
         connected = true;
     }
 }
 
+/*FIXME: passHash is not required anymore. Auth will be only by username*/
 bool dbservice::userAuth(QString username, QString passHash, int &userID)
 {
     bool status = false;
