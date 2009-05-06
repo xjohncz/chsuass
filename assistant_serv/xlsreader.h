@@ -13,6 +13,7 @@ public:
     static void convertToCSV(QString inpFileName, QString outFileName);
     static QStringList readSubjectsFromStudentCard(QString fileName);
     static QMap<QString, int> readStudentMarksFromStudentCard(QString fileName);
+    static QMap<int, QString> readGroup(QString fileName);
 
 protected:
     static QString getSectionFromCSV(QString record, int beg, int end);

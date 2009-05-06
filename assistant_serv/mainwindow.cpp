@@ -46,8 +46,8 @@ MainWindow::MainWindow(QWidget *parent)
     initUsers();
     initExamTypes();
 
-    xlsreader xread("C:/Development/o21.xls");
-    xread.convertToCSV("C:/Development/o21.csv");
+    //xlsreader xread("/home/domi/Temp/o21.xls");
+    //xread.convertToCSV("/home/domi/Temp/o21.csv");
     //QStringList subjs = xlsreader::readSubjectsFromStudentCard("C:/Development/o21.csv");
 }
 

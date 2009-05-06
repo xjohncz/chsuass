@@ -20,45 +20,15 @@ void xlsreader::convertToCSV(QString inpFileName, QString outFileName) {
     proc.setStandardOutputFile(outFileName);
 
 #ifdef Q_OS_LINUX
-    proc.start("xls2csv", QStringList() << "-s 1251" << "-d utf8" << "-c ;" << inpFileName);
+    proc.start("xls2csv", QStringList() << "-s" << "1251" << "-d" << "utf8" << "-c" << ";" << inpFileName);
 #endif
 
 #ifdef Q_OS_WIN32
     QString xls2csv = QDir::currentPath() + "/libs/xls2csv/xls2csv.exe";
-    proc.start(xls2csv, QStringList() << "-s 1251" << "-d utf8" << "-c ;" << inpFileName);
+    proc.start(xls2csv, QStringList() << "-s" << "1251" << "-d" << "utf8" << "-c" << ";" << inpFileName);
 #endif
 
     proc.waitForFinished();
-
-//#ifdef Q_OS_WIN32
-//
-//    QDir tempDir(QDir::currentPath());
-//    tempDir.mkdir("TempCSVDir");
-//    tempDir.cd("TempCSVDir");
-//
-//    QString csvDir = QDir::currentPath() + "/TempCSVDir";
-//    QString xls2csv = QDir::currentPath() + "/libs/xls2csv/xls2csv.exe";
-//    QString tempFile = csvDir + "/tempFile.xls";
-//    QFile::copy(inpFileName, tempFile);
-//
-//    QProcess proc;
-//    proc.start(xls2csv, QStringList() << tempFile << "utf-8");
-//    proc.waitForFinished();
-//
-//    QStringList fileList = tempDir.entryList(QStringList() << "*.csv", QDir::Files);
-//    if(fileList.isEmpty())
-//        return;
-//
-//    QString csvFile = tempDir.absoluteFilePath(fileList.at(0));
-//    QFile::copy(csvFile, outFileName);
-//
-//    fileList = tempDir.entryList(QDir::Files);
-//    for(int i = 0; i < fileList.count(); i++)
-//        tempDir.remove(fileList.at(i));
-//    tempDir.cdUp();
-//    tempDir.rmdir("TempCSVDir");
-//
-//#endif
 
 }
 
@@ -131,4 +101,32 @@ QMap<QString, int> xlsreader::readStudentMarksFromStudentCard(QString fileName) 
     file.close();
 
     return resMarks;
+}
+
+QMap<int, QString> xlsreader::readGroup(QString fileName) {
+
+    QMap<int, QString> resGroup;
+
+    QFile file(fileName);
+    file.open(QIODevice::ReadOnly);
+
+    while(!file.atEnd()) {
+
+        QString str = file.readLine();
+        QString recType = getSectionFromCSV(str, 5, 5);
+
+        if(examType != "Студент")
+            continue;
+
+        QString strStudentNum = getSectionFromCSV(str, 7, 7);
+        QString student = getSectionFromCSV(str, 9, 9);
+
+        int studentNum = strStudentNum.toInt();
+
+        resMarks.insert(studentNum, student);
+    }
+
+    file.close();
+
+    return resGroup;
 }
