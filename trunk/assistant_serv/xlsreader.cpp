@@ -5,12 +5,11 @@
 #include <QDir>
 
 xlsreader::xlsreader(QString file) :
-        fileName(file)
+        fileXLS(file)
 {
 }
 
-/*FIXME: check if outFileName is absolute path name*/
-void xlsreader::convertToCSV(QString inpFileName, QString outFileName) {
+void xlsreader::convertToCSV(QString outFileName) {
 
     FILE *pFile;
     pFile = fopen(outFileName.toStdString().c_str(), "w");
@@ -20,21 +19,15 @@ void xlsreader::convertToCSV(QString inpFileName, QString outFileName) {
     proc.setStandardOutputFile(outFileName);
 
 #ifdef Q_OS_LINUX
-    proc.start("xls2csv", QStringList() << "-s" << "1251" << "-d" << "utf8" << "-c" << ";" << inpFileName);
+    proc.start("xls2csv", QStringList() << "-s" << "1251" << "-d" << "utf8" << "-c" << ";" << fileXLS);
 #endif
 
 #ifdef Q_OS_WIN32
     QString xls2csv = QDir::currentPath() + "/libs/xls2csv/xls2csv.exe";
-    proc.start(xls2csv, QStringList() << "-s" << "1251" << "-d" << "utf8" << "-c" << ";" << inpFileName);
+    proc.start(xls2csv, QStringList() << "-s" << "1251" << "-d" << "utf8" << "-c" << ";" << fileXLS);
 #endif
 
     proc.waitForFinished();
-
-}
-
-void xlsreader::convertToCSV(QString outFileName) {
-
-    return convertToCSV(fileName, outFileName);
 
 }
 
@@ -45,7 +38,30 @@ QString xlsreader::getSectionFromCSV(QString record, int beg, int end) {
 
 }
 
-QStringList xlsreader::readSubjectsFromStudentCard(QString fileName) {
+QString xlsreader::prepareTempFile(QString fileName) {
+
+    QDir tempDir = QDir::homePath();
+    tempDir.mkdir("TempCSV");
+    tempDir.cd("TempCSV");
+
+    QString tempCSV = tempDir.absolutePath() + "/temp.csv";
+    convertToCSV(tempCSV);
+
+    return tempCSV;
+
+}
+
+void xlsreader::cleanTempFile(QString tempFile) {
+
+    QDir tempDir = QDir::homePath();
+    tempDir.cd("TempCSV");
+    tempDir.remove("temp.csv");
+    tempDir.cdUp();
+    tempDir.rmdir("TempCSV");
+
+}
+
+QStringList xlsreader::readSubjectsFromCSV(QString fileName) {
 
     QStringList resList;
 
@@ -69,7 +85,17 @@ QStringList xlsreader::readSubjectsFromStudentCard(QString fileName) {
     return resList;
 }
 
-QMap<QString, int> xlsreader::readStudentMarksFromStudentCard(QString fileName) {
+QStringList xlsreader::readSubjectsFromXLSStudentCard(QString fileName) {
+
+    QString tempCSV = prepareTempFile(fileName);
+    QStringList subjList = readSubjectsFromCSV(tempCSV);
+    cleanTempFile(tempCSV);
+
+    return subjList;
+
+}
+
+QMap<QString, int> xlsreader::readStudentMarksFromCSV(QString fileName) {
 
     QMap<QString, int> resMarks;
 
@@ -103,7 +129,17 @@ QMap<QString, int> xlsreader::readStudentMarksFromStudentCard(QString fileName) 
     return resMarks;
 }
 
-QMap<int, QString> xlsreader::readGroup(QString fileName) {
+QMap<QString, int> xlsreader::readStudentMarksFromXLSStudentCard(QString fileName) {
+
+    QString tempCSV = prepareTempFile(fileName);
+    QMap<QString, int> studentMarks = readStudentMarksFromCSV(tempCSV);
+    cleanTempFile(tempCSV);
+
+    return studentMarks;
+
+}
+
+QMap<int, QString> xlsreader::readGroupFromCSV(QString fileName) {
 
     QMap<int, QString> resGroup;
 
@@ -115,7 +151,7 @@ QMap<int, QString> xlsreader::readGroup(QString fileName) {
         QString str = file.readLine();
         QString recType = getSectionFromCSV(str, 5, 5);
 
-        if(examType != "Студент")
+        if(recType != "Студент")
             continue;
 
         QString strStudentNum = getSectionFromCSV(str, 7, 7);
@@ -123,10 +159,20 @@ QMap<int, QString> xlsreader::readGroup(QString fileName) {
 
         int studentNum = strStudentNum.toInt();
 
-        resMarks.insert(studentNum, student);
+        resGroup.insert(studentNum, student);
     }
 
     file.close();
 
     return resGroup;
+}
+
+QMap<int, QString> xlsreader::readGroupXLS(QString fileName) {
+
+    QString tempCSV = prepareTempFile(fileName);
+    QMap<int, QString> group = readGroupFromCSV(fileName);
+    cleanTempFile(tempCSV);
+
+    return group;
+
 }
