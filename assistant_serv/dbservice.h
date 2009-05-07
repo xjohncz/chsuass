@@ -11,6 +11,7 @@ public:
     void disconnect();
     bool userAuth(QString username, QString passHash, int &userID);
     ~dbservice();
+
 private:
     QSqlDatabase db;
     QSqlTableModel *groupsTableModel;
