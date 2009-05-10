@@ -42,6 +42,13 @@ namespace Assistant
         Thread recvThread;
         //ReceiveState recvState;
 
+        System.Threading.Timer timer;
+        int timerCount = 10;
+
+        //private void timerTick(Object stateInfo);
+        private delegate void UpdateHeaderHandler(int count);
+        //private void updateHeader(int count);
+
         //private bool waitingStudent = false;
         private int studentID = -1;
         private string student;
@@ -63,6 +70,27 @@ namespace Assistant
 
         private List<Student> students = null;
         //private Student currentStudent = null;
+
+        private void timerTick(Object stateInfo)
+        {
+            int count = (int)stateInfo;
+            this.Invoke(new UpdateHeaderHandler(this.UpdateHeader), new Object[] {timerCount});
+        }
+
+        private void UpdateHeader(int count)
+        {
+            if (timerCount > 0)
+            {
+                timerCount--;
+                this.Text = "Сбор - " + count.ToString() + " сек!";
+            }
+            else
+            {
+                timerCount = 10;
+                this.Text = "Assistant";
+                timer.Dispose();
+            }
+        }
 
         private void SaveStudentChanges(Student student)
         {
@@ -605,6 +633,12 @@ namespace Assistant
         private void nudMark3_ValueChanged_1(object sender, EventArgs e)
         {
             nudMark33.Value = nudMark3.Value;
+        }
+
+        private void menuItem1_Click(object sender, EventArgs e)
+        {
+            TimerCallback timerDelegate = new TimerCallback(timerTick);
+            timer = new System.Threading.Timer(timerDelegate, timerCount, 0, 1000);
         }
     }
 }

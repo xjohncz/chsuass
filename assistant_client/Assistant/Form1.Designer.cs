@@ -30,9 +30,6 @@
         private void InitializeComponent()
         {
             this.mainMenu1 = new System.Windows.Forms.MainMenu();
-            this.menuItem1 = new System.Windows.Forms.MenuItem();
-            this.menuItem3 = new System.Windows.Forms.MenuItem();
-            this.menuItem4 = new System.Windows.Forms.MenuItem();
             this.menuItem2 = new System.Windows.Forms.MenuItem();
             this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
@@ -51,9 +48,11 @@
             this.button1 = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.nudMark1 = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.txtQuestion1 = new System.Windows.Forms.TextBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.nudMark2 = new System.Windows.Forms.NumericUpDown();
             this.label6 = new System.Windows.Forms.Label();
             this.txtQuestion2 = new System.Windows.Forms.TextBox();
             this.tabPage5 = new System.Windows.Forms.TabPage();
@@ -69,8 +68,11 @@
             this.label10 = new System.Windows.Forms.Label();
             this.nudResultMark = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
-            this.nudMark2 = new System.Windows.Forms.NumericUpDown();
-            this.nudMark1 = new System.Windows.Forms.NumericUpDown();
+            this.label13 = new System.Windows.Forms.Label();
+            this.listView1 = new System.Windows.Forms.ListView();
+            this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
+            this.menuItem1 = new System.Windows.Forms.MenuItem();
             this.tabPage1.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -82,24 +84,8 @@
             // 
             // mainMenu1
             // 
-            this.mainMenu1.MenuItems.Add(this.menuItem1);
             this.mainMenu1.MenuItems.Add(this.menuItem2);
-            // 
-            // menuItem1
-            // 
-            this.menuItem1.MenuItems.Add(this.menuItem3);
-            this.menuItem1.MenuItems.Add(this.menuItem4);
-            this.menuItem1.Text = "Сохр/Отпр";
-            // 
-            // menuItem3
-            // 
-            this.menuItem3.Text = "Сохранить";
-            this.menuItem3.Click += new System.EventHandler(this.menuItem3_Click);
-            // 
-            // menuItem4
-            // 
-            this.menuItem4.Text = "Отправить";
-            this.menuItem4.Click += new System.EventHandler(this.menuItem4_Click);
+            this.mainMenu1.MenuItems.Add(this.menuItem1);
             // 
             // menuItem2
             // 
@@ -118,6 +104,8 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.listView1);
+            this.tabPage1.Controls.Add(this.label13);
             this.tabPage1.Controls.Add(this.txtStudent);
             this.tabPage1.Controls.Add(this.label4);
             this.tabPage1.Location = new System.Drawing.Point(0, 0);
@@ -153,7 +141,7 @@
             this.tabPage3.Controls.Add(this.button1);
             this.tabPage3.Location = new System.Drawing.Point(0, 0);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(232, 239);
+            this.tabPage3.Size = new System.Drawing.Size(240, 242);
             this.tabPage3.Text = "Подкл";
             // 
             // label8
@@ -248,6 +236,19 @@
             this.tabPage2.Size = new System.Drawing.Size(240, 242);
             this.tabPage2.Text = "Воп1";
             // 
+            // nudMark1
+            // 
+            this.nudMark1.Location = new System.Drawing.Point(73, 204);
+            this.nudMark1.Maximum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.nudMark1.Name = "nudMark1";
+            this.nudMark1.Size = new System.Drawing.Size(46, 22);
+            this.nudMark1.TabIndex = 63;
+            this.nudMark1.ValueChanged += new System.EventHandler(this.nudMark1_ValueChanged_2);
+            // 
             // label1
             // 
             this.label1.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Regular);
@@ -275,6 +276,19 @@
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Size = new System.Drawing.Size(240, 242);
             this.tabPage4.Text = "Воп2";
+            // 
+            // nudMark2
+            // 
+            this.nudMark2.Location = new System.Drawing.Point(73, 204);
+            this.nudMark2.Maximum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.nudMark2.Name = "nudMark2";
+            this.nudMark2.Size = new System.Drawing.Size(46, 22);
+            this.nudMark2.TabIndex = 63;
+            this.nudMark2.ValueChanged += new System.EventHandler(this.nudMark2_ValueChanged_2);
             // 
             // label6
             // 
@@ -433,31 +447,39 @@
             this.label5.Size = new System.Drawing.Size(60, 18);
             this.label5.Text = "Результат:";
             // 
-            // nudMark2
+            // label13
             // 
-            this.nudMark2.Location = new System.Drawing.Point(73, 204);
-            this.nudMark2.Maximum = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
-            this.nudMark2.Name = "nudMark2";
-            this.nudMark2.Size = new System.Drawing.Size(46, 22);
-            this.nudMark2.TabIndex = 63;
-            this.nudMark2.ValueChanged += new System.EventHandler(this.nudMark2_ValueChanged_2);
+            this.label13.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Regular);
+            this.label13.Location = new System.Drawing.Point(7, 43);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(60, 13);
+            this.label13.Text = "Оценки:";
             // 
-            // nudMark1
+            // listView1
             // 
-            this.nudMark1.Location = new System.Drawing.Point(73, 204);
-            this.nudMark1.Maximum = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
-            this.nudMark1.Name = "nudMark1";
-            this.nudMark1.Size = new System.Drawing.Size(46, 22);
-            this.nudMark1.TabIndex = 63;
-            this.nudMark1.ValueChanged += new System.EventHandler(this.nudMark1_ValueChanged_2);
+            this.listView1.Columns.Add(this.columnHeader3);
+            this.listView1.Columns.Add(this.columnHeader4);
+            this.listView1.FullRowSelect = true;
+            this.listView1.Location = new System.Drawing.Point(7, 59);
+            this.listView1.Name = "listView1";
+            this.listView1.Size = new System.Drawing.Size(226, 180);
+            this.listView1.TabIndex = 67;
+            this.listView1.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader3
+            // 
+            this.columnHeader3.Text = "Дисциплина";
+            this.columnHeader3.Width = 180;
+            // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "Оценка";
+            this.columnHeader4.Width = 40;
+            // 
+            // menuItem1
+            // 
+            this.menuItem1.Text = "Таймер";
+            this.menuItem1.Click += new System.EventHandler(this.menuItem1_Click);
             // 
             // Form1
             // 
@@ -483,12 +505,9 @@
 
         #endregion
 
-        private System.Windows.Forms.MenuItem menuItem1;
         private System.Windows.Forms.MenuItem menuItem2;
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.ColumnHeader columnHeader1;
-        private System.Windows.Forms.MenuItem menuItem3;
-        private System.Windows.Forms.MenuItem menuItem4;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TextBox txtStudent;
         private System.Windows.Forms.Label label4;
@@ -524,6 +543,11 @@
         private System.Windows.Forms.NumericUpDown nudMark11;
         private System.Windows.Forms.NumericUpDown nudMark1;
         private System.Windows.Forms.NumericUpDown nudMark2;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.ColumnHeader columnHeader3;
+        private System.Windows.Forms.ColumnHeader columnHeader4;
+        private System.Windows.Forms.MenuItem menuItem1;
 
 
 
