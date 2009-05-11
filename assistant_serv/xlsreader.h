@@ -18,14 +18,14 @@ public:
     QMap<QString, int> readStudentMarksFromCSV(QString fileName);
     QMap<int, QString> readGroupFromCSV(QString fileName);
 
-    QStringList readSubjectsFromXLSStudentCard(QString fileName);
-    QMap<QString, int> readStudentMarksFromXLSStudentCard(QString fileName);
-    QMap<int, QString> readGroupXLS(QString fileName);
+    QStringList readSubjectsFromXLSStudentCard();
+    QMap<QString, int> readStudentMarksFromXLSStudentCard();
+    QMap<int, QString> readGroupXLS();
 
 protected:
     QString getSectionFromCSV(QString record, int beg, int end);
-    QString prepareTempFile(QString fileName);
-    void cleanTempFile(QString tempFile);
+    QString prepareTempFile();
+    void cleanTempFile();
 
 private:
     QString fileXLS;

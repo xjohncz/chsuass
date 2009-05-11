@@ -137,7 +137,7 @@ bool DaemonService::readGreeting() {
 
     QByteArray buffer;
     int usrLen = 0;
-    int passLen = 0;
+    //int passLen = 0;
 
 
     usrLen = getIntFromMessage();
@@ -154,17 +154,17 @@ bool DaemonService::readGreeting() {
 
     qDebug() << "userName: " << userName;
 
-    passLen = getIntFromMessage();
-    if(passLen == 0)
-        return false;
-
-    bytesRead = readIntoBuffer(passLen, buffer);
-    if(bytesRead < passLen)
-        return false;
-
-    passHash = buffer;
-
-    qDebug() << "passHash: " << passHash;
+//    passLen = getIntFromMessage();
+//    if(passLen == 0)
+//        return false;
+//
+//    bytesRead = readIntoBuffer(passLen, buffer);
+//    if(bytesRead < passLen)
+//        return false;
+//
+//    passHash = buffer;
+//
+//    qDebug() << "passHash: " << passHash;
 
     return true;
 
@@ -302,7 +302,7 @@ void DaemonService::readFromSocket() {
         if(!readGreeting())
             return;
 
-        emit authentication(userName, passHash, clientID);
+        emit authentication(userName, clientID);
         break;
 
     case OpcodeStudentRequestGranted:

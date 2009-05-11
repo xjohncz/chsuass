@@ -1,15 +1,16 @@
 #ifndef _DBSERVICE_H
 #define	_DBSERVICE_H
 
+#include <QObject>
 #include <QtSql>
 
-class dbservice
+class dbservice : QObject
 {
 public:
     dbservice();
-    void connect(QString dbuser, QString dbpass, QString dbname=QString("assistant_schema"), QString dbhost=QString("localhost"), int dbport=3306);
+    bool connect(QString dbuser, QString dbpass, QString dbname=QString("assistant_schema"), QString dbhost=QString("localhost"), int dbport=3306);
     void disconnect();
-    bool userAuth(QString username, QString passHash, int &userID);
+    bool userAuth(QString username, int &userID, QString &name);
     ~dbservice();
 
 private:
@@ -19,7 +20,6 @@ private:
     QSqlTableModel *cardsTableModel;
     QSqlTableModel *themesTableModel;
     QSqlRelationalTableModel *membersTableModel;
-    QSqlTableModel *usersTableModel;
 
     bool connected;
 };
