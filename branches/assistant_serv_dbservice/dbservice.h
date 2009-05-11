@@ -18,6 +18,7 @@ public:
 
     QSqlTableModel *getGroupsTableModel() { return groupsTableModel; }
     QSqlTableModel *getStudentsTableModel() { return studentsTableModel; }
+    QSqlTableModel *getSubjectsTableModel() { return subjectsTableModel; }
     QSqlTableModel *getCardsTableModel() { return cardsTableModel; }
     QSqlTableModel *getThemesTableModel() { return themesTableModel; }
     QSqlTableModel *getMembersTableModel() { return membersTableModel; }
@@ -27,6 +28,7 @@ public:
 
     void initGroups();
     void initStudents();
+    void initSubjects();
     void initCards();
     void initThemes();
     void initMembers();
@@ -36,17 +38,47 @@ public:
 
     bool userAuth(QString username, int &userID, QString &name);
 
+    /* Data model manipulation */
+    void addGroup();
+    void deleteGroup(int row);
+    void revertGroupChanges();
+    QString submitGroupChanges(bool &ok);
+
+    void addStudent(int groupId);
+    void deleteStudent(int row);
+    void revertStudentChanges();
+    QString submitStudentChanges(bool &ok);
+
+    void addCard();
+    void deleteCard(int row);
+    void revertCardChanges();
+    QString submitCardChanges(bool &ok);
+
+    void addTheme();
+    void deleteTheme(int row);
+    void revertThemeChanges();
+    QString submitThemeChanges(bool &ok);
+
+    void addMember();
+    void deleteMember(int row);
+    void revertMemberChanges();
+    QString submitMemberChanges(bool &ok);
+    /* End of data model manipulation */
+
 protected:
+    void initTableModelWithManualSubmit(QSqlTableModel *model, QString tableName);
+
     void deleteRowFromTableModel(QSqlTableModel *, int row);
     void addRowToTableModel(QSqlTableModel *);
     void revertChanges(QSqlTableModel *);
-    bool submitChanges(QSqlTableModel *);
+    QString submitChanges(QSqlTableModel *, bool &ok);
 
 private:
     QSqlDatabase db;
 
     QSqlTableModel *groupsTableModel;
     QSqlTableModel *studentsTableModel;
+    QSqlTableModel *subjectsTableModel;
     QSqlTableModel *cardsTableModel;
     QSqlTableModel *themesTableModel;
     QSqlTableModel *membersTableModel;

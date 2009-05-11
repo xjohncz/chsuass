@@ -31,8 +31,11 @@ public:
 protected:
     void closeEvent(QCloseEvent *event);
 
+    //int getSelectedRowFromTableView(QTableView *view);
+
 private:
     void initGroups();
+    void initSubjects();
     void initCards();
     void initThemes();
     void initMembers();
