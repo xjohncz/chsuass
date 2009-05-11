@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(daemon, SIGNAL(saveStudentResults(int,QString,int,int,int,int,int,int)), this, SLOT(saveStudentResultsSlot(int,QString,int,int,int,int,int,int)));
 
     initGroups();
+    initSubjects();
     initCards();
     initThemes();
     initMembers();
@@ -53,6 +54,14 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
     event->accept();
 }
+
+//int MainWindow::getSelectedRowFromTableView(QTableView *view) {
+//
+//    QModelIndex index = view->selectionModel()->selectedIndexes().at(0);
+//
+//    return index.row();
+//
+//}
 
 void MainWindow::authenticationClientSlot(QString username, int client)
 {
@@ -119,6 +128,7 @@ void MainWindow::studentRequestGrantedSlot() {
     daemon->sendStudentInfo(currentExamSelectedStudentID, studentFIO, studentTask);
 }
 
+/* FIXME: dbservice */
 void MainWindow::saveStudentResultsSlot(int studentID, QString username, int mark1, int mark2, int mark3, int mark4, int mark5, int resMark) {
 
     int memberID;
@@ -180,6 +190,20 @@ void MainWindow::initGroups() {
 
     dbServ->initStudents();
     ui->studentsTableView->setModel(dbServ->getStudentsTableModel());
+
+}
+
+void MainWindow::initSubjects() {
+
+    dbServ->initSubjects();
+    ui->subjectsTableView->setModel(dbServ->getSubjectsTableModel());
+    ui->subjectsTableView->hideColumn(0);
+
+    QDataWidgetMapper *subjectsMapper = new QDataWidgetMapper(this);
+    subjectsMapper->setModel(dbServ->getSubjectsTableModel());
+    subjectsMapper->addMapping(ui->subjectEdit, 1);
+
+    connect(ui->subjectsTableView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)), subjectsMapper, SLOT(setCurrentModelIndex(QModelIndex)));
 
 }
 
@@ -279,11 +303,13 @@ void MainWindow::on_deleteCardButton_clicked()
 void MainWindow::on_addCardButton_clicked()
 {
     //addRowToTableModel(cardsTableModel);
+    //dbServ->addCard();
 }
 
 void MainWindow::on_cancelCardsButton_clicked()
 {
     //revertChanges(cardsTableModel);
+    //dbServ->revertCardChanges();
 }
 
 void MainWindow::on_applyCardsButton_clicked()

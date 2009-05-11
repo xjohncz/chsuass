@@ -41,7 +41,23 @@ void dbservice::disconnect()
     connected = false;
 }
 
+void dbservice::initTableModelWithManualSubmit(QSqlTableModel *model, QString tableName) {
+
+    if(!connected)
+        return;
+
+    model = new QSqlTableModel(this, db);
+    model->setTable(tableName);
+    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+
+    model->select();
+
+}
+
 void dbservice::initGroups() {
+
+    if(!connected)
+        return;
 
     groupsTableModel = new QSqlTableModel(this, db);
     groupsTableModel->setTable("groups");
@@ -53,13 +69,32 @@ void dbservice::initGroups() {
 
 void dbservice::initStudents() {
 
+    if(!connected)
+        return;
+
     studentsTableModel = new QSqlTableModel(this, db);
     studentsTableModel->setTable("students");
     studentsTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
 }
 
+void dbservice::initSubjects() {
+
+    if(!connected)
+        return;
+
+    subjectsTableModel = new QSqlTableModel(this, db);
+    subjectsTableModel->setTable("subjects");
+    subjectsTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+
+    subjectsTableModel->select();
+
+}
+
 void dbservice::initCards() {
+
+    if(!connected)
+        return;
 
     cardsTableModel = new QSqlTableModel(this, db);
     cardsTableModel->setTable("cards");
@@ -71,6 +106,9 @@ void dbservice::initCards() {
 
 void dbservice::initThemes() {
 
+    if(!connected)
+        return;
+
     themesTableModel = new QSqlTableModel(this, db);
     themesTableModel->setTable("themes");
     themesTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
@@ -81,7 +119,10 @@ void dbservice::initThemes() {
 
 void dbservice::initMembers() {
 
-    membersTableModel = new QSqlRelationalTableModel(this, db);
+    if(!connected)
+        return;
+
+    membersTableModel = new QSqlTableModel(this, db);
     membersTableModel->setTable("sacmembers");
     membersTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
@@ -90,6 +131,9 @@ void dbservice::initMembers() {
 }
 
 void dbservice::initExamTypes() {
+
+    if(!connected)
+        return;
 
     QSqlQuery query("SELECT typeName FROM examtypes");
     query.exec();
@@ -104,12 +148,18 @@ void dbservice::initExamTypes() {
 
 void dbservice::filterStudents(int groupId) {
 
+    if(!connected)
+        return;
+
     studentsTableModel->setFilter(QString("groupID=%1").arg(groupId));
     studentsTableModel->select();
 
 }
 
 void dbservice::refreshGroupListModel() {
+
+    if(!connected)
+        return;
 
     QSqlQuery query;
     query.prepare("SELECT DISTINCT groupName FROM groups ORDER BY groupName");
@@ -155,13 +205,17 @@ bool dbservice::userAuth(QString username, int &userID, QString &name)
 
 void dbservice::deleteRowFromTableModel(QSqlTableModel *model, int row) {
 
-    //QModelIndex index = view->selectionModel()->selectedIndexes().at(0);
-    //model->removeRow(index.row());
+    if(model == NULL)
+        return;
+
     model->removeRow(row);
 
 }
 
 void dbservice::addRowToTableModel(QSqlTableModel *model) {
+
+    if(model == NULL)
+        return;
 
     int rowCount = model->rowCount();
     model->insertRow(rowCount);
@@ -170,23 +224,64 @@ void dbservice::addRowToTableModel(QSqlTableModel *model) {
 
 void dbservice::revertChanges(QSqlTableModel *model) {
 
+    if(model == NULL)
+        return;
+
     model->revertAll();
 
 }
 
-bool dbservice::submitChanges(QSqlTableModel *model) {
+QString dbservice::submitChanges(QSqlTableModel *model, bool &ok) {
 
-    bool result = false;
+    if(model == NULL) {
+        ok = false;
+        return QString("Model is NULL");
+    }
+
+    ok = false;
+    QString result = "";
 
     model->database().transaction();
     if(model->submitAll()) {
         model->database().commit();
-        result = true;
+        ok = true;
     }
     else {
         model->database().rollback();
-        //QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных сообщила об ошибке: %1").arg(model->lastError().text()));
+        result = model->lastError().text();
     }
 
     return result;
 }
+
+/* Data model manipulation */
+void dbservice::addGroup() { addRowToTableModel(groupsTableModel); }
+void dbservice::deleteGroup(int row) { deleteRowFromTableModel(groupsTableModel, row); }
+void dbservice::revertGroupChanges() { revertChanges(groupsTableModel); }
+QString dbservice::submitGroupChanges(bool &ok) { return submitChanges(groupsTableModel, ok); }
+
+void dbservice::addStudent(int groupId) {
+    addRowToTableModel(studentsTableModel);
+    int row = studentsTableModel->rowCount() - 1;
+    QModelIndex newStudentIndex = studentsTableModel->index(row, 5);
+    studentsTableModel->setData(newStudentIndex, groupId);
+}
+void dbservice::deleteStudent(int row) { deleteRowFromTableModel(studentsTableModel, row); }
+void dbservice::revertStudentChanges() { revertChanges(studentsTableModel); }
+QString dbservice::submitStudentChanges(bool &ok) { return submitChanges(studentsTableModel, ok); }
+
+void dbservice::addCard() { addRowToTableModel(cardsTableModel); }
+void dbservice::deleteCard(int row) { deleteRowFromTableModel(cardsTableModel, row); }
+void dbservice::revertCardChanges() { revertChanges(cardsTableModel); }
+QString dbservice::submitCardChanges(bool &ok) { return submitChanges(cardsTableModel, ok); }
+
+void dbservice::addTheme() { addRowToTableModel(themesTableModel); }
+void dbservice::deleteTheme(int row) { deleteRowFromTableModel(themesTableModel, row); }
+void dbservice::revertThemeChanges() { revertChanges(themesTableModel); }
+QString dbservice::submitThemeChanges(bool &ok) { return submitChanges(themesTableModel, ok); }
+
+void dbservice::addMember() { addRowToTableModel(membersTableModel); }
+void dbservice::deleteMember(int row) { deleteRowFromTableModel(membersTableModel, row); }
+void dbservice::revertMemberChanges() { revertChanges(membersTableModel); }
+QString dbservice::submitMemberChanges(bool &ok) { return submitChanges(membersTableModel, ok); }
+/* End of data model manipulation */
