@@ -38,24 +38,20 @@ private:
     void initMembers();
     void initExamTypes();
     
-    void fillDBConnection(QString dbuser, QString dbpass, QString dbname=QString("assistant_schema"), QString dbhost=QString("localhost"), int dbport=3306);
+    //void fillDBConnection(QString dbuser, QString dbpass, QString dbname=QString("assistant_schema"), QString dbhost=QString("localhost"), int dbport=3306);
 
-    void deleteRowFromTableModel(QSqlTableModel *, QTableView *);
-    void addRowToTableModel(QSqlTableModel *);
-    void revertChanges(QSqlTableModel *);
-    void submitChanges(QSqlTableModel *);
     void showSelectDialog(const QString &tableName, IdType type);
 
     Ui::MainWindowClass *ui;
 
     dbservice *dbServ;
 
-    QSqlDatabase db;
-    QSqlTableModel *groupsTableModel;
-    QSqlTableModel *studentsTableModel;
-    QSqlTableModel *cardsTableModel;
-    QSqlTableModel *themesTableModel;
-    QSqlRelationalTableModel *membersTableModel;
+    //QSqlDatabase db;
+    //QSqlTableModel *groupsTableModel;
+    //QSqlTableModel *studentsTableModel;
+    //QSqlTableModel *cardsTableModel;
+    //QSqlTableModel *themesTableModel;
+    //QSqlRelationalTableModel *membersTableModel;
 
     ServerDaemon *daemon;
     int selectedGroupID;
@@ -72,7 +68,7 @@ private:
     //CURRENT EXAM
 
 public slots:
-    void authenticationClient(QString username, int client);
+    void authenticationClientSlot(QString username, int client);
     void removeUserSlot(QString username);
     void studentRequestGrantedSlot();
     void saveStudentResultsSlot(int, QString, int, int, int, int, int, int);

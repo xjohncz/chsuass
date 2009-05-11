@@ -19,22 +19,16 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    /*will be removed*/
-    fillDBConnection(QString("root"),QString("1"));
-    
-    if(!db.open())
+    dbServ = new dbservice(this);
+    if(!dbServ->connect("root", "1"))
         QMessageBox::critical(this, tr("Ошибка подключения к БД"), tr("Попытка подключения к БД MySQL завершилась неудачей!"));
-
-    /*dbServ = new dbservice();
-    dbServ->connect(QString("root"),QString("1"));*/
-    /* need to check connection */
 
     ui->categoryList->setCurrentRow(0);
     ui->stackedWidget->setCurrentIndex(0);
 
     ui->examTaskStackedWidget->setVisible(false);
 
-    connect(daemon, SIGNAL(authentication(QString,int)), this, SLOT(authenticationClient(QString,int)));
+    connect(daemon, SIGNAL(authentication(QString,int)), this, SLOT(authenticationClientSlot(QString,int)));
     connect(daemon, SIGNAL(removeUser(QString)), this, SLOT(removeUserSlot(QString)));
     connect(daemon, SIGNAL(studentRequestGranted()), this, SLOT(studentRequestGrantedSlot()));
     connect(daemon, SIGNAL(saveStudentResults(int,QString,int,int,int,int,int,int)), this, SLOT(saveStudentResultsSlot(int,QString,int,int,int,int,int,int)));
@@ -45,21 +39,14 @@ MainWindow::MainWindow(QWidget *parent)
     initMembers();
     initExamTypes();
 
-    //xlsreader xread("/home/domi/Temp/o21.xls");
-    //xread.convertToCSV("/home/domi/Temp/o21.csv");
-    //QStringList subjs = xlsreader::readSubjectsFromStudentCard("C:/Development/o21.csv");
 }
 
 MainWindow::~MainWindow()
 {
-    //delete dbServ;
     delete ui;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-
-    if(db.isOpen())
-        db.close();
 
     if(daemon->isListening())
         daemon->close();
@@ -67,38 +54,27 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     event->accept();
 }
 
-void MainWindow::authenticationClient(QString username, int client)
+void MainWindow::authenticationClientSlot(QString username, int client)
 {
-    /*int uid;
-    bool status = (dbServ->userAuth(username, passHash, uid));
-    if ( !status && (-1 == uid)) {
+    int uid;
+    QString name;
+
+    bool status = dbServ->userAuth(username, uid, name);
+    if (!status) {
         daemon->getAuthenticationResult(OpcodeUserNotFound, client);        
     } else {
-        if (!status && (uid <> -1)) {
-            daemon->getAuthenticationResult(OpcodeUserPassIncorrect, client);
-        } else { 
-            daemon->getAuthenticationResult(OpcodeAccessGranted, client);
-        }
-    }*/
+        QList<QStandardItem *> itemList;
 
-    QSqlQuery query(db);
-    query.prepare("SELECT * FROM sacmembers WHERE userName=?");
-    query.bindValue(0, username);
-    query.exec();
-
-    if(query.next()) {
-        QList<QStandardItem*> itemList;
-        QStandardItem *item = new QStandardItem(query.value(0).toString());
+        QStandardItem *item = new QStandardItem(QString::number(uid));
         itemList.append(item);
-        QString memberFIO = query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString();
-        item = new QStandardItem(memberFIO);
+        item = new QStandardItem(name);
         itemList.append(item);
         item = new QStandardItem(username);
         itemList.append(item);
+
         memberListModel->appendRow(itemList);
+
         daemon->getAuthenticationResult(OpcodeAccessGranted, client);
-    } else {
-        daemon->getAuthenticationResult(OpcodeUserNotFound, client);
     }
 }
 
@@ -180,10 +156,10 @@ void MainWindow::on_groupsTableView_pressed(QModelIndex index)
     QModelIndex idx = index.model()->index(row, 0);
     selectedGroupID = idx.data().toInt();
 
-    studentsTableModel->setFilter(QString("groupID=%1").arg(selectedGroupID));
-    studentsTableModel->select();
-    ui->studentsTableView->setColumnHidden(0, true);
-    ui->studentsTableView->setColumnHidden(5, true);
+    dbServ->filterStudents(selectedGroupID);
+
+    ui->studentsTableView->hideColumn(0);
+    ui->studentsTableView->hideColumn(5);
 }
 
 /*void MainWindow::on_pushButton_clicked()
@@ -198,38 +174,23 @@ void MainWindow::on_groupsTableView_pressed(QModelIndex index)
 
 void MainWindow::initGroups() {
 
-    groupsTableModel = new QSqlTableModel(this, db);
-    groupsTableModel->setTable("groups");
-    groupsTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    dbServ->initGroups();
+    ui->groupsTableView->setModel(dbServ->getGroupsTableModel());
+    ui->groupsTableView->hideColumn(0);
 
-    ui->groupsTableView->setModel(groupsTableModel);
-
-    groupsTableModel->select();
-
-    ui->groupsTableView->setColumnHidden(0, true);
-
-    studentsTableModel = new QSqlTableModel(this, db);
-    studentsTableModel->setTable("students");
-    ui->studentsTableView->setModel(studentsTableModel);
-    studentsTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-    //studentsTableModel->select();
+    dbServ->initStudents();
+    ui->studentsTableView->setModel(dbServ->getStudentsTableModel());
 
 }
 
 void MainWindow::initCards() {
 
-    cardsTableModel = new QSqlTableModel(this, db);
-    cardsTableModel->setTable("cards");
-    cardsTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-
-    ui->cardsTableView->setModel(cardsTableModel);
-
-    cardsTableModel->select();
-
-    ui->cardsTableView->setColumnHidden(0, true);
+    dbServ->initCards();
+    ui->cardsTableView->setModel(dbServ->getCardsTableModel());
+    ui->cardsTableView->hideColumn(0);
 
     QDataWidgetMapper *cardsMapper = new QDataWidgetMapper(this);
-    cardsMapper->setModel(cardsTableModel);
+    cardsMapper->setModel(dbServ->getCardsTableModel());
     cardsMapper->addMapping(ui->cardNumberEdit, 1);
     cardsMapper->addMapping(ui->cardQuestionEdit1, 2);
 
@@ -239,18 +200,12 @@ void MainWindow::initCards() {
 
 void MainWindow::initThemes() {
 
-    themesTableModel = new QSqlTableModel(this, db);
-    themesTableModel->setTable("themes");
-    themesTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-
-    ui->themesTableView->setModel(themesTableModel);
-
-    themesTableModel->select();
-
-    ui->themesTableView->setColumnHidden(0, true);
+    dbServ->initThemes();
+    ui->themesTableView->setModel(dbServ->getThemesTableModel());
+    ui->themesTableView->hideColumn(0);
 
     QDataWidgetMapper *themesMapper = new QDataWidgetMapper(this);
-    themesMapper->setModel(themesTableModel);
+    themesMapper->setModel(dbServ->getThemesTableModel());
     themesMapper->addMapping(ui->themeTextEdit, 1);
     themesMapper->addMapping(ui->idStudentEdit, 2);
     themesMapper->addMapping(ui->idConsultantEdit, 3);
@@ -261,20 +216,12 @@ void MainWindow::initThemes() {
 
 void MainWindow::initMembers() {
 
-    membersTableModel = new QSqlRelationalTableModel(this, db);
-    membersTableModel->setTable("sacmembers");
-    membersTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-
-    ui->membersTableView->setModel(membersTableModel);
-    ui->membersTableView->setItemDelegate(new QSqlRelationalDelegate(ui->membersTableView));
-
-    membersTableModel->select();
-
-    ui->membersTableView->setColumnHidden(0, true);
+    dbServ->initMembers();
+    ui->membersTableView->setModel(dbServ->getMembersTableModel());
+    ui->membersTableView->hideColumn(0);
 
     QDataWidgetMapper *membersMapper = new QDataWidgetMapper(this);
-    membersMapper->setModel(membersTableModel);
-    membersMapper->setItemDelegate(new QSqlRelationalDelegate(this));
+    membersMapper->setModel(dbServ->getMembersTableModel());
     membersMapper->addMapping(ui->memberSurnameEdit, 1);
     membersMapper->addMapping(ui->memberNameEdit, 2);
     membersMapper->addMapping(ui->memberPatronymicEdit, 3);
@@ -289,58 +236,8 @@ void MainWindow::initMembers() {
 
 void MainWindow::initExamTypes() {
 
-    QSqlQuery query("SELECT typeName FROM examtypes");
-    query.exec();
-
-    QStringList examTypeList;
-    while(query.next())
-        examTypeList.append(query.value(0).toString());
-
-    QStringListModel *examTypeListModel = new QStringListModel(examTypeList, this);
-    ui->examTypeCombobox->setModel(examTypeListModel);
-
-}
-
-void MainWindow::fillDBConnection(QString dbuser, QString dbpass, QString dbname, QString dbhost,int dbport)
-{
-    db = QSqlDatabase::addDatabase("QMYSQL");
-
-    db.setDatabaseName(dbname);
-    db.setHostName(dbhost);
-    db.setPort(dbport);
-    db.setUserName(dbuser);
-    db.setPassword(dbpass);
-}
-
-void MainWindow::deleteRowFromTableModel(QSqlTableModel *model, QTableView *view) {
-
-    QModelIndex index = view->selectionModel()->selectedIndexes().at(0);
-    model->removeRow(index.row());
-
-}
-
-void MainWindow::addRowToTableModel(QSqlTableModel *model) {
-
-    int rowCount = model->rowCount();
-    model->insertRow(rowCount);
-
-}
-
-void MainWindow::revertChanges(QSqlTableModel *model) {
-
-    model->revertAll();
-
-}
-
-void MainWindow::submitChanges(QSqlTableModel *model) {
-
-    model->database().transaction();
-    if(model->submitAll())
-        model->database().commit();
-    else {
-        model->database().rollback();
-        QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных сообщила об ошибке: %1").arg(model->lastError().text()));
-    }
+    dbServ->initExamTypes();
+    ui->examTypeCombobox->setModel(dbServ->getExamTypesModel());
 
 }
 
@@ -351,7 +248,7 @@ void MainWindow::showSelectDialog(const QString &tableName, IdType type) {
     Dialog *dial = new Dialog(this);
     connect(dial, SIGNAL(idSelected(int)), this, SLOT(onIdSelected(int)));
 
-    dial->setTableName(tableName, db);
+    dial->setTableName(tableName, dbServ->getDatabase());
     dial->setModal(true);
     dial->show();
 
@@ -376,22 +273,22 @@ void MainWindow::onIdSelected(int id) {
 
 void MainWindow::on_deleteCardButton_clicked()
 {
-    deleteRowFromTableModel(cardsTableModel, ui->cardsTableView);
+    //deleteRowFromTableModel(cardsTableModel, ui->cardsTableView);
 }
 
 void MainWindow::on_addCardButton_clicked()
 {
-    addRowToTableModel(cardsTableModel);
+    //addRowToTableModel(cardsTableModel);
 }
 
 void MainWindow::on_cancelCardsButton_clicked()
 {
-    revertChanges(cardsTableModel);
+    //revertChanges(cardsTableModel);
 }
 
 void MainWindow::on_applyCardsButton_clicked()
 {
-    submitChanges(cardsTableModel);
+    //submitChanges(cardsTableModel);
 }
 
 void MainWindow::on_browseStudentButton_clicked()
@@ -411,29 +308,15 @@ void MainWindow::on_browseInstructorButton_clicked()
 
 void MainWindow::on_refreshFilterListsButton_clicked()
 {
-    QSqlQuery query;
-    query.prepare("SELECT DISTINCT groupName FROM groups ORDER BY groupName");
-    query.exec();
 
-    QStringList groupList;
-    while(query.next())
-        groupList.append(query.value(0).toString());
+    dbServ->refreshGroupListModel();
 
-    query.prepare("SELECT DISTINCT year_ FROM groups ORDER BY year_");
-    query.exec();
-
-    QStringList yearList;
-    while(query.next())
-        yearList.append(query.value(0).toString());
-
-    QStringListModel *groupListModel = new QStringListModel(groupList, this);
-    QStringListModel *yearListModel = new QStringListModel(yearList, this);
-
-    ui->groupFilterComboBox->setModel(groupListModel);
-    ui->yearFilterComboBox->setModel(yearListModel);
+    ui->groupFilterComboBox->setModel(dbServ->getGroupListModel());
+    ui->yearFilterComboBox->setModel(dbServ->getYearListModel());
 
 }
 
+/* FIXME: dbservice */
 void MainWindow::on_filterButton_clicked()
 {
     int groupInd = ui->groupFilterComboBox->currentIndex();
@@ -456,7 +339,7 @@ void MainWindow::on_filterButton_clicked()
         return;
     }
 
-    QSqlTableModel *fromExamStudentsTableModel = new QSqlTableModel(this, db);
+    QSqlTableModel *fromExamStudentsTableModel = new QSqlTableModel(this, dbServ->getDatabase());
     fromExamStudentsTableModel->setTable("students");
     fromExamStudentsTableModel->setFilter(QString("groupID=%1").arg(groupID));
     fromExamStudentsTableModel->select();
@@ -464,6 +347,7 @@ void MainWindow::on_filterButton_clicked()
     ui->fromExamStudentsTableView->setModel(fromExamStudentsTableModel);
 }
 
+/* FIXME: dbservice */
 void MainWindow::on_fillCurrentExamButton_clicked()
 {
     QSqlQuery query;
@@ -481,7 +365,7 @@ void MainWindow::on_fillCurrentExamButton_clicked()
     }
 
     currentExamStudentListModel->setQuery(QString("SELECT * FROM students WHERE studentID IN "
-                                                  "(SELECT studentID FROM examstudentlist WHERE examID=%1)").arg(currentExamID), db);
+                                                  "(SELECT studentID FROM examstudentlist WHERE examID=%1)").arg(currentExamID), dbServ->getDatabase());
 
     ui->currentExamStudentListTableView->setModel(currentExamStudentListModel);
 
@@ -499,6 +383,7 @@ void MainWindow::on_serverButton_clicked()
     }
 }
 
+/* FIXME: dbservice */
 void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
 {
     int row = index.row();
@@ -533,7 +418,7 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
     modelQuery = QString("SELECT username, surname, name, patronymic, mark1, mark2, mark3, mark4, mark5, memberResultMark "
                             "FROM sacmembers INNER JOIN exammarks ON sacmembers.memberID = exammarks.memberID "
                             "WHERE (((exammarks.examID)=%1) AND ((exammarks.studentID)=%2))").arg(currentExamID).arg(currentExamSelectedStudentID);
-    currentExamStudenMarksModel->setQuery(modelQuery, db);
+    currentExamStudenMarksModel->setQuery(modelQuery, dbServ->getDatabase());
 
     ui->currentExamStudentMarksTableView->setModel(currentExamStudenMarksModel);
 }
@@ -543,6 +428,7 @@ void MainWindow::on_sendStudentInfoButton_clicked()
     daemon->sendWaitingInfoRequests();
 }
 
+/* FIXME: dbservice */
 void MainWindow::on_currentExamSaveCardNumberButton_clicked()
 {
     QSqlQuery query;
@@ -557,48 +443,48 @@ void MainWindow::on_currentExamSaveCardNumberButton_clicked()
 
 void MainWindow::on_deleteGroupButton_clicked()
 {
-    deleteRowFromTableModel(groupsTableModel, ui->groupsTableView);
+    //deleteRowFromTableModel(groupsTableModel, ui->groupsTableView);
 }
 
 void MainWindow::on_addGroupButton_clicked()
 {
-    addRowToTableModel(groupsTableModel);
+    //addRowToTableModel(groupsTableModel);
 }
 
 void MainWindow::on_cancelGroupsButton_clicked()
 {
-    revertChanges(groupsTableModel);
+    //revertChanges(groupsTableModel);
 }
 
 void MainWindow::on_applyGroupsButton_clicked()
 {
-    submitChanges(groupsTableModel);
+    //submitChanges(groupsTableModel);
 }
 
 void MainWindow::on_deleteStudentButton_clicked()
 {
-    deleteRowFromTableModel(studentsTableModel, ui->studentsTableView);
+    //deleteRowFromTableModel(studentsTableModel, ui->studentsTableView);
 }
 
 void MainWindow::on_addStudentButton_clicked()
 {
-    addRowToTableModel(studentsTableModel);
-
-    int row = studentsTableModel->rowCount() - 1;
-    int selectedGroupRow = ui->groupsTableView->selectionModel()->selectedIndexes().at(0).row();
-    QModelIndex selectedGroupIndex = groupsTableModel->index(selectedGroupRow, 0);
-    QModelIndex newStudentIndex = studentsTableModel->index(row, 5);
-    studentsTableModel->setData(newStudentIndex, groupsTableModel->data(selectedGroupIndex));
+//    addRowToTableModel(studentsTableModel);
+//
+//    int row = studentsTableModel->rowCount() - 1;
+//    int selectedGroupRow = ui->groupsTableView->selectionModel()->selectedIndexes().at(0).row();
+//    QModelIndex selectedGroupIndex = groupsTableModel->index(selectedGroupRow, 0);
+//    QModelIndex newStudentIndex = studentsTableModel->index(row, 5);
+//    studentsTableModel->setData(newStudentIndex, groupsTableModel->data(selectedGroupIndex));
 }
 
 void MainWindow::on_cancelStudentsButton_clicked()
 {
-    revertChanges(studentsTableModel);
+    //revertChanges(studentsTableModel);
 }
 
 void MainWindow::on_applyStudentsButton_clicked()
 {
-    submitChanges(studentsTableModel);
+    //submitChanges(studentsTableModel);
 }
 
 void MainWindow::on_saveExamTimeButton_clicked()
