@@ -158,21 +158,21 @@ namespace Assistant
             }
         }
 
-        private void SendGreetingMessage(string usrName, string password)
+        private void SendGreetingMessage(string usrName)//, string password)
         {
-            string passHash = getMD5Hash(password);
+            //string passHash = getMD5Hash(password);
 
             List<byte> message = new List<byte>();
             message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(AssistantProtocol.OpcodeGreeting)));
             //message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(2)));
 
-            int msgSize = sizeof(int) + usrName.Length + sizeof(int) + passHash.Length;
+            int msgSize = sizeof(int) + usrName.Length; //+ sizeof(int) + passHash.Length;
 
             message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(msgSize)));
             message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(usrName.Length)));
             message.AddRange(System.Text.Encoding.UTF8.GetBytes(usrName));
-            message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(passHash.Length)));
-            message.AddRange(System.Text.Encoding.UTF8.GetBytes(passHash));
+            //message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(passHash.Length)));
+            //message.AddRange(System.Text.Encoding.UTF8.GetBytes(passHash));
 
             byte[] msg = message.ToArray();
             SendMessage(msg);
@@ -413,6 +413,9 @@ namespace Assistant
                     state.workSocket = socket;
                     state.recvState = ReceiveState.RecvHeader;
 
+                    if (!socket.Connected)
+                        break;
+
                     socket.BeginReceive(state.buffer, 0, 2 * sizeof(int), SocketFlags.None,
                         new AsyncCallback(ReadCallback), state);
                     
@@ -581,7 +584,8 @@ namespace Assistant
 
             string usrName = txtUserName.Text;
             string password = txtPassword.Text;
-            SendGreetingMessage(usrName, password);
+            SendGreetingMessage(usrName);
+            //SendGreetingMessage(usrName, password);
 
             tabControl1.TabIndex = 1;
 
