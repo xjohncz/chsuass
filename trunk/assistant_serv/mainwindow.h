@@ -36,7 +36,6 @@ private:
     void initCards();
     void initThemes();
     void initMembers();
-    void initUsers();
     void initExamTypes();
     
     void fillDBConnection(QString dbuser, QString dbpass, QString dbname=QString("assistant_schema"), QString dbhost=QString("localhost"), int dbport=3306);
@@ -57,7 +56,6 @@ private:
     QSqlTableModel *cardsTableModel;
     QSqlTableModel *themesTableModel;
     QSqlRelationalTableModel *membersTableModel;
-    QSqlTableModel *usersTableModel;
 
     ServerDaemon *daemon;
     int selectedGroupID;
@@ -74,7 +72,7 @@ private:
     //CURRENT EXAM
 
 public slots:
-    void authenticationClient(QString username, QString passHash, int client);
+    void authenticationClient(QString username, int client);
     void removeUserSlot(QString username);
     void studentRequestGrantedSlot();
     void saveStudentResultsSlot(int, QString, int, int, int, int, int, int);

@@ -8,7 +8,7 @@ dbservice::dbservice()
     connected = false;
 }
 
-void dbservice::connect(QString dbuser, QString dbpass, QString dbname, QString dbhost, int dbport)
+bool dbservice::connect(QString dbuser, QString dbpass, QString dbname, QString dbhost, int dbport)
 {
     if (!connected)
     {
@@ -20,39 +20,31 @@ void dbservice::connect(QString dbuser, QString dbpass, QString dbname, QString 
         db.setUserName(dbuser);
         db.setPassword(dbpass);
 
-        if(!db.open())
-        {
-            QMessageBox::critical(0, QObject::tr("Connection error"), QObject::tr("An error occured while connecting to MySQL."));
-        }
-        connected = true;
+        connected = db.open();
     }
+
+    return connected;
 }
 
-/*FIXME: passHash is not required anymore. Auth will be only by username*/
-bool dbservice::userAuth(QString username, QString passHash, int &userID)
+bool dbservice::userAuth(QString username, int &userID, QString &name)
 {
     bool status = false;
+
     if (connected) {
         QSqlQuery query(db);
-        query.prepare("SELECT * FROM users WHERE userName=?");
+        query.prepare("SELECT * FROM sacmembers WHERE userName=?");
         query.bindValue(0, username);
         query.exec();
 
         if(query.next()) {
-            QByteArray password = query.value(2).toByteArray();
-            QString hash = QCryptographicHash::hash(password, QCryptographicHash::Md5).toHex();
-            if (passHash == hash) {
-                userID = query.value(0).toInt();
-                status = true; /* username ok, pass ok */
-            } else {
-                userID = query.value(0).toInt();
-                status = false; /* username ok, pass fail */
-            }
+            userID = query.value(0).toInt();
+            name = query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString();
+            status = true; /* username ok */
         } else {
-            userID = -1;
-            status = false; /* username not found */
+            userID = -1; /* username not found */
         }
     }
+
     return status;
 }
 

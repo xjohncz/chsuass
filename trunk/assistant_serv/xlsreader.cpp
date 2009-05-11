@@ -38,7 +38,7 @@ QString xlsreader::getSectionFromCSV(QString record, int beg, int end) {
 
 }
 
-QString xlsreader::prepareTempFile(QString fileName) {
+QString xlsreader::prepareTempFile() {
 
     QDir tempDir = QDir::homePath();
     tempDir.mkdir("TempCSV");
@@ -51,7 +51,7 @@ QString xlsreader::prepareTempFile(QString fileName) {
 
 }
 
-void xlsreader::cleanTempFile(QString tempFile) {
+void xlsreader::cleanTempFile() {
 
     QDir tempDir = QDir::homePath();
     tempDir.cd("TempCSV");
@@ -85,11 +85,11 @@ QStringList xlsreader::readSubjectsFromCSV(QString fileName) {
     return resList;
 }
 
-QStringList xlsreader::readSubjectsFromXLSStudentCard(QString fileName) {
+QStringList xlsreader::readSubjectsFromXLSStudentCard() {
 
-    QString tempCSV = prepareTempFile(fileName);
+    QString tempCSV = prepareTempFile();
     QStringList subjList = readSubjectsFromCSV(tempCSV);
-    cleanTempFile(tempCSV);
+    cleanTempFile();
 
     return subjList;
 
@@ -129,11 +129,11 @@ QMap<QString, int> xlsreader::readStudentMarksFromCSV(QString fileName) {
     return resMarks;
 }
 
-QMap<QString, int> xlsreader::readStudentMarksFromXLSStudentCard(QString fileName) {
+QMap<QString, int> xlsreader::readStudentMarksFromXLSStudentCard() {
 
-    QString tempCSV = prepareTempFile(fileName);
+    QString tempCSV = prepareTempFile();
     QMap<QString, int> studentMarks = readStudentMarksFromCSV(tempCSV);
-    cleanTempFile(tempCSV);
+    cleanTempFile();
 
     return studentMarks;
 
@@ -167,11 +167,11 @@ QMap<int, QString> xlsreader::readGroupFromCSV(QString fileName) {
     return resGroup;
 }
 
-QMap<int, QString> xlsreader::readGroupXLS(QString fileName) {
+QMap<int, QString> xlsreader::readGroupXLS() {
 
-    QString tempCSV = prepareTempFile(fileName);
-    QMap<int, QString> group = readGroupFromCSV(fileName);
-    cleanTempFile(tempCSV);
+    QString tempCSV = prepareTempFile();
+    QMap<int, QString> group = readGroupFromCSV(tempCSV);
+    cleanTempFile();
 
     return group;
 

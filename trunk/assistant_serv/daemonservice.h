@@ -19,7 +19,7 @@ public:
 
 signals:
     void error(QTcpSocket::SocketError err);
-    void authentication(QString userName, QString passHash, int client);
+    void authentication(QString userName, int client);
     void addUser(QString username);
     void removeUser(QString username, DaemonService *);
     void studentRequestGranted();
@@ -56,7 +56,6 @@ private:
 
     int clientID;
     QString userName;
-    QString passHash;
 };
 
 #endif // DAEMONSERVICE_H

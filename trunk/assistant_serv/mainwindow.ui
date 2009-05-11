@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>914</width>
-    <height>713</height>
+    <width>912</width>
+    <height>711</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,18 +54,13 @@
        </item>
        <item>
         <property name="text">
-         <string>Пользователи</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
          <string>Экзамены</string>
         </property>
        </item>
       </widget>
       <widget class="QStackedWidget" name="stackedWidget">
        <property name="currentIndex">
-        <number>0</number>
+        <number>4</number>
        </property>
        <widget class="QWidget" name="groupsPage">
         <layout class="QHBoxLayout" name="horizontalLayout_10">
@@ -597,7 +592,7 @@
               <property name="title">
                <string> Детали </string>
               </property>
-              <layout class="QFormLayout" name="formLayout_2">
+              <layout class="QFormLayout" name="formLayout">
                <property name="labelAlignment">
                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                </property>
@@ -662,14 +657,7 @@
                 </widget>
                </item>
                <item row="4" column="1">
-                <widget class="QComboBox" name="memberLogin">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                </widget>
+                <widget class="QLineEdit" name="memberLoginEdit"/>
                </item>
               </layout>
              </widget>
@@ -714,82 +702,6 @@
                <widget class="QPushButton" name="applyMembersButton">
                 <property name="text">
                  <string>Применить</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="usersPage">
-        <layout class="QHBoxLayout" name="horizontalLayout_8">
-         <item>
-          <widget class="QGroupBox" name="groupBox">
-           <property name="title">
-            <string> Пользователи </string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_6">
-            <item>
-             <widget class="QTableView" name="usersTableView"/>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="groupBox_2">
-              <property name="title">
-               <string> Детали </string>
-              </property>
-              <layout class="QFormLayout" name="formLayout">
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_4">
-                 <property name="text">
-                  <string>Имя пользователя:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QLineEdit" name="usrNameEdit"/>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_5">
-                 <property name="text">
-                  <string>Пароль:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QLineEdit" name="passEdit"/>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_7">
-              <item>
-               <spacer name="horizontalSpacer_4">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="deleteUserButton">
-                <property name="text">
-                 <string>Удалить</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="saveUserButton">
-                <property name="text">
-                 <string>Сохранить</string>
                 </property>
                </widget>
               </item>

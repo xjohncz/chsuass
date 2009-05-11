@@ -17,13 +17,13 @@ public slots:
     void getAuthenticationResult(int result, int client);
 
 private slots:
-    void authenticationClient(QString username, QString passHash, int client);
+    void authenticationClient(QString username, int client);
     void removeUserSlot(QString username, DaemonService *);
     void studentRequestGrantedSlot();
     void saveStudentResultsSlot(int, QString, int, int, int, int, int, int);
 
 signals:
-    void authentication(QString username, QString passHash, int client);
+    void authentication(QString username, int client);
     void removeUser(QString username);
     void studentRequestGranted();
     void saveStudentResults(int, QString, int, int, int, int, int, int);

@@ -12,7 +12,7 @@ void ServerDaemon::incomingConnection(int socketDescriptor) {
     DaemonService *service = new DaemonService(this, socketDescriptor, clients.count());
 
     connect(service, SIGNAL(finished()), service, SLOT(deleteLater()));
-    connect(service, SIGNAL(authentication(QString,QString,int)), this, SLOT(authenticationClient(QString,QString,int)));
+    connect(service, SIGNAL(authentication(QString,int)), this, SLOT(authenticationClient(QString,int)));
     connect(service, SIGNAL(removeUser(QString,DaemonService*)), this, SLOT(removeUserSlot(QString,DaemonService*)));
     connect(service, SIGNAL(studentRequestGranted()), this, SLOT(studentRequestGrantedSlot()));
     connect(service, SIGNAL(saveStudentResults(int,QString,int,int,int,int,int,int)), this, SLOT(saveStudentResultsSlot(int,QString,int,int,int,int,int,int)));
@@ -24,9 +24,9 @@ void ServerDaemon::incomingConnection(int socketDescriptor) {
 
 }
 
-void ServerDaemon::authenticationClient(QString username, QString passHash, int client) {
+void ServerDaemon::authenticationClient(QString username, int client) {
 
-    emit authentication(username, passHash, client);
+    emit authentication(username, client);
 
 }
 

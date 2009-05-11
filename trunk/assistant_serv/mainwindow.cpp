@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->examTaskStackedWidget->setVisible(false);
 
-    connect(daemon, SIGNAL(authentication(QString,QString,int)), this, SLOT(authenticationClient(QString,QString,int)));
+    connect(daemon, SIGNAL(authentication(QString,int)), this, SLOT(authenticationClient(QString,int)));
     connect(daemon, SIGNAL(removeUser(QString)), this, SLOT(removeUserSlot(QString)));
     connect(daemon, SIGNAL(studentRequestGranted()), this, SLOT(studentRequestGrantedSlot()));
     connect(daemon, SIGNAL(saveStudentResults(int,QString,int,int,int,int,int,int)), this, SLOT(saveStudentResultsSlot(int,QString,int,int,int,int,int,int)));
@@ -43,7 +43,6 @@ MainWindow::MainWindow(QWidget *parent)
     initCards();
     initThemes();
     initMembers();
-    initUsers();
     initExamTypes();
 
     //xlsreader xread("/home/domi/Temp/o21.xls");
@@ -68,7 +67,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     event->accept();
 }
 
-void MainWindow::authenticationClient(QString username, QString passHash, int client)
+void MainWindow::authenticationClient(QString username, int client)
 {
     /*int uid;
     bool status = (dbServ->userAuth(username, passHash, uid));
@@ -81,34 +80,23 @@ void MainWindow::authenticationClient(QString username, QString passHash, int cl
             daemon->getAuthenticationResult(OpcodeAccessGranted, client);
         }
     }*/
+
     QSqlQuery query(db);
-    query.prepare("SELECT * FROM users WHERE userName=?");
+    query.prepare("SELECT * FROM sacmembers WHERE userName=?");
     query.bindValue(0, username);
     query.exec();
 
     if(query.next()) {
-        QByteArray password = query.value(2).toByteArray();
-        QString hash = QCryptographicHash::hash(password, QCryptographicHash::Md5).toHex();
-        if(passHash == hash) {
-            QSqlQuery memberQuery(db);
-            memberQuery.prepare("SELECT * FROM sacmembers WHERE userID=?");
-            memberQuery.bindValue(0, query.value(0).toInt());
-            memberQuery.exec();
-            if(memberQuery.next()) {
-                QList<QStandardItem*> itemList;
-                QStandardItem *item = new QStandardItem(memberQuery.value(0).toString());
-                itemList.append(item);
-                QString memberFIO = memberQuery.value(1).toString() + " " + memberQuery.value(2).toString() + " " + memberQuery.value(3).toString();
-                item = new QStandardItem(memberFIO);
-                itemList.append(item);
-                item = new QStandardItem(username);
-                itemList.append(item);
-                memberListModel->appendRow(itemList);
-            }
-            daemon->getAuthenticationResult(OpcodeAccessGranted, client);
-        }
-        else
-            daemon->getAuthenticationResult(OpcodeUserPassIncorrect, client);
+        QList<QStandardItem*> itemList;
+        QStandardItem *item = new QStandardItem(query.value(0).toString());
+        itemList.append(item);
+        QString memberFIO = query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString();
+        item = new QStandardItem(memberFIO);
+        itemList.append(item);
+        item = new QStandardItem(username);
+        itemList.append(item);
+        memberListModel->appendRow(itemList);
+        daemon->getAuthenticationResult(OpcodeAccessGranted, client);
     } else {
         daemon->getAuthenticationResult(OpcodeUserNotFound, client);
     }
@@ -275,8 +263,6 @@ void MainWindow::initMembers() {
 
     membersTableModel = new QSqlRelationalTableModel(this, db);
     membersTableModel->setTable("sacmembers");
-    int loginId = membersTableModel->fieldIndex("userID");
-    membersTableModel->setRelation(loginId, QSqlRelation("users", "userID", "userName"));
     membersTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
     ui->membersTableView->setModel(membersTableModel);
@@ -293,33 +279,12 @@ void MainWindow::initMembers() {
     membersMapper->addMapping(ui->memberNameEdit, 2);
     membersMapper->addMapping(ui->memberPatronymicEdit, 3);
     membersMapper->addMapping(ui->memberBusinessTextEdit, 4);
-    membersMapper->addMapping(ui->memberLogin, loginId);
+    membersMapper->addMapping(ui->memberLoginEdit, 5);
 
     connect(ui->membersTableView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)), membersMapper, SLOT(setCurrentModelIndex(QModelIndex)));
 
     memberListModel = new QStandardItemModel(0, 3, this);
     ui->currentExamMemberListTableView->setModel(memberListModel);
-}
-
-void MainWindow::initUsers() {
-
-    usersTableModel = new QSqlTableModel(this, db);
-    usersTableModel->setTable("users");
-    usersTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
-
-    ui->usersTableView->setModel(usersTableModel);
-
-    usersTableModel->select();
-
-    ui->usersTableView->setColumnHidden(0, true);
-
-    QDataWidgetMapper *usersMapper = new QDataWidgetMapper(this);
-    usersMapper->setModel(usersTableModel);
-    usersMapper->addMapping(ui->usrNameEdit, 1);
-    usersMapper->addMapping(ui->passEdit, 2);
-
-    connect(ui->usersTableView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)), usersMapper, SLOT(setCurrentModelIndex(QModelIndex)));
-
 }
 
 void MainWindow::initExamTypes() {
@@ -566,7 +531,7 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
 
     QString modelQuery;
     modelQuery = QString("SELECT username, surname, name, patronymic, mark1, mark2, mark3, mark4, mark5, memberResultMark "
-                            "FROM users INNER JOIN (sacmembers INNER JOIN exammarks ON sacmembers.memberID = exammarks.memberID) ON users.userID = sacmembers.userID "
+                            "FROM sacmembers INNER JOIN exammarks ON sacmembers.memberID = exammarks.memberID "
                             "WHERE (((exammarks.examID)=%1) AND ((exammarks.studentID)=%2))").arg(currentExamID).arg(currentExamSelectedStudentID);
     currentExamStudenMarksModel->setQuery(modelQuery, db);
 
@@ -638,18 +603,7 @@ void MainWindow::on_applyStudentsButton_clicked()
 
 void MainWindow::on_saveExamTimeButton_clicked()
 {
-    /*QString fileName = QFileDialog::getOpenFileName(this, "Open file...");
 
-    char *file = new char[fileName.size() + 1];
-    memset(file, 0, fileName.size() + 1);
-    strncpy(file, fileName.toStdString().c_str(), fileName.size());
-
-    book *book = book_parse(file);
-
-
-    //QMessageBox::information(this, "Cell", QString(cell_data_string(book, sheet, 1, 1)));
-
-    book_close(book);*/
 }
 
 void MainWindow::on_marksImportButton_clicked()
