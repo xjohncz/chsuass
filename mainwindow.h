@@ -8,6 +8,7 @@
 
 #include "serverdaemon.h"
 #include "dbservice.h"
+#include "xlsreader.h"
 
 enum IdType {
     Student,
@@ -31,7 +32,7 @@ public:
 protected:
     void closeEvent(QCloseEvent *event);
 
-    //int getSelectedRowFromTableView(QTableView *view);
+    int getSelectedRowFromTableView(QTableView *view);
 
 private:
     void initGroups();
@@ -48,6 +49,7 @@ private:
     Ui::MainWindowClass *ui;
 
     dbservice *dbServ;
+    xlsreader *xlsRead;
 
     //QSqlDatabase db;
     //QSqlTableModel *groupsTableModel;
@@ -77,6 +79,7 @@ public slots:
     void saveStudentResultsSlot(int, QString, int, int, int, int, int, int);
 
 private slots:
+    void on_showStudentInfoButton_clicked();
     void on_marksImportButton_clicked();
     void on_saveExamTimeButton_clicked();
     void on_applyStudentsButton_clicked();

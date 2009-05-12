@@ -146,6 +146,19 @@ void dbservice::initExamTypes() {
 
 }
 
+void dbservice::initStudentMarks() {
+
+    if(!connected)
+        return;
+
+    studentMarksTableModel = new QSqlRelationalTableModel(this, db);
+    studentMarksTableModel->setTable("studentmarks");
+    studentMarksTableModel->setEditStrategy(QSqlRelationalTableModel::OnManualSubmit);
+
+    studentMarksTableModel->setRelation(1, QSqlRelation("subjects", "subjectID", "subjectName"));
+
+}
+
 void dbservice::filterStudents(int groupId) {
 
     if(!connected)
@@ -153,6 +166,16 @@ void dbservice::filterStudents(int groupId) {
 
     studentsTableModel->setFilter(QString("groupID=%1").arg(groupId));
     studentsTableModel->select();
+
+}
+
+void dbservice::filterStudentMarks(int studentId) {
+
+    if(!connected)
+        return;
+
+    studentMarksTableModel->setFilter(QString("studentID=%1").arg(studentId));
+    studentMarksTableModel->select();
 
 }
 
@@ -270,6 +293,11 @@ void dbservice::deleteStudent(int row) { deleteRowFromTableModel(studentsTableMo
 void dbservice::revertStudentChanges() { revertChanges(studentsTableModel); }
 QString dbservice::submitStudentChanges(bool &ok) { return submitChanges(studentsTableModel, ok); }
 
+void dbservice::addSubject() { addRowToTableModel(subjectsTableModel); }
+void dbservice::deleteSubject(int row) { deleteRowFromTableModel(subjectsTableModel, row); }
+void dbservice::revertSubjectChanges() { revertChanges(subjectsTableModel); }
+QString dbservice::submitSubjectChanges(bool &ok) { return submitChanges(subjectsTableModel, ok); }
+
 void dbservice::addCard() { addRowToTableModel(cardsTableModel); }
 void dbservice::deleteCard(int row) { deleteRowFromTableModel(cardsTableModel, row); }
 void dbservice::revertCardChanges() { revertChanges(cardsTableModel); }
@@ -284,4 +312,72 @@ void dbservice::addMember() { addRowToTableModel(membersTableModel); }
 void dbservice::deleteMember(int row) { deleteRowFromTableModel(membersTableModel, row); }
 void dbservice::revertMemberChanges() { revertChanges(membersTableModel); }
 QString dbservice::submitMemberChanges(bool &ok) { return submitChanges(membersTableModel, ok); }
+
+void dbservice::addStudentMark() { addRowToTableModel(studentMarksTableModel); }
+void dbservice::deleteStudentMark(int row) { deleteRowFromTableModel(studentMarksTableModel, row); }
+void dbservice::revertStudentMarkChanges() { revertChanges(studentMarksTableModel); }
+QString dbservice::submitStudentMarkChanges(bool &ok) { return submitChanges(studentMarksTableModel, ok); }
 /* End of data model manipulation */
+
+void dbservice::importStudents(const QMap<int, QString> &students, int groupId) {
+
+    QMapIterator<int, QString> i(students);
+
+    while(i.hasNext()) {
+        i.next();
+
+        addStudent(groupId);
+
+        int row = studentsTableModel->rowCount() - 1;
+
+        QModelIndex newStudentIndex = studentsTableModel->index(row, studentsTableModel->fieldIndex("groupID"));
+        studentsTableModel->setData(newStudentIndex, groupId);
+
+        newStudentIndex = studentsTableModel->index(row, studentsTableModel->fieldIndex("studentNumber"));
+        studentsTableModel->setData(newStudentIndex, i.key());
+
+        QStringList student = i.value().split(" ");
+        newStudentIndex = studentsTableModel->index(row, studentsTableModel->fieldIndex("surname"));
+        studentsTableModel->setData(newStudentIndex, student.at(0));
+        newStudentIndex = studentsTableModel->index(row, studentsTableModel->fieldIndex("name"));
+        studentsTableModel->setData(newStudentIndex, student.at(1));
+        newStudentIndex = studentsTableModel->index(row, studentsTableModel->fieldIndex("patronymic"));
+        studentsTableModel->setData(newStudentIndex, student.at(2));
+    }
+
+}
+
+void dbservice::importSubjects(const QStringList &subjects) {
+
+    for(int i = 0; i < subjects.count(); i++) {
+        addSubject();
+
+        int row = subjectsTableModel->rowCount() - 1;
+
+        QModelIndex newSubjectIndex = subjectsTableModel->index(row, subjectsTableModel->fieldIndex("subjectName"));
+        studentsTableModel->setData(newSubjectIndex, subjects.at(i));
+    }
+
+}
+
+void dbservice::importStudentMarks(const QMap<QString, int> &marks, int studentId) {
+
+    QMapIterator<QString, int> i(marks);
+    while(i.hasNext()) {
+        i.next();
+
+        addStudentMark();
+
+        int row = studentMarksTableModel->rowCount() - 1;
+
+        QModelIndex newMarkIndex = studentMarksTableModel->index(row, studentMarksTableModel->fieldIndex("studentID"));
+        studentMarksTableModel->setData(newMarkIndex, studentId);
+
+        newMarkIndex = studentMarksTableModel->index(row, studentMarksTableModel->fieldIndex("subjectName"));
+        studentMarksTableModel->setData(newMarkIndex, i.key());
+
+        newMarkIndex = studentMarksTableModel->index(row, studentMarksTableModel->fieldIndex("mark"));
+        studentMarksTableModel->setData(newMarkIndex, i.value());
+    }
+
+}

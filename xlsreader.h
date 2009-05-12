@@ -7,7 +7,7 @@
 class xlsreader
 {
 public:
-    xlsreader(QString file);
+    xlsreader();
 
     QString getXLSFileName() { return fileXLS; }
     void setXLSFileName(QString fileName) { fileXLS = fileName; }
