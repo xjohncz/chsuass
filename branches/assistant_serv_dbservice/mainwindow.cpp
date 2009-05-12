@@ -5,13 +5,12 @@
 #include "ui_mainwindow.h"
 #include "dialog.h"
 #include "protocol.h"
-#include "dbservice.h"
 
-#include "xlsreader.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
     ui(new Ui::MainWindowClass),
+    xlsRead(new xlsreader()),
     daemon(new ServerDaemon(this)),
     selectedGroupID(0),
     currentExamStudentListModel(new QSqlQueryModel(this)),
@@ -21,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     dbServ = new dbservice(this);
     if(!dbServ->connect("root", "1"))
-        QMessageBox::critical(this, tr("Ошибка подключения к БД"), tr("Попытка подключения к БД MySQL завершилась неудачей!"));
+        QMessageBox::critical(this, tr("� ћС€� ё� ±� є� ° � ї� ѕ� ґ� є� »СЋС‡� µ� Ѕ� ёСЏ � є � ‘� ”"), tr("� џ� ѕ� їС‹С‚� є� ° � ї� ѕ� ґ� є� »СЋС‡� µ� Ѕ� ёСЏ � є � ‘� ” MySQL � ·� °� І� µСЂС€� ё� »� °СЃСЊ � Ѕ� µСѓ� ґ� °С‡� µ� №!"));
 
     ui->categoryList->setCurrentRow(0);
     ui->stackedWidget->setCurrentIndex(0);
@@ -55,13 +54,13 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     event->accept();
 }
 
-//int MainWindow::getSelectedRowFromTableView(QTableView *view) {
-//
-//    QModelIndex index = view->selectionModel()->selectedIndexes().at(0);
-//
-//    return index.row();
-//
-//}
+int MainWindow::getSelectedRowFromTableView(QTableView *view) {
+
+    QModelIndex index = view->selectionModel()->selectedIndexes().at(0);
+
+    return index.row();
+
+}
 
 void MainWindow::authenticationClientSlot(QString username, int client)
 {
@@ -117,7 +116,7 @@ void MainWindow::studentRequestGrantedSlot() {
     if(currentExamTypeID == 1) {
         QString task = ui->currentExamCardQuestionsTextEdit->toPlainText();
         task.replace(QRegExp("\n"), "\r\n");
-        studentTask = tr("Билет: ") + ui->currentExamCardNumberEdit->text() + "\r\n" + task;
+        studentTask = tr("� ‘� ё� »� µС‚: ") + ui->currentExamCardNumberEdit->text() + "\r\n" + task;
     } else if(currentExamTypeID == 2) {
         studentTask = ui->currentExamThemeTextEdit->toPlainText();
     }
@@ -140,8 +139,8 @@ void MainWindow::saveStudentResultsSlot(int studentID, QString username, int mar
     if(query.next()) {
         memberID = query.value(0).toInt();
     } else {
-        QMessageBox::warning(this, tr("Ошибка сохранения результатов студента"),
-                             tr("Поступившие от %1 результаты не могут быть сохранены,\nт.к. член комиссии с таким именем не найден"));
+        QMessageBox::warning(this, tr("� ћС€� ё� ±� є� ° СЃ� ѕС…СЂ� °� Ѕ� µ� Ѕ� ёСЏ СЂ� µ� ·Сѓ� »СЊС‚� °С‚� ѕ� І СЃС‚Сѓ� ґ� µ� ЅС‚� °"),
+                             tr("� џ� ѕСЃС‚Сѓ� ї� ё� ІС€� ё� µ � ѕС‚ %1 СЂ� µ� ·Сѓ� »СЊС‚� °С‚С‹ � Ѕ� µ � ј� ѕ� іСѓС‚ � ±С‹С‚СЊ СЃ� ѕС…СЂ� °� Ѕ� µ� ЅС‹,\nС‚.� є. С‡� »� µ� Ѕ � є� ѕ� ј� ёСЃСЃ� ё� ё СЃ С‚� °� є� ё� ј � ё� ј� µ� Ѕ� µ� ј � Ѕ� µ � Ѕ� °� №� ґ� µ� Ѕ"));
         return;
     }
 
@@ -361,7 +360,7 @@ void MainWindow::on_filterButton_clicked()
     if(query.next())
         groupID = query.value(0).toInt();
     else {
-        QMessageBox::information(this, tr("Группа не найдена"), tr("Нет группы, удовлетворяющей условиям фильтрации"));
+        QMessageBox::information(this, tr("� “СЂСѓ� ї� ї� ° � Ѕ� µ � Ѕ� °� №� ґ� µ� Ѕ� °"), tr("� ќ� µС‚ � іСЂСѓ� ї� їС‹, Сѓ� ґ� ѕ� І� »� µС‚� І� ѕСЂСЏСЋС‰� µ� № СѓСЃ� »� ѕ� І� ёСЏ� ј С„� ё� »СЊС‚СЂ� °С� � ё� ё"));
         return;
     }
 
@@ -386,7 +385,7 @@ void MainWindow::on_fillCurrentExamButton_clicked()
         currentExamTypeID = query.value(1).toInt();
     }
     else {
-        QMessageBox::warning(this, tr("Ошибка поиска экзамена"), tr("Нет признака текущего ни у одного экзамена в БД"));
+        QMessageBox::warning(this, tr("� ћС€� ё� ±� є� ° � ї� ѕ� ёСЃ� є� ° СЌ� є� ·� °� ј� µ� Ѕ� °"), tr("� ќ� µС‚ � їСЂ� ё� ·� Ѕ� °� є� ° С‚� µ� єСѓС‰� µ� і� ѕ � Ѕ� ё Сѓ � ѕ� ґ� Ѕ� ѕ� і� ѕ СЌ� є� ·� °� ј� µ� Ѕ� ° � І � ‘� ”"));
         return;
     }
 
@@ -404,8 +403,8 @@ void MainWindow::on_serverButton_clicked()
 {
     if(!daemon->isListening()) {
         if(!daemon->listen())
-            QMessageBox::critical(this, tr("Ошибка запуска сервера"), tr("Не удалось запустить TCP-сервер"));
-        ui->portLabel->setText(tr("Номер порта: %1").arg(daemon->serverPort()));
+            QMessageBox::critical(this, tr("� ћС€� ё� ±� є� ° � ·� °� їСѓСЃ� є� ° СЃ� µСЂ� І� µСЂ� °"), tr("� ќ� µ Сѓ� ґ� °� »� ѕСЃСЊ � ·� °� їСѓСЃС‚� ёС‚СЊ TCP-СЃ� µСЂ� І� µСЂ"));
+        ui->portLabel->setText(tr("� ќ� ѕ� ј� µСЂ � ї� ѕСЂС‚� °: %1").arg(daemon->serverPort()));
     }
 }
 
@@ -470,21 +469,30 @@ void MainWindow::on_currentExamSaveCardNumberButton_clicked()
 void MainWindow::on_deleteGroupButton_clicked()
 {
     //deleteRowFromTableModel(groupsTableModel, ui->groupsTableView);
+    int row = getSelectedRowFromTableView(ui->groupsTableView);
+    dbServ->deleteGroup(row);
 }
 
 void MainWindow::on_addGroupButton_clicked()
 {
     //addRowToTableModel(groupsTableModel);
+    dbServ->addGroup();
 }
 
 void MainWindow::on_cancelGroupsButton_clicked()
 {
     //revertChanges(groupsTableModel);
+    dbServ->revertGroupChanges();
 }
 
 void MainWindow::on_applyGroupsButton_clicked()
 {
     //submitChanges(groupsTableModel);
+    bool ok;
+    QString err = dbServ->submitGroupChanges(ok);
+
+    if(!ok)
+        QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных вернула ошибку: %1").arg(err));
 }
 
 void MainWindow::on_deleteStudentButton_clicked()
@@ -506,11 +514,17 @@ void MainWindow::on_addStudentButton_clicked()
 void MainWindow::on_cancelStudentsButton_clicked()
 {
     //revertChanges(studentsTableModel);
+    dbServ->revertStudentChanges();
 }
 
 void MainWindow::on_applyStudentsButton_clicked()
 {
     //submitChanges(studentsTableModel);
+    bool ok;
+    QString err = dbServ->submitStudentChanges(ok);
+
+    if(!ok)
+        QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных вернула ошибку: %1").arg(err));
 }
 
 void MainWindow::on_saveExamTimeButton_clicked()
@@ -522,4 +536,16 @@ void MainWindow::on_marksImportButton_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Open file...");
 
+}
+
+void MainWindow::on_showStudentInfoButton_clicked()
+{
+    xlsRead->setXLSFileName("C:/Development/52.xls");
+    QMap<int, QString> group = xlsRead->readGroupXLS();
+
+    int selectedGroupRow = getSelectedRowFromTableView(ui->groupsTableView);
+    QModelIndex selectedGroupIndex = dbServ->getGroupsTableModel()->index(selectedGroupRow, 0);
+    int groupId = dbServ->getGroupsTableModel()->data(selectedGroupIndex).toInt();
+
+    dbServ->importStudents(group, groupId);
 }

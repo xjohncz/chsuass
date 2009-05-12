@@ -12,7 +12,8 @@ SOURCES += main.cpp \
     daemonservice.cpp \
     dialog.cpp \
     marksdialog.cpp \
-    xlsreader.cpp
+    xlsreader.cpp \
+    reportcreator.cpp
 HEADERS += mainwindow.h \
     dbservice.h \
     protocol.h \
@@ -20,7 +21,8 @@ HEADERS += mainwindow.h \
     daemonservice.h \
     dialog.h \
     marksdialog.h \
-    xlsreader.h
+    xlsreader.h \
+    reportcreator.h
 FORMS += mainwindow.ui \
     dialog.ui \
     marksdialog.ui

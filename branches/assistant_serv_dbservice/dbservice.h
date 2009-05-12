@@ -33,7 +33,9 @@ public:
     void initThemes();
     void initMembers();
     void initExamTypes();
+    void initStudentMarks();
     void filterStudents(int groupId);
+    void filterStudentMarks(int studentId);
     void refreshGroupListModel();
 
     bool userAuth(QString username, int &userID, QString &name);
@@ -49,6 +51,11 @@ public:
     void revertStudentChanges();
     QString submitStudentChanges(bool &ok);
 
+    void addSubject();
+    void deleteSubject(int row);
+    void revertSubjectChanges();
+    QString submitSubjectChanges(bool &ok);
+
     void addCard();
     void deleteCard(int row);
     void revertCardChanges();
@@ -63,7 +70,16 @@ public:
     void deleteMember(int row);
     void revertMemberChanges();
     QString submitMemberChanges(bool &ok);
+
+    void addStudentMark();
+    void deleteStudentMark(int row);
+    void revertStudentMarkChanges();
+    QString submitStudentMarkChanges(bool &ok);
     /* End of data model manipulation */
+
+    void importStudents(const QMap<int, QString> &students, int groupId);
+    void importSubjects(const QStringList &subjects);
+    void importStudentMarks(const QMap<QString, int> &marks, int studentId);
 
 protected:
     void initTableModelWithManualSubmit(QSqlTableModel *model, QString tableName);
@@ -82,6 +98,7 @@ private:
     QSqlTableModel *cardsTableModel;
     QSqlTableModel *themesTableModel;
     QSqlTableModel *membersTableModel;
+    QSqlRelationalTableModel *studentMarksTableModel;
 
     QStringListModel *examTypesListModel;
 

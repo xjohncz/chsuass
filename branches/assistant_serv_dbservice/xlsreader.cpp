@@ -4,12 +4,14 @@
 #include <QProcess>
 #include <QDir>
 
-xlsreader::xlsreader(QString file) :
-        fileXLS(file)
+xlsreader::xlsreader()
 {
 }
 
 void xlsreader::convertToCSV(QString outFileName) {
+
+    if(fileXLS.isEmpty())
+        return;
 
     FILE *pFile;
     pFile = fopen(outFileName.toStdString().c_str(), "w");
@@ -19,12 +21,12 @@ void xlsreader::convertToCSV(QString outFileName) {
     proc.setStandardOutputFile(outFileName);
 
 #ifdef Q_OS_LINUX
-    proc.start("xls2csv", QStringList() << "-s" << "1251" << "-d" << "utf8" << "-c" << ";" << fileXLS);
+    proc.start("xls2csv", QStringList() << "-s" << "cp1251" << "-d" << "utf-8" << "-c" << ";" << fileXLS);
 #endif
 
 #ifdef Q_OS_WIN32
     QString xls2csv = QDir::currentPath() + "/libs/xls2csv/xls2csv.exe";
-    proc.start(xls2csv, QStringList() << "-s" << "1251" << "-d" << "utf8" << "-c" << ";" << fileXLS);
+    proc.start(xls2csv, QStringList() << "-s" << "cp1251" << "-d" << "utf-8" << "-c" << ";" << fileXLS);
 #endif
 
     proc.waitForFinished();
