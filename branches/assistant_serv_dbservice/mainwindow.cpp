@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     dbServ = new dbservice(this);
     if(!dbServ->connect("root", "1"))
-        QMessageBox::critical(this, tr("� ћС€� ё� ±� є� ° � ї� ѕ� ґ� є� »СЋС‡� µ� Ѕ� ёСЏ � є � ‘� ”"), tr("� џ� ѕ� їС‹С‚� є� ° � ї� ѕ� ґ� є� »СЋС‡� µ� Ѕ� ёСЏ � є � ‘� ” MySQL � ·� °� І� µСЂС€� ё� »� °СЃСЊ � Ѕ� µСѓ� ґ� °С‡� µ� №!"));
+        QMessageBox::critical(this, tr("Ошибка подключения к БД"), tr("Попытка подключения к БД MySQL завершилась неудачей!"));
 
     ui->categoryList->setCurrentRow(0);
     ui->stackedWidget->setCurrentIndex(0);
@@ -116,7 +116,7 @@ void MainWindow::studentRequestGrantedSlot() {
     if(currentExamTypeID == 1) {
         QString task = ui->currentExamCardQuestionsTextEdit->toPlainText();
         task.replace(QRegExp("\n"), "\r\n");
-        studentTask = tr("� ‘� ё� »� µС‚: ") + ui->currentExamCardNumberEdit->text() + "\r\n" + task;
+        studentTask = tr("а та ба ТЛа ТЕаЁт: ") + ui->currentExamCardNumberEdit->text() + "\r\n" + task;
     } else if(currentExamTypeID == 2) {
         studentTask = ui->currentExamThemeTextEdit->toPlainText();
     }
@@ -139,8 +139,8 @@ void MainWindow::saveStudentResultsSlot(int studentID, QString username, int mar
     if(query.next()) {
         memberID = query.value(0).toInt();
     } else {
-        QMessageBox::warning(this, tr("� ћС€� ё� ±� є� ° СЃ� ѕС…СЂ� °� Ѕ� µ� Ѕ� ёСЏ СЂ� µ� ·Сѓ� »СЊС‚� °С‚� ѕ� І СЃС‚Сѓ� ґ� µ� ЅС‚� °"),
-                             tr("� џ� ѕСЃС‚Сѓ� ї� ё� ІС€� ё� µ � ѕС‚ %1 СЂ� µ� ·Сѓ� »СЊС‚� °С‚С‹ � Ѕ� µ � ј� ѕ� іСѓС‚ � ±С‹С‚СЊ СЃ� ѕС…СЂ� °� Ѕ� µ� ЅС‹,\nС‚.� є. С‡� »� µ� Ѕ � є� ѕ� ј� ёСЃСЃ� ё� ё СЃ С‚� °� є� ё� ј � ё� ј� µ� Ѕ� µ� ј � Ѕ� µ � Ѕ� °� №� ґ� µ� Ѕ"));
+        QMessageBox::warning(this, tr("Ошибка сохранения результатов студента"),
+                             tr("Поступившие от %1 результаты не могут быть сохранены,\nт.к. член комиссии с таким именем не найден"));
         return;
     }
 
@@ -360,7 +360,7 @@ void MainWindow::on_filterButton_clicked()
     if(query.next())
         groupID = query.value(0).toInt();
     else {
-        QMessageBox::information(this, tr("� “СЂСѓ� ї� ї� ° � Ѕ� µ � Ѕ� °� №� ґ� µ� Ѕ� °"), tr("� ќ� µС‚ � іСЂСѓ� ї� їС‹, Сѓ� ґ� ѕ� І� »� µС‚� І� ѕСЂСЏСЋС‰� µ� № СѓСЃ� »� ѕ� І� ёСЏ� ј С„� ё� »СЊС‚СЂ� °С� � ё� ё"));
+        QMessageBox::information(this, tr("Группа не найдена"), tr("Нет группы, удовлетворяющей условиям фильтрации"));
         return;
     }
 
@@ -385,7 +385,7 @@ void MainWindow::on_fillCurrentExamButton_clicked()
         currentExamTypeID = query.value(1).toInt();
     }
     else {
-        QMessageBox::warning(this, tr("� ћС€� ё� ±� є� ° � ї� ѕ� ёСЃ� є� ° СЌ� є� ·� °� ј� µ� Ѕ� °"), tr("� ќ� µС‚ � їСЂ� ё� ·� Ѕ� °� є� ° С‚� µ� єСѓС‰� µ� і� ѕ � Ѕ� ё Сѓ � ѕ� ґ� Ѕ� ѕ� і� ѕ СЌ� є� ·� °� ј� µ� Ѕ� ° � І � ‘� ”"));
+        QMessageBox::warning(this, tr("Ошибка поиска экзамена"), tr("Нет признака текущего ни у одного экзамена в БД"));
         return;
     }
 
@@ -403,8 +403,8 @@ void MainWindow::on_serverButton_clicked()
 {
     if(!daemon->isListening()) {
         if(!daemon->listen())
-            QMessageBox::critical(this, tr("� ћС€� ё� ±� є� ° � ·� °� їСѓСЃ� є� ° СЃ� µСЂ� І� µСЂ� °"), tr("� ќ� µ Сѓ� ґ� °� »� ѕСЃСЊ � ·� °� їСѓСЃС‚� ёС‚СЊ TCP-СЃ� µСЂ� І� µСЂ"));
-        ui->portLabel->setText(tr("� ќ� ѕ� ј� µСЂ � ї� ѕСЂС‚� °: %1").arg(daemon->serverPort()));
+            QMessageBox::critical(this, tr("Ошибка запуска сервера"), tr("Не удалось запустить TCP-сервер"));
+        ui->portLabel->setText(tr("Номер порта: %1").arg(daemon->serverPort()));
     }
 }
 
@@ -540,7 +540,7 @@ void MainWindow::on_marksImportButton_clicked()
 
 void MainWindow::on_showStudentInfoButton_clicked()
 {
-    xlsRead->setXLSFileName("C:/Development/52.xls");
+    xlsRead->setXLSFileName("/home/domi/52.xls");
     QMap<int, QString> group = xlsRead->readGroupXLS();
 
     int selectedGroupRow = getSelectedRowFromTableView(ui->groupsTableView);
