@@ -3,12 +3,14 @@
 #include <stdio.h>
 #include <QProcess>
 #include <QDir>
+#include <QTextStream>
+#include <QTextCodec>
 
 xlsreader::xlsreader()
 {
 }
 
-void xlsreader::convertToCSV(QString outFileName) {
+void xlsreader::convertToCSV(const QString &outFileName) {
 
     if(fileXLS.isEmpty())
         return;
@@ -33,7 +35,7 @@ void xlsreader::convertToCSV(QString outFileName) {
 
 }
 
-QString xlsreader::getSectionFromCSV(QString record, int beg, int end) {
+QString xlsreader::getSectionFromCSV(const QString &record, int beg, int end) {
 
     QString str = record.section(";", beg, end);
     return str.mid(1, str.length() - 2);
@@ -63,19 +65,23 @@ void xlsreader::cleanTempFile() {
 
 }
 
-QStringList xlsreader::readSubjectsFromCSV(QString fileName) {
+QStringList xlsreader::readSubjectsFromCSV(const QString &fileName) {
 
     QStringList resList;
 
     QFile file(fileName);
     file.open(QIODevice::ReadOnly);
+    QTextStream textStream(&file);
 
-    while(!file.atEnd()) {
+    QTextCodec *utf8_codec = QTextCodec::codecForName("utf-8");
+    textStream.setCodec(utf8_codec);
 
-        QString str = file.readLine();
+    while(!textStream.atEnd()) {
+
+        QString str = textStream.readLine();
         QString examType = getSectionFromCSV(str, 33, 33);
 
-        if(examType != "Экзамен")
+        if(examType != QObject::trUtf8("Экзамен"))
             continue;
 
         QString subject = getSectionFromCSV(str, 30, 30);
@@ -97,30 +103,34 @@ QStringList xlsreader::readSubjectsFromXLSStudentCard() {
 
 }
 
-QMap<QString, int> xlsreader::readStudentMarksFromCSV(QString fileName) {
+QMap<QString, int> xlsreader::readStudentMarksFromCSV(const QString &fileName) {
 
     QMap<QString, int> resMarks;
 
     QFile file(fileName);
     file.open(QIODevice::ReadOnly);
+    QTextStream textStream(&file);
 
-    while(!file.atEnd()) {
+    QTextCodec *utf8_codec = QTextCodec::codecForName("utf-8");
+    textStream.setCodec(utf8_codec);
 
-        QString str = file.readLine();
+    while(!textStream.atEnd()) {
+
+        QString str = textStream.readLine();
         QString examType = getSectionFromCSV(str, 33, 33);
 
-        if(examType != "Экзамен")
+        if(examType != QObject::trUtf8("Экзамен"))
             continue;
 
         QString subject = getSectionFromCSV(str, 30, 30);
         QString strMark = getSectionFromCSV(str, 34, 34);
 
         int mark = 0;
-        if(strMark == "удовлетворительно")
+        if(strMark == QObject::trUtf8("удовлетворительно"))
             mark = 3;
-        else if(strMark == "хорошо")
+        else if(strMark == QObject::trUtf8("хорошо"))
             mark = 4;
-        else if(strMark == "отлично")
+        else if(strMark == QObject::trUtf8("отлично"))
             mark = 5;
 
         resMarks.insert(subject, mark);
@@ -141,19 +151,23 @@ QMap<QString, int> xlsreader::readStudentMarksFromXLSStudentCard() {
 
 }
 
-QMap<int, QString> xlsreader::readGroupFromCSV(QString fileName) {
+QMap<int, QString> xlsreader::readGroupFromCSV(const QString &fileName) {
 
     QMap<int, QString> resGroup;
 
     QFile file(fileName);
     file.open(QIODevice::ReadOnly);
+    QTextStream textStream(&file);
 
-    while(!file.atEnd()) {
+    QTextCodec *utf8_codec = QTextCodec::codecForName("utf-8");
+    textStream.setCodec(utf8_codec);
 
-        QString str = file.readLine();
+    while(!textStream.atEnd()) {
+
+        QString str = textStream.readLine();
         QString recType = getSectionFromCSV(str, 5, 5);
 
-        if(recType != "Студент")
+        if(recType != QObject::trUtf8("Студент"))
             continue;
 
         QString strStudentNum = getSectionFromCSV(str, 7, 7);

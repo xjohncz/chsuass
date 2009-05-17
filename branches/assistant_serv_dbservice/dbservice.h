@@ -3,8 +3,14 @@
 
 #include <QObject>
 #include <QStringListModel>
+#include <QDomDocument>
 
 #include <QtSql>
+
+enum ExamType {
+    GEK,
+    GAK
+};
 
 class dbservice : public QObject
 {
@@ -81,9 +87,10 @@ public:
     void importSubjects(const QStringList &subjects);
     void importStudentMarks(const QMap<QString, int> &marks, int studentId);
 
-protected:
-    void initTableModelWithManualSubmit(QSqlTableModel *model, QString tableName);
+    QDomDocument exportCardsToXML();
+    QDomDocument exportStudentsToXML(int examId);
 
+protected:
     void deleteRowFromTableModel(QSqlTableModel *, int row);
     void addRowToTableModel(QSqlTableModel *);
     void revertChanges(QSqlTableModel *);
