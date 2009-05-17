@@ -367,6 +367,20 @@ void dbservice::importStudentMarks(const QMap<QString, int> &marks, int studentI
 
 }
 
+QMap<int, QString> dbservice::getCards() {
+
+    QSqlQuery query("SELECT * FROM cards", db);
+    query.exec();
+
+    QMap<int, QString> map;
+
+    while(query.next())
+        map.insert(query.value(0).toInt(), query.value(1).toString());
+
+    return map;
+
+}
+
 QDomDocument dbservice::exportCardsToXML() {
 
     QSqlQuery query("SELECT * FROM cards");

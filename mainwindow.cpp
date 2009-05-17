@@ -42,18 +42,9 @@ MainWindow::MainWindow(QWidget *parent)
     initMembers();
     initExamTypes();
 
-    //reportcreator rep;
-    //rep.createCardsReport();
-    //rep.writeReport("/home/domi/rep.html");
-    QFile file("/home/domi/test.xml");
-    file.open(QIODevice::WriteOnly);
-
-    QTextStream textStream(&file);
-    QDomDocument doc = dbServ->exportStudentsToXML(2);
-    textStream << doc.toString();
-    textStream.flush();
-
-    file.close();
+    //QMap<int, QString> map = dbServ->getCards();
+    //QString str = reportcreator::createCardReport(map);
+    //reportcreator::writeReport("/home/domi/test.htm", str);
 
 }
 

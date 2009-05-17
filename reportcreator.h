@@ -1,23 +1,16 @@
 #ifndef REPORTCREATOR_H
 #define REPORTCREATOR_H
 
-#include <QTextDocument>
-#include <QTextCursor>
+#include <QMap>
 
 class reportcreator
 {
 public:
     reportcreator();
     ~reportcreator();
-    QTextDocument *createCardsReport();
-    void writeReport(const QString &fileName);
+    static QString createCardReport(const QMap<int, QString> &map);
+    static void writeReport(const QString &fileName, const QString &report);
 
-    void clear() { document->clear(); }
-    //QTextDocument *getDocument() { return document; }
-
-private:
-    QTextDocument *document;
-    QTextCursor cursor;
 };
 
 #endif // REPORTCREATOR_H

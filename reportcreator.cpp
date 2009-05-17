@@ -1,80 +1,87 @@
 #include "reportcreator.h"
 
-#include <QTextDocumentWriter>
-#include <QTextDocumentFragment>
 #include <QFile>
 #include <QTextStream>
-//#include <QImage>
-//#include <QVector>
+#include <QTextCodec>
+#include <QDir>
 
 reportcreator::reportcreator()
-        : document(new QTextDocument()),
-        cursor(document)
 {
 }
 
 reportcreator::~reportcreator() {
+}
 
-    delete document;
+QString reportcreator::createCardReport(const QMap<int, QString> &map) {
+
+    QString templatePath = QDir::currentPath() + "/templates/card/";
+
+    QTextCodec *cp1251_codec = QTextCodec::codecForName("cp1251");
+
+    QFile file;
+    QTextStream textStream(&file);
+    textStream.setCodec(cp1251_codec);
+    QString resultReport;
+
+    file.setFileName(templatePath + "card_begin.htm");
+    file.open(QIODevice::ReadOnly);
+    resultReport = textStream.readAll();
+    file.close();
+
+    QString cardHeader;
+    QString cardCont;
+    QString cardFooter;
+
+    file.setFileName(templatePath + "card_header.htm");
+    file.open(QIODevice::ReadOnly);
+    cardHeader = textStream.readAll();
+    file.close();
+
+    file.setFileName(templatePath + "card_cont.htm");
+    file.open(QIODevice::ReadOnly);
+    cardCont = textStream.readAll();
+    file.close();
+
+    file.setFileName(templatePath + "card_footer.htm");
+    file.open(QIODevice::ReadOnly);
+    cardFooter = textStream.readAll();
+    file.close();
+
+    QMapIterator<int, QString> i(map);
+    while(i.hasNext()) {
+        i.next();
+
+        QString head = cardHeader;
+        head.replace(QString("%cnum%"), QString::number(i.key()));
+
+        QString cont = cardCont;
+        cont.replace(QString("%card_contents%"), i.value());
+
+        resultReport = resultReport + head + cont + cardFooter;
+
+    }
+
+    file.setFileName(templatePath + "card_end.htm");
+    file.open(QIODevice::ReadOnly);
+    resultReport = resultReport + textStream.readAll();
+    file.close();
+
+    return resultReport;
 
 }
 
-QTextDocument *reportcreator::createCardsReport() {
+void reportcreator::writeReport(const QString &fileName, const QString &report) {
 
-    QImage logo(":/images/chsu_logo.png");
+    QTextCodec *cp1251_codec = QTextCodec::codecForName("cp1251");
+    QFile file(fileName);
+    file.open(QIODevice::WriteOnly);
 
-    QTextTableFormat tableFormat;
-    QVector<QTextLength> tableWidths;
-    tableWidths << QTextLength(QTextLength::PercentageLength, 10)
-            << QTextLength(QTextLength::PercentageLength, 90);
-    tableFormat.setColumnWidthConstraints(tableWidths);
-    cursor.insertTable(1, 2, tableFormat);
+    QTextStream textStream(&file);
+    textStream.setCodec(cp1251_codec);
 
-    QTextBlockFormat blockFormat;
-    blockFormat.setAlignment(Qt::AlignHCenter);
+    textStream << report;
+    textStream.flush();
 
-    cursor.setBlockFormat(blockFormat);
-    cursor.insertImage(logo);
-
-    cursor.movePosition(QTextCursor::NextCell);
-    cursor.insertText(QObject::tr("МИНИСТЕРСТВО ОБРАЗОВАНИЯ И НАУКИ РОССИЙСКОЙ ФЕДЕРАЦИИ"));
-    cursor.insertBlock();
-    cursor.insertText(QObject::tr("ФЕДЕРАЛЬНОЕ АГЕНСТВО ПО ОБРАЗОВАНИЮ"));
-    cursor.insertBlock();
-    cursor.insertText(QObject::tr("Государственное образовательное учреждение"));
-    cursor.insertBlock();
-    cursor.insertText(QObject::tr("высшего профессионального образования"));
-    cursor.insertBlock();
-    cursor.insertText(QObject::tr("\"ЧЕРЕПОВЕЦКИЙ ГОСУДАРСТВЕННЫЙ УНИВЕРСИТЕТ\""));
-
-    cursor.movePosition(QTextCursor::NextBlock);
-    QTextFrameFormat frameFormat;
-    frameFormat.setBorder(1);
-    frameFormat.setHeight(150);
-    cursor.insertFrame(frameFormat);
-    cursor.movePosition(QTextCursor::NextBlock);
-    cursor.insertText("test");
-
-//    QFile cardTemplate("templates/card.htm");
-//    cardTemplate.open(QIODevice::ReadOnly);
-//
-//    QTextStream textStream(&cardTemplate);
-//    QString htmlCard = textStream.readAll();
-//
-//    cardTemplate.close();
-//
-//    QTextDocumentFragment docFragment = QTextDocumentFragment::fromHtml(htmlCard);
-//
-//    cursor.insertFragment(docFragment);
-
-    return document;
-
-}
-
-void reportcreator::writeReport(const QString &fileName) {
-
-    QTextDocumentWriter writer(fileName);
-    writer.setFormat("html");
-    writer.write(document);
+    file.close();
 
 }
