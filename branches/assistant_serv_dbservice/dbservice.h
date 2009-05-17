@@ -87,6 +87,8 @@ public:
     void importSubjects(const QStringList &subjects);
     void importStudentMarks(const QMap<QString, int> &marks, int studentId);
 
+    QMap<int, QString> getCards();
+
     QDomDocument exportCardsToXML();
     QDomDocument exportStudentsToXML(int examId);
 
