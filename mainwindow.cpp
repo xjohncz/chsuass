@@ -5,6 +5,7 @@
 #include "ui_mainwindow.h"
 #include "dialog.h"
 #include "protocol.h"
+#include "reportcreator.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -19,8 +20,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     dbServ = new dbservice(this);
-    if(!dbServ->connect("root", "1"))
+    if(!dbServ->connect("root", "1")) {
         QMessageBox::critical(this, tr("Ошибка подключения к БД"), tr("Попытка подключения к БД MySQL завершилась неудачей!"));
+        exit(0);
+    }
 
     ui->categoryList->setCurrentRow(0);
     ui->stackedWidget->setCurrentIndex(0);
@@ -38,6 +41,19 @@ MainWindow::MainWindow(QWidget *parent)
     initThemes();
     initMembers();
     initExamTypes();
+
+    //reportcreator rep;
+    //rep.createCardsReport();
+    //rep.writeReport("/home/domi/rep.html");
+    QFile file("/home/domi/test.xml");
+    file.open(QIODevice::WriteOnly);
+
+    QTextStream textStream(&file);
+    QDomDocument doc = dbServ->exportStudentsToXML(2);
+    textStream << doc.toString();
+    textStream.flush();
+
+    file.close();
 
 }
 

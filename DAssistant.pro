@@ -2,7 +2,8 @@
 # Project created by QtCreator 2009-03-02T23:24:47
 # -------------------------------------------------
 QT += network \
-    sql
+    sql \
+    xml
 TARGET = DAssistant
 TEMPLATE = app
 SOURCES += main.cpp \
@@ -26,4 +27,5 @@ HEADERS += mainwindow.h \
 FORMS += mainwindow.ui \
     dialog.ui \
     marksdialog.ui
+RESOURCES = res.qrc
 win32:LIBS += -lwsock32

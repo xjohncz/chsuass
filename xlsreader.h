@@ -10,20 +10,20 @@ public:
     xlsreader();
 
     QString getXLSFileName() { return fileXLS; }
-    void setXLSFileName(QString fileName) { fileXLS = fileName; }
+    void setXLSFileName(const QString &fileName) { fileXLS = fileName; }
 
-    void convertToCSV(QString outFileName);
+    void convertToCSV(const QString &outFileName);
 
-    QStringList readSubjectsFromCSV(QString fileName);
-    QMap<QString, int> readStudentMarksFromCSV(QString fileName);
-    QMap<int, QString> readGroupFromCSV(QString fileName);
+    QStringList readSubjectsFromCSV(const QString &fileName);
+    QMap<QString, int> readStudentMarksFromCSV(const QString &fileName);
+    QMap<int, QString> readGroupFromCSV(const QString &fileName);
 
     QStringList readSubjectsFromXLSStudentCard();
     QMap<QString, int> readStudentMarksFromXLSStudentCard();
     QMap<int, QString> readGroupXLS();
 
 protected:
-    QString getSectionFromCSV(QString record, int beg, int end);
+    QString getSectionFromCSV(const QString &record, int beg, int end);
     QString prepareTempFile();
     void cleanTempFile();
 

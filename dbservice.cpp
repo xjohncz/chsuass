@@ -1,5 +1,3 @@
-#include <QCryptographicHash>
-#include <QMessageBox>
 #include "dbservice.h"
 
 dbservice::dbservice(QObject *parent)
@@ -39,19 +37,6 @@ void dbservice::disconnect()
     if(db.isOpen())
         db.close();
     connected = false;
-}
-
-void dbservice::initTableModelWithManualSubmit(QSqlTableModel *model, QString tableName) {
-
-    if(!connected)
-        return;
-
-    model = new QSqlTableModel(this, db);
-    model->setTable(tableName);
-    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-
-    model->select();
-
 }
 
 void dbservice::initGroups() {
@@ -379,5 +364,112 @@ void dbservice::importStudentMarks(const QMap<QString, int> &marks, int studentI
         newMarkIndex = studentMarksTableModel->index(row, studentMarksTableModel->fieldIndex("mark"));
         studentMarksTableModel->setData(newMarkIndex, i.value());
     }
+
+}
+
+QDomDocument dbservice::exportCardsToXML() {
+
+    QSqlQuery query("SELECT * FROM cards");
+    query.exec();
+
+    QDomDocument doc;
+    QDomElement root = doc.createElement("cards");
+    doc.appendChild(root);
+
+    while(query.next()) {
+        QDomElement card = doc.createElement("card");
+        card.setAttribute("number", query.value(0).toInt());
+        //QDomElement questions = doc.createElement("questions");
+        QDomText questionsContents = doc.createTextNode(query.value(1).toString());
+        card.appendChild(questionsContents);
+        root.appendChild(card);
+    }
+
+    return doc;
+
+}
+
+QDomDocument dbservice::exportStudentsToXML(int examId) {
+
+    QSqlQuery query(QString("SELECT typeName FROM examtypes WHERE typeId = (SELECT typeId FROM exams WHERE examId = %1 LIMIT 1)").arg(examId), db);
+    query.exec();
+    query.next();
+
+    QString examType = query.value(0).toString();
+
+    QDomDocument doc;
+    QDomElement root = doc.createElement("students");
+    root.setAttribute("examId", examId);
+    root.setAttribute("examType", examType);
+    doc.appendChild(root);
+
+    if(examType == QObject::trUtf8("Государственный экзамен")) {
+
+        query.prepare("SELECT examstudentlist.studentID, students.surname, students.name, "
+                      "students.patronymic, examstudentlist.cardNumber FROM examstudentlist "
+                      "INNER JOIN students ON students.studentID = examstudentlist.studentID WHERE examstudentlist.examID = :examId");
+        query.bindValue(":examId", examId);
+        query.exec();
+
+        while(query.next()) {
+            int studentId = query.value(0).toInt();
+            QString studentFio = query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString();
+            int cardNumber = query.value(4).toInt();
+
+            QDomElement student = doc.createElement("student");
+            student.setAttribute("studentId", studentId);
+            student.setAttribute("studentFio", studentFio);
+            student.setAttribute("cardNumber", cardNumber);
+
+            QDomElement marks = doc.createElement("marks");
+
+            QSqlQuery marksQuery(db);
+            marksQuery.prepare("SELECT subjects.subjectName, studentmarks.mark FROM studentmarks "
+                               "INNER JOIN subjects ON subjects.subjectID = studentmarks.subjectID WHERE studentmarks.studentID = :studentId");
+            marksQuery.bindValue(":studentId", studentId);
+            marksQuery.exec();
+
+            while(marksQuery.next()) {
+
+                QDomElement subjMark = doc.createElement("mark");
+                subjMark.setAttribute("subject", marksQuery.value(0).toString());
+                QDomText subjMarkVal = doc.createTextNode(QString::number(marksQuery.value(1).toInt()));
+
+                subjMark.appendChild(subjMarkVal);
+                marks.appendChild(subjMark);
+
+            }
+
+            student.appendChild(marks);
+
+            QDomElement memberMarks = doc.createElement("memberMarks");
+            memberMarks.setAttribute("memberId", 0);
+
+            for(int i = 1; i < 4; i++) {
+                QDomElement mark = doc.createElement("mark" + QString::number(i));
+                QDomText markVal = doc.createTextNode(QString::number(0));
+
+                mark.appendChild(markVal);
+                memberMarks.appendChild(mark);
+            }
+
+            QDomElement resMemberMark = doc.createElement("resMark");
+            QDomText resMarkVal = doc.createTextNode(QString::number(0));
+            resMemberMark.appendChild(resMarkVal);
+            memberMarks.appendChild(resMemberMark);
+
+            student.appendChild(memberMarks);   
+
+            root.appendChild(student);
+        }
+
+    } else
+        if (examType == QObject::trUtf8("Защита диплома")) {
+
+
+
+    }
+
+    return doc;
 
 }
