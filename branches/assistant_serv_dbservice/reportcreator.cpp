@@ -48,6 +48,7 @@ QString reportcreator::createCardReport(const QMap<int, QString> &map) {
     file.close();
 
     QMapIterator<int, QString> i(map);
+    int count = 1;
     while(i.hasNext()) {
         i.next();
 
@@ -55,10 +56,17 @@ QString reportcreator::createCardReport(const QMap<int, QString> &map) {
         head.replace(QString("%cnum%"), QString::number(i.key()));
 
         QString cont = cardCont;
-        cont.replace(QString("%card_contents%"), i.value());
+        QString questions = i.value();
+        questions.replace(QString("\n"), QString("<br>"));
+
+        cont.replace(QString("%card_contents%"), questions);
 
         resultReport = resultReport + head + cont + cardFooter;
 
+        if(count % 2 != 0)
+            resultReport = resultReport + "\n<hr>\n";
+
+        count++;
     }
 
     file.setFileName(templatePath + "card_end.htm");
@@ -83,5 +91,11 @@ void reportcreator::writeReport(const QString &fileName, const QString &report) 
     textStream.flush();
 
     file.close();
+
+    QString logo = QDir::currentPath() + "/templates/chsu_logo.jpg";
+    QString path = fileName;
+    path.truncate(path.lastIndexOf("/"));
+
+    QFile::copy(logo, path + "/chsu_logo.jpg");
 
 }

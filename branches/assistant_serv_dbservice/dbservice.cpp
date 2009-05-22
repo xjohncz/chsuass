@@ -415,6 +415,7 @@ QDomDocument dbservice::exportStudentsToXML(int examId) {
     QDomElement root = doc.createElement("students");
     root.setAttribute("examId", examId);
     root.setAttribute("examType", examType);
+    root.setAttribute("memberId", 0);
     doc.appendChild(root);
 
     if(examType == QObject::trUtf8("Государственный экзамен")) {
@@ -427,12 +428,15 @@ QDomDocument dbservice::exportStudentsToXML(int examId) {
 
         while(query.next()) {
             int studentId = query.value(0).toInt();
-            QString studentFio = query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString();
+            //QString studentFio = query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString();
             int cardNumber = query.value(4).toInt();
 
             QDomElement student = doc.createElement("student");
-            student.setAttribute("studentId", studentId);
-            student.setAttribute("studentFio", studentFio);
+            student.setAttribute("id", studentId);
+            student.setAttribute("surname", query.value(1).toString());
+            student.setAttribute("name", query.value(2).toString());
+            student.setAttribute("patronymic", query.value(3).toString());
+            //student.setAttribute("studentFio", studentFio);
             student.setAttribute("cardNumber", cardNumber);
 
             QDomElement marks = doc.createElement("marks");
@@ -457,7 +461,7 @@ QDomDocument dbservice::exportStudentsToXML(int examId) {
             student.appendChild(marks);
 
             QDomElement memberMarks = doc.createElement("memberMarks");
-            memberMarks.setAttribute("memberId", 0);
+            //memberMarks.setAttribute("memberId", 0);
 
             for(int i = 1; i < 4; i++) {
                 QDomElement mark = doc.createElement("mark" + QString::number(i));
