@@ -1,6 +1,3 @@
-#include <QCryptographicHash>
-#include <QAbstractItemModel>
-
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "dialog.h"
@@ -42,9 +39,24 @@ MainWindow::MainWindow(QWidget *parent)
     initMembers();
     initExamTypes();
 
-    //QMap<int, QString> map = dbServ->getCards();
-    //QString str = reportcreator::createCardReport(map);
-    //reportcreator::writeReport("/home/domi/test.htm", str);
+    QTextCodec *utf8_codec = QTextCodec::codecForName("utf-8");
+
+    QMap<int, QString> map = dbServ->getCards();
+    QString str = reportcreator::createCardReport(map);
+    reportcreator::writeReport("C:/Development/test.htm", str);
+
+    QFile file;
+    file.setFileName("C:/Development/cards.xml");
+    file.open(QIODevice::WriteOnly);
+    QTextStream stream(&file);
+    stream.setCodec(utf8_codec);
+    stream << dbServ->exportCardsToXML().toString();
+    file.close();
+
+    file.setFileName("C:/Development/students.xml");
+    file.open(QIODevice::WriteOnly);
+    stream << dbServ->exportStudentsToXML(2).toString();
+    file.close();
 
 }
 
@@ -123,7 +135,7 @@ void MainWindow::studentRequestGrantedSlot() {
     if(currentExamTypeID == 1) {
         QString task = ui->currentExamCardQuestionsTextEdit->toPlainText();
         task.replace(QRegExp("\n"), "\r\n");
-        studentTask = tr("а та ба ТЛа ТЕаЁт: ") + ui->currentExamCardNumberEdit->text() + "\r\n" + task;
+        studentTask = tr("Билет: ") + ui->currentExamCardNumberEdit->text() + "\r\n" + task;
     } else if(currentExamTypeID == 2) {
         studentTask = ui->currentExamThemeTextEdit->toPlainText();
     }
@@ -547,7 +559,7 @@ void MainWindow::on_marksImportButton_clicked()
 
 void MainWindow::on_showStudentInfoButton_clicked()
 {
-    xlsRead->setXLSFileName("/home/domi/52.xls");
+    xlsRead->setXLSFileName("C:/Development/52.xls");
     QMap<int, QString> group = xlsRead->readGroupXLS();
 
     int selectedGroupRow = getSelectedRowFromTableView(ui->groupsTableView);
