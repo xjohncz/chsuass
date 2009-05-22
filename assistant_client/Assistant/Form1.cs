@@ -503,6 +503,27 @@ namespace Assistant
 
         private void menuItem2_Click(object sender, EventArgs e)
         {
+            List<Card> cards = XMLFileManager.GetCardList(@"\Program Files\Assistant\cards.xml");
+            List<Student> students = XMLFileManager.GetStudentList(@"\Program Files\Assistant\Students.xml");
+
+            Student st = Student.GetStudentById(students, 24);
+            Card card = Card.GetCardByNum(cards, 24);
+
+            string[] strList = card.CardContents.Split('\n');
+            ticketNum = card.CardNumber.ToString();
+            question1 = strList[0];
+            question2 = strList[1];
+            question3 = strList[2];
+
+            txtStudent.Text = st.FIO;
+
+            foreach (Student.SubjectMark mark in st.subjectMarks)
+            {
+                ListViewItem item = new ListViewItem(mark.subject);
+                item.SubItems.Add(mark.mark.ToString());
+                lvMarks.Items.Add(item);
+            }
+            
             if (MessageBox.Show("Вы уверены?", "Подтверждение выхода", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
             {
                 try
@@ -583,7 +604,7 @@ namespace Assistant
             InitializeConnection(address, port);
 
             string usrName = txtUserName.Text;
-            string password = txtPassword.Text;
+            //string password = txtPassword.Text;
             SendGreetingMessage(usrName);
             //SendGreetingMessage(usrName, password);
 
