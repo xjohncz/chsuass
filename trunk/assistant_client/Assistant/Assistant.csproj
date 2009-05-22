@@ -56,6 +56,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssistantProtocol.cs" />
+    <Compile Include="Card.cs" />
+    <Compile Include="XMLFileManager.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -80,9 +82,8 @@
     <Compile Include="Student.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Students.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="cards.xml" />
+    <Content Include="Students.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />
   <ProjectExtensions>

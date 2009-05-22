@@ -31,17 +31,20 @@
         {
             this.mainMenu1 = new System.Windows.Forms.MainMenu();
             this.menuItem2 = new System.Windows.Forms.MenuItem();
+            this.menuItem1 = new System.Windows.Forms.MenuItem();
             this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.lvMarks = new System.Windows.Forms.ListView();
+            this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
+            this.label13 = new System.Windows.Forms.Label();
             this.txtStudent = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.txtPassword = new System.Windows.Forms.TextBox();
             this.txtUserName = new System.Windows.Forms.TextBox();
             this.txtPort = new System.Windows.Forms.TextBox();
             this.txtIP = new System.Windows.Forms.TextBox();
@@ -68,11 +71,6 @@
             this.label10 = new System.Windows.Forms.Label();
             this.nudResultMark = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
-            this.label13 = new System.Windows.Forms.Label();
-            this.listView1 = new System.Windows.Forms.ListView();
-            this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
-            this.menuItem1 = new System.Windows.Forms.MenuItem();
             this.tabPage1.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -92,6 +90,11 @@
             this.menuItem2.Text = "Выход";
             this.menuItem2.Click += new System.EventHandler(this.menuItem2_Click);
             // 
+            // menuItem1
+            // 
+            this.menuItem1.Text = "Таймер";
+            this.menuItem1.Click += new System.EventHandler(this.menuItem1_Click);
+            // 
             // columnHeader2
             // 
             this.columnHeader2.Text = "ФИО";
@@ -104,7 +107,7 @@
             // 
             // tabPage1
             // 
-            this.tabPage1.Controls.Add(this.listView1);
+            this.tabPage1.Controls.Add(this.lvMarks);
             this.tabPage1.Controls.Add(this.label13);
             this.tabPage1.Controls.Add(this.txtStudent);
             this.tabPage1.Controls.Add(this.label4);
@@ -112,6 +115,35 @@
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Size = new System.Drawing.Size(240, 242);
             this.tabPage1.Text = "Студ";
+            // 
+            // lvMarks
+            // 
+            this.lvMarks.Columns.Add(this.columnHeader3);
+            this.lvMarks.Columns.Add(this.columnHeader4);
+            this.lvMarks.FullRowSelect = true;
+            this.lvMarks.Location = new System.Drawing.Point(7, 59);
+            this.lvMarks.Name = "lvMarks";
+            this.lvMarks.Size = new System.Drawing.Size(226, 180);
+            this.lvMarks.TabIndex = 67;
+            this.lvMarks.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader3
+            // 
+            this.columnHeader3.Text = "Дисциплина";
+            this.columnHeader3.Width = 180;
+            // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "Оценка";
+            this.columnHeader4.Width = 40;
+            // 
+            // label13
+            // 
+            this.label13.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Regular);
+            this.label13.Location = new System.Drawing.Point(7, 43);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(60, 13);
+            this.label13.Text = "Оценки:";
             // 
             // txtStudent
             // 
@@ -130,11 +162,9 @@
             // 
             // tabPage3
             // 
-            this.tabPage3.Controls.Add(this.label8);
             this.tabPage3.Controls.Add(this.label7);
             this.tabPage3.Controls.Add(this.label3);
             this.tabPage3.Controls.Add(this.label2);
-            this.tabPage3.Controls.Add(this.txtPassword);
             this.tabPage3.Controls.Add(this.txtUserName);
             this.tabPage3.Controls.Add(this.txtPort);
             this.tabPage3.Controls.Add(this.txtIP);
@@ -144,19 +174,12 @@
             this.tabPage3.Size = new System.Drawing.Size(240, 242);
             this.tabPage3.Text = "Подкл";
             // 
-            // label8
-            // 
-            this.label8.Location = new System.Drawing.Point(7, 89);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(68, 20);
-            this.label8.Text = "Пароль:";
-            // 
             // label7
             // 
             this.label7.Location = new System.Drawing.Point(7, 62);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(68, 20);
-            this.label7.Text = "Имя:";
+            this.label7.Text = "Имя польз:";
             // 
             // label3
             // 
@@ -171,14 +194,6 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(68, 20);
             this.label2.Text = "IP-адрес:";
-            // 
-            // txtPassword
-            // 
-            this.txtPassword.Location = new System.Drawing.Point(82, 88);
-            this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Size = new System.Drawing.Size(146, 21);
-            this.txtPassword.TabIndex = 4;
-            this.txtPassword.Text = "test";
             // 
             // txtUserName
             // 
@@ -205,7 +220,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(116, 126);
+            this.button1.Location = new System.Drawing.Point(116, 141);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(112, 20);
             this.button1.TabIndex = 2;
@@ -233,8 +248,8 @@
             this.tabPage2.Controls.Add(this.txtQuestion1);
             this.tabPage2.Location = new System.Drawing.Point(0, 0);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Size = new System.Drawing.Size(240, 242);
-            this.tabPage2.Text = "Воп1";
+            this.tabPage2.Size = new System.Drawing.Size(232, 239);
+            this.tabPage2.Text = "Вопр1";
             // 
             // nudMark1
             // 
@@ -274,8 +289,8 @@
             this.tabPage4.Controls.Add(this.txtQuestion2);
             this.tabPage4.Location = new System.Drawing.Point(0, 0);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Size = new System.Drawing.Size(240, 242);
-            this.tabPage4.Text = "Воп2";
+            this.tabPage4.Size = new System.Drawing.Size(232, 239);
+            this.tabPage4.Text = "Вопр2";
             // 
             // nudMark2
             // 
@@ -315,8 +330,8 @@
             this.tabPage5.Controls.Add(this.txtQuestion3);
             this.tabPage5.Location = new System.Drawing.Point(0, 0);
             this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Size = new System.Drawing.Size(240, 242);
-            this.tabPage5.Text = "Воп3";
+            this.tabPage5.Size = new System.Drawing.Size(232, 239);
+            this.tabPage5.Text = "Вопр3";
             // 
             // label9
             // 
@@ -447,40 +462,6 @@
             this.label5.Size = new System.Drawing.Size(60, 18);
             this.label5.Text = "Результат:";
             // 
-            // label13
-            // 
-            this.label13.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Regular);
-            this.label13.Location = new System.Drawing.Point(7, 43);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(60, 13);
-            this.label13.Text = "Оценки:";
-            // 
-            // listView1
-            // 
-            this.listView1.Columns.Add(this.columnHeader3);
-            this.listView1.Columns.Add(this.columnHeader4);
-            this.listView1.FullRowSelect = true;
-            this.listView1.Location = new System.Drawing.Point(7, 59);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(226, 180);
-            this.listView1.TabIndex = 67;
-            this.listView1.View = System.Windows.Forms.View.Details;
-            // 
-            // columnHeader3
-            // 
-            this.columnHeader3.Text = "Дисциплина";
-            this.columnHeader3.Width = 180;
-            // 
-            // columnHeader4
-            // 
-            this.columnHeader4.Text = "Оценка";
-            this.columnHeader4.Width = 40;
-            // 
-            // menuItem1
-            // 
-            this.menuItem1.Text = "Таймер";
-            this.menuItem1.Click += new System.EventHandler(this.menuItem1_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -512,11 +493,9 @@
         private System.Windows.Forms.TextBox txtStudent;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TabPage tabPage3;
-        private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox txtPassword;
         private System.Windows.Forms.TextBox txtUserName;
         private System.Windows.Forms.TextBox txtPort;
         private System.Windows.Forms.TextBox txtIP;
@@ -544,7 +523,7 @@
         private System.Windows.Forms.NumericUpDown nudMark1;
         private System.Windows.Forms.NumericUpDown nudMark2;
         private System.Windows.Forms.Label label13;
-        private System.Windows.Forms.ListView listView1;
+        private System.Windows.Forms.ListView lvMarks;
         private System.Windows.Forms.ColumnHeader columnHeader3;
         private System.Windows.Forms.ColumnHeader columnHeader4;
         private System.Windows.Forms.MenuItem menuItem1;
