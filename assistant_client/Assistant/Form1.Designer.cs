@@ -48,7 +48,7 @@
             this.txtUserName = new System.Windows.Forms.TextBox();
             this.txtPort = new System.Windows.Forms.TextBox();
             this.txtIP = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnConnect = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.nudMark1 = new System.Windows.Forms.NumericUpDown();
@@ -71,6 +71,7 @@
             this.label10 = new System.Windows.Forms.Label();
             this.nudResultMark = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
+            this.btnChange = new System.Windows.Forms.Button();
             this.tabPage1.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -162,13 +163,14 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.btnChange);
             this.tabPage3.Controls.Add(this.label7);
             this.tabPage3.Controls.Add(this.label3);
             this.tabPage3.Controls.Add(this.label2);
             this.tabPage3.Controls.Add(this.txtUserName);
             this.tabPage3.Controls.Add(this.txtPort);
             this.tabPage3.Controls.Add(this.txtIP);
-            this.tabPage3.Controls.Add(this.button1);
+            this.tabPage3.Controls.Add(this.btnConnect);
             this.tabPage3.Location = new System.Drawing.Point(0, 0);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Size = new System.Drawing.Size(240, 242);
@@ -197,14 +199,15 @@
             // 
             // txtUserName
             // 
+            this.txtUserName.Enabled = false;
             this.txtUserName.Location = new System.Drawing.Point(82, 61);
             this.txtUserName.Name = "txtUserName";
             this.txtUserName.Size = new System.Drawing.Size(146, 21);
             this.txtUserName.TabIndex = 3;
-            this.txtUserName.Text = "test";
             // 
             // txtPort
             // 
+            this.txtPort.Enabled = false;
             this.txtPort.Location = new System.Drawing.Point(82, 34);
             this.txtPort.Name = "txtPort";
             this.txtPort.Size = new System.Drawing.Size(146, 21);
@@ -212,20 +215,20 @@
             // 
             // txtIP
             // 
+            this.txtIP.Enabled = false;
             this.txtIP.Location = new System.Drawing.Point(82, 7);
             this.txtIP.Name = "txtIP";
             this.txtIP.Size = new System.Drawing.Size(147, 21);
             this.txtIP.TabIndex = 0;
-            this.txtIP.Text = "192.168.1.5";
             // 
-            // button1
+            // btnConnect
             // 
-            this.button1.Location = new System.Drawing.Point(116, 141);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(112, 20);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "Подключиться";
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.btnConnect.Location = new System.Drawing.Point(116, 115);
+            this.btnConnect.Name = "btnConnect";
+            this.btnConnect.Size = new System.Drawing.Size(112, 20);
+            this.btnConnect.TabIndex = 2;
+            this.btnConnect.Text = "Подключиться";
+            this.btnConnect.Click += new System.EventHandler(this.button1_Click);
             // 
             // tabControl1
             // 
@@ -376,7 +379,7 @@
             this.tabPage6.Controls.Add(this.label5);
             this.tabPage6.Location = new System.Drawing.Point(0, 0);
             this.tabPage6.Name = "tabPage6";
-            this.tabPage6.Size = new System.Drawing.Size(240, 242);
+            this.tabPage6.Size = new System.Drawing.Size(232, 239);
             this.tabPage6.Text = "Итоги";
             // 
             // nudMark33
@@ -462,6 +465,15 @@
             this.label5.Size = new System.Drawing.Size(60, 18);
             this.label5.Text = "Результат:";
             // 
+            // btnChange
+            // 
+            this.btnChange.Location = new System.Drawing.Point(116, 89);
+            this.btnChange.Name = "btnChange";
+            this.btnChange.Size = new System.Drawing.Size(112, 20);
+            this.btnChange.TabIndex = 4;
+            this.btnChange.Text = "Изменить";
+            this.btnChange.Click += new System.EventHandler(this.btnChange_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -499,7 +511,7 @@
         private System.Windows.Forms.TextBox txtUserName;
         private System.Windows.Forms.TextBox txtPort;
         private System.Windows.Forms.TextBox txtIP;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnConnect;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Label label1;
@@ -527,6 +539,7 @@
         private System.Windows.Forms.ColumnHeader columnHeader3;
         private System.Windows.Forms.ColumnHeader columnHeader4;
         private System.Windows.Forms.MenuItem menuItem1;
+        private System.Windows.Forms.Button btnChange;
 
 
 

@@ -194,7 +194,7 @@ namespace Assistant
                 ip = node.InnerText;
                 node = doc.SelectSingleNode("/config/port");
                 port = Convert.ToInt32(node.InnerText);
-                node = doc.SelectSingleNode("/config/userName");
+                node = doc.SelectSingleNode("/config/username");
                 userName = node.InnerText;
 
             }
@@ -219,7 +219,7 @@ namespace Assistant
                 node.InnerText = ip;
                 node = doc.SelectSingleNode("/config/port");
                 node.InnerText = port.ToString();
-                node = doc.SelectSingleNode("/config/userName");
+                node = doc.SelectSingleNode("/config/username");
                 node.InnerText = userName;
 
                 doc.Save(fileName);
