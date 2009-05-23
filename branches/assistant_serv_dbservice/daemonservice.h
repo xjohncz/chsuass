@@ -14,6 +14,9 @@ public:
     DaemonService(QObject *parent, int socketDescriptorInit, int client);
     bool sendWaitingInfoRequest();
     int getClientID();
+    void setCurrentExamId(int examId) { currentExamId = examId; }
+    bool sendStudents(const QString &students);
+    bool sendCards(const QString &cards);
 
     void run();
 
@@ -25,10 +28,12 @@ signals:
     void studentRequestGranted();
     void studentRequestDenied();
     void saveStudentResults(int, QString, int, int, int, int, int, int);
+    void exportStudents(int);
+    void exportCards(int);
 
 public slots:
-    void getAuthenticationResult(int result);
-    bool sendStudentInfo(int studentID, QString student, QString studentTask);
+    void getAuthenticationResult(int result, int memberId);
+    bool sendStudentInfo(int studentID);
 
 private slots:
     void readFromSocket();
@@ -55,6 +60,8 @@ private:
     //int fieldsCount;
 
     int clientID;
+    int userId;
+    int currentExamId;
     QString userName;
 };
 

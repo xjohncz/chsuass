@@ -27,10 +27,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->examTaskStackedWidget->setVisible(false);
 
+    /* FIXME: separate daemon connections */
     connect(daemon, SIGNAL(authentication(QString,int)), this, SLOT(authenticationClientSlot(QString,int)));
     connect(daemon, SIGNAL(removeUser(QString)), this, SLOT(removeUserSlot(QString)));
     connect(daemon, SIGNAL(studentRequestGranted()), this, SLOT(studentRequestGrantedSlot()));
     connect(daemon, SIGNAL(saveStudentResults(int,QString,int,int,int,int,int,int)), this, SLOT(saveStudentResultsSlot(int,QString,int,int,int,int,int,int)));
+    connect(daemon, SIGNAL(exportCards(int)), this, SLOT(slotExportCards(int)));
+    connect(daemon, SIGNAL(exportStudents(int)), this, SLOT(slotExportStudents(int)));
 
     initGroups();
     initSubjects();
@@ -88,7 +91,7 @@ void MainWindow::authenticationClientSlot(QString username, int client)
 
     bool status = dbServ->userAuth(username, uid, name);
     if (!status) {
-        daemon->getAuthenticationResult(OpcodeUserNotFound, client);        
+        daemon->getAuthenticationResult(OpcodeUserNotFound, client, uid);
     } else {
         QList<QStandardItem *> itemList;
 
@@ -101,7 +104,7 @@ void MainWindow::authenticationClientSlot(QString username, int client)
 
         memberListModel->appendRow(itemList);
 
-        daemon->getAuthenticationResult(OpcodeAccessGranted, client);
+        daemon->getAuthenticationResult(OpcodeAccessGranted, client, uid);
     }
 }
 
@@ -143,7 +146,7 @@ void MainWindow::studentRequestGrantedSlot() {
     qDebug() << "StudentFIO Length: " << studentFIO.length();
     qDebug() << "StudentTask Length: " << studentTask.length();
 
-    daemon->sendStudentInfo(currentExamSelectedStudentID, studentFIO, studentTask);
+    daemon->sendStudentInfo(currentExamSelectedStudentID);
 }
 
 /* FIXME: dbservice */
@@ -176,6 +179,14 @@ void MainWindow::saveStudentResultsSlot(int studentID, QString username, int mar
     query.exec();
 
     on_currentExamStudentListTableView_clicked(ui->currentExamStudentListTableView->selectionModel()->selectedIndexes().at(0));
+}
+
+void MainWindow::slotExportCards(int client) {
+    daemon->sendCards(dbServ->exportCardsToXML().toString(), client);
+}
+
+void MainWindow::slotExportStudents(int client) {
+    daemon->sendStudents(dbServ->exportStudentsToXML(currentExamID).toString(), client);
 }
 
 void MainWindow::on_groupsTableView_pressed(QModelIndex index)
@@ -421,9 +432,12 @@ void MainWindow::on_fillCurrentExamButton_clicked()
 void MainWindow::on_serverButton_clicked()
 {
     if(!daemon->isListening()) {
-        if(!daemon->listen())
+        if(!daemon->listen()) {
             QMessageBox::critical(this, tr("Ошибка запуска сервера"), tr("Не удалось запустить TCP-сервер"));
+            return;
+        }
         ui->portLabel->setText(tr("Номер порта: %1").arg(daemon->serverPort()));
+        daemon->setCurrentExamId(currentExamID);
     }
 }
 

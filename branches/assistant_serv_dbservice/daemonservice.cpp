@@ -212,14 +212,20 @@ bool DaemonService::sendGreetingReply(int replyOpcode) {
     QDataStream stream(&buffer, QIODevice::WriteOnly | QIODevice::Append);
 
     stream << (int)htonl(replyOpcode);
-    stream << (int)0;
+    if(replyOpcode == OpcodeAccessGranted) {
+        stream << (int) htonl(2 * sizeof(int));
+        stream << (int) htonl(currentExamId);
+        stream << (int) htonl(userId);
+    } else
+        stream << (int)0;
 
     return sendMessage(buffer);
 
 }
 
-void DaemonService::getAuthenticationResult(int result) {
+void DaemonService::getAuthenticationResult(int result, int memberId) {
 
+    userId = memberId;
     qDebug() << sendGreetingReply(result);
 
     if(result != OpcodeAccessGranted)
@@ -239,46 +245,56 @@ bool DaemonService::sendWaitingInfoRequest() {
 
 }
 
-bool DaemonService::sendStudentInfo(int studentID, QString student, QString studentTask) {
+bool DaemonService::sendStudentInfo(int studentID) {
 
     qDebug() << "StudentID: " << studentID;
-    qDebug() << "Student: " << student;
-    qDebug() << "StudentTask: " << studentTask;
+    QByteArray buffer;
+    QDataStream stream(&buffer, QIODevice::WriteOnly | QIODevice::Append);
+
+    stream << (int)htonl(OpcodeStudentInfo);
+    qDebug() << buffer.size();
+    stream << (int)htonl(sizeof(studentID));
+    stream << (int)htonl(studentID);
+
+    return sendMessage(buffer);
+
+}
+
+bool DaemonService::sendCards(const QString &cards) {
 
     QByteArray temp_buffer;
     QDataStream temp_stream(&temp_buffer, QIODevice::WriteOnly | QIODevice::Append);
 
-    //int msgSize = sizeof(studentID) + sizeof(int) + student.size() + 1 + sizeof(int) + studentTask.size() + 1;
-
-    qDebug() << temp_buffer.size();
-
-    //stream << (int)htonl(OpcodeStudentInfo);
-    //stream << (int)htonl(3);
-    //stream << (int)htonl(msgSize);
-    temp_stream << (int)htonl(studentID);
-    qDebug() << temp_buffer.size();
-    QByteArray temp = student.toUtf8();
+    QByteArray temp = cards.toUtf8();
     temp_stream << temp.data();
-    qDebug() << temp_buffer.size();
-    temp = studentTask.toUtf8();
-    temp_stream << temp.data();
-    qDebug() << temp_buffer.size();
 
     int msgSize = temp_buffer.size();
     QByteArray buffer;
     QDataStream stream(&buffer, QIODevice::WriteOnly | QIODevice::Append);
 
-    qDebug() << msgSize;
-    buffer.clear();
-    qDebug() << buffer.size();
-
-    stream << (int)htonl(OpcodeStudentInfo);
-    qDebug() << buffer.size();
+    stream << (int)htonl(OpcodeServerSendsCards);
     stream << (int)htonl(msgSize);
-    stream << (int)htonl(studentID);
-    temp = student.toUtf8();
+    temp = cards.toUtf8();
     stream << temp.data();
-    temp = studentTask.toUtf8();
+
+    return sendMessage(buffer);
+}
+
+bool DaemonService::sendStudents(const QString &students) {
+
+    QByteArray temp_buffer;
+    QDataStream temp_stream(&temp_buffer, QIODevice::WriteOnly | QIODevice::Append);
+
+    QByteArray temp = students.toUtf8();
+    temp_stream << temp.data();
+
+    int msgSize = temp_buffer.size();
+    QByteArray buffer;
+    QDataStream stream(&buffer, QIODevice::WriteOnly | QIODevice::Append);
+
+    stream << (int)htonl(OpcodeServerSendsStudents);
+    stream << (int)htonl(msgSize);
+    temp = students.toUtf8();
     stream << temp.data();
 
     return sendMessage(buffer);
@@ -311,6 +327,14 @@ void DaemonService::readFromSocket() {
 
     case OpcodeStudentRequestDenied:
         emit studentRequestDenied();
+        break;
+
+    case OpcodeNeedCards:
+        emit exportCards(clientID);
+        break;
+
+    case OpcodeNeedStudents:
+        emit exportStudents(clientID);
         break;
 
     case OpcodeStudentResults:

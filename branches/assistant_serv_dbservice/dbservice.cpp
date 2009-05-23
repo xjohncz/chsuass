@@ -195,7 +195,7 @@ bool dbservice::userAuth(QString username, int &userID, QString &name)
 
     if (connected) {
         QSqlQuery query(db);
-        query.prepare("SELECT * FROM sacmembers WHERE userName=?");
+        query.prepare("SELECT * FROM sacmembers WHERE login=?");
         query.bindValue(0, username);
         query.exec();
 
