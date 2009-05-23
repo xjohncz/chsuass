@@ -72,11 +72,13 @@ private:
     QSqlQueryModel *currentExamStudenMarksModel;
     //CURRENT EXAM
 
-public slots:
+private slots:
     void authenticationClientSlot(QString username, int client);
     void removeUserSlot(QString username);
     void studentRequestGrantedSlot();
     void saveStudentResultsSlot(int, QString, int, int, int, int, int, int);
+    void slotExportStudents(int client);
+    void slotExportCards(int client);
 
 private slots:
     void on_showStudentInfoButton_clicked();

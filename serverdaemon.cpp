@@ -10,17 +10,34 @@ void ServerDaemon::incomingConnection(int socketDescriptor) {
     qDebug() << "incoming connection";
 
     DaemonService *service = new DaemonService(this, socketDescriptor, clients.count());
+    service->setCurrentExamId(currentExamId);
 
     connect(service, SIGNAL(finished()), service, SLOT(deleteLater()));
     connect(service, SIGNAL(authentication(QString,int)), this, SLOT(authenticationClient(QString,int)));
     connect(service, SIGNAL(removeUser(QString,DaemonService*)), this, SLOT(removeUserSlot(QString,DaemonService*)));
     connect(service, SIGNAL(studentRequestGranted()), this, SLOT(studentRequestGrantedSlot()));
     connect(service, SIGNAL(saveStudentResults(int,QString,int,int,int,int,int,int)), this, SLOT(saveStudentResultsSlot(int,QString,int,int,int,int,int,int)));
+    connect(service, SIGNAL(exportCards(int)), this, SLOT(slotExportCards(int)));
+    connect(service, SIGNAL(exportStudents(int)), this, SLOT(slotExportStudents(int)));
 
     clients.append(service);
     clientCount++;
 
     service->run();
+
+}
+
+DaemonService *ServerDaemon::getServiceById(int id) {
+
+    DaemonService *service = NULL;
+
+    for(int i = 0; i < clients.count(); i++)
+        if(clients.at(i)->getClientID() == id) {
+            service = clients.at(i);
+            break;
+        }
+
+    return service;
 
 }
 
@@ -30,11 +47,11 @@ void ServerDaemon::authenticationClient(QString username, int client) {
 
 }
 
-void ServerDaemon::getAuthenticationResult(int result, int client) {
+void ServerDaemon::getAuthenticationResult(int result, int client, int memberId) {
 
     for(int i = 0; i < clients.count(); i++)
         if(clients.at(i)->getClientID() == client) {
-            clients.at(i)->getAuthenticationResult(result);
+            clients.at(i)->getAuthenticationResult(result, memberId);
             break;
         }
 
@@ -64,10 +81,10 @@ void ServerDaemon::studentRequestGrantedSlot() {
 
 }
 
-void ServerDaemon::sendStudentInfo(int studentID, QString student, QString task) {
+void ServerDaemon::sendStudentInfo(int studentID) {
 
     for(int i = 0; i < clients.count(); i++)
-        clients.at(i)->sendStudentInfo(studentID, student, task);
+        clients.at(i)->sendStudentInfo(studentID);
 
 }
 
