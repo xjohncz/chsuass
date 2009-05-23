@@ -11,6 +11,7 @@ using System.Net;
 using System.IO;
 using System.Threading;
 using System.Security.Cryptography;
+using System.Xml;
 
 
 namespace Assistant
@@ -38,6 +39,10 @@ namespace Assistant
             public int recvMsgSize = 0;
         }
 
+        const string config_xml = @"\Program Files\Assistant\config.xml";
+        const string students_xml = @"\Program Files\Assistant\students.xml";
+        const string cards_xml = @"\Program Files\Assistant\cards.xml";
+
         Socket socket;
         Thread recvThread;
         //ReceiveState recvState;
@@ -50,9 +55,11 @@ namespace Assistant
         //private void updateHeader(int count);
 
         //private bool waitingStudent = false;
+        private int examID = -1;
         private int studentID = -1;
-        private string student;
-        private string studentTask;
+        private int memberID = -1;
+        //private string student;
+        //private string studentTask;
 
         private string ticketNum;
         private string question1;
@@ -109,19 +116,19 @@ namespace Assistant
             }
         }
 
-        private string getMD5Hash(String input)
-        {
-            MD5CryptoServiceProvider provider = new MD5CryptoServiceProvider();
-            byte[] bs = System.Text.Encoding.UTF8.GetBytes(input);
+        //private string getMD5Hash(String input)
+        //{
+        //    MD5CryptoServiceProvider provider = new MD5CryptoServiceProvider();
+        //    byte[] bs = System.Text.Encoding.UTF8.GetBytes(input);
 
-            bs = provider.ComputeHash(bs);
-            StringBuilder strBuilder = new StringBuilder();
-            foreach (byte b in bs)
-                strBuilder.Append(b.ToString("x2").ToLower());
+        //    bs = provider.ComputeHash(bs);
+        //    StringBuilder strBuilder = new StringBuilder();
+        //    foreach (byte b in bs)
+        //        strBuilder.Append(b.ToString("x2").ToLower());
 
-            string pass = strBuilder.ToString();
-            return pass;
-        }
+        //    string pass = strBuilder.ToString();
+        //    return pass;
+        //}
 
         private void InitializeConnection(string address, int port)
         {
@@ -332,6 +339,7 @@ namespace Assistant
 
                 case AssistantProtocol.OpcodeAccessGranted:
                     //waitingStudent = true;
+                    ReadExamInfo(buffer);
                     MessageBox.Show("Соединение успешно установлено.");
                     break;
 
@@ -367,6 +375,14 @@ namespace Assistant
                     this.Invoke(new UpdateStudentEventHandler(this.UpdateStudentInfo));
                     break;
 
+                case AssistantProtocol.OpcodeServerSendsStudents:
+                    ReadStudents(buffer);
+                    break;
+                    
+                case AssistantProtocol.OpcodeServerSendsCards:
+                    ReadCards(buffer);
+                    break;
+
                 default:
                     MessageBox.Show("Неизвестный пакет!\nПодключение будет разорвано.", "Ошибка сетевого протокола", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                     socket.Close();
@@ -376,29 +392,94 @@ namespace Assistant
 
         private void ReadStudentInfo(byte[] buffer)
         {
-            //int index = 2 * sizeof(int);
-
             int index = 0;
             
             studentID = GetIntFromMessage(buffer, index);
+            //index += sizeof(int);
+        }
+
+        private void ReadExamInfo(byte[] buffer)
+        {
+            int index = 0;
+            
+            examID = GetIntFromMessage(buffer, index);
+            index += sizeof(int);
+
+            memberID = GetIntFromMessage(buffer, index);
+
+            bool needStudents = false;
+
+            if (File.Exists(students_xml))
+            {
+                ExamInfo examInfo = XMLFileManager.GetExamInfo(students_xml);
+                if (examInfo.examId != examID) //|| examInfo.memberId != memberID)
+                    needStudents = true;
+            }
+            else
+            {
+                needStudents = true;
+            }
+
+            if (needStudents)
+            {
+                List<byte> message = new List<byte>();
+                message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(AssistantProtocol.OpcodeNeedStudents)));
+                message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(0)));
+
+                byte[] msg = message.ToArray();
+                SendMessage(msg);
+            }
+            else
+            {
+                XMLFileManager.SaveMemberId(students_xml, memberID);
+            }
+
+            if (!File.Exists(cards_xml))
+            {
+                List<byte> message = new List<byte>();
+                message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(AssistantProtocol.OpcodeNeedCards)));
+                message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(0)));
+
+                byte[] msg = message.ToArray();
+                SendMessage(msg);
+            }
+        }
+
+        private void ReadStudents(byte[] buffer)
+        {
+            int index = 0;
+
+            int studentsLen = IPAddress.NetworkToHostOrder(GetIntFromMessage(buffer, index));
             index += sizeof(int);
             
-            int studentLen = IPAddress.NetworkToHostOrder(GetIntFromMessage(buffer, index));
+            if(File.Exists(students_xml))
+                File.Delete(students_xml);
+
+            FileStream fs = File.Create(students_xml);
+            fs.Write(buffer, index, studentsLen);
+            fs.Close();
+
+            XMLFileManager.SaveMemberId(students_xml, memberID);
+            //string students = GetStringFromMessage(buffer, index, studentsLen);
+            //XmlDocument doc = new XmlDocument();
+
+            //doc.LoadXml(students);
+            //doc.Save(students_xml);
+        }
+
+        private void ReadCards(byte[] buffer)
+        {
+            int index = 0;
+
+            int cardsLen = IPAddress.NetworkToHostOrder(GetIntFromMessage(buffer, index));
             index += sizeof(int);
 
-            student = GetStringFromMessage(buffer, index, studentLen);
-            index += studentLen;
+            if (File.Exists(cards_xml))
+                File.Delete(cards_xml);
 
-            int taskLen = IPAddress.NetworkToHostOrder(GetIntFromMessage(buffer, index));
-            index += sizeof(int);
-
-            studentTask = GetStringFromMessage(buffer, index, taskLen);
-
-            string[] strList = studentTask.Split('\n');
-            ticketNum = strList[0];
-            question1 = strList[1];
-            question2 = strList[2];
-            question3 = strList[3];
+            FileStream fs = File.Create(cards_xml);
+            fs.Write(buffer, index, cardsLen);
+            fs.Close();
         }
 
         private void ReadMessages()
@@ -438,11 +519,35 @@ namespace Assistant
 
         private void UpdateStudentInfo() 
         {
-            txtStudent.Text = student;
-            txtQuestion1.Text = ticketNum + "\n" + question1 + "\n";
-            txtQuestion2.Text = ticketNum + "\n" + question2 + "\n";
-            txtQuestion3.Text = ticketNum + "\n" + question3 + "\n";
+            //txtStudent.Text = student;
+            //txtQuestion1.Text = ticketNum + "\n" + question1 + "\n";
+            //txtQuestion2.Text = ticketNum + "\n" + question2 + "\n";
+            //txtQuestion3.Text = ticketNum + "\n" + question3 + "\n";
             //txtStudentTask.Text = studentTask;
+            List<Card> cards = XMLFileManager.GetCardList(@"\Program Files\Assistant\cards.xml");
+            List<Student> students = XMLFileManager.GetStudentList(@"\Program Files\Assistant\Students.xml");
+
+            Student st = Student.GetStudentById(students, studentID);
+            Card card = Card.GetCardByNum(cards, st.CardNumber);
+
+            string[] strList = card.CardContents.Split('\n');
+            ticketNum = card.CardNumber.ToString();
+            question1 = strList[0];
+            question2 = strList[1];
+            question3 = strList[2];
+
+            txtStudent.Text = st.FIO;
+
+            foreach (Student.SubjectMark mark in st.subjectMarks)
+            {
+                ListViewItem item = new ListViewItem(mark.subject);
+                item.SubItems.Add(mark.mark.ToString());
+                lvMarks.Items.Add(item);
+            }
+
+            txtQuestion1.Text = "Билет №" + ticketNum.ToString() + "\r\n" + question1;
+            txtQuestion2.Text = "Билет №" + ticketNum.ToString() + "\r\n" + question2;
+            txtQuestion3.Text = "Билет №" + ticketNum.ToString() + "\r\n" + question3;
         }
 
         private Int32 GetMarkValue(NumericUpDown nudControl)
@@ -469,6 +574,46 @@ namespace Assistant
             //}
 
             //Cursor.Current = Cursors.Default;
+            if (File.Exists(config_xml))
+            {
+                string ip, userName;
+                int port;
+
+                XMLFileManager.LoadConfig(config_xml, out ip, out port, out userName);
+                if (ip != null && port != 0 && userName != null)
+                {
+                    txtIP.Text = ip;
+                    txtPort.Text = port.ToString();
+                    txtUserName.Text = userName;
+                }
+                else
+                {
+                    ip = "127.0.0.1";
+                    port = 2500;
+                    userName = "user";
+
+                    txtIP.Text = ip;
+                    txtPort.Text = port.ToString();
+                    txtUserName.Text = userName;
+                    XMLFileManager.SaveConfig(config_xml, ip, port, userName);
+                }
+            }
+            else
+            {
+                string ip, userName;
+                int port;
+
+                ip = "127.0.0.1";
+                port = 2500;
+                userName = "user";
+
+                txtIP.Text = ip;
+                txtPort.Text = port.ToString();
+                txtUserName.Text = userName;
+                XMLFileManager.SaveConfig(config_xml, ip, port, userName);
+            }
+
+
         }
 
         private void cmbStudents_SelectedIndexChanged(object sender, EventArgs e)
@@ -503,27 +648,6 @@ namespace Assistant
 
         private void menuItem2_Click(object sender, EventArgs e)
         {
-            List<Card> cards = XMLFileManager.GetCardList(@"\Program Files\Assistant\cards.xml");
-            List<Student> students = XMLFileManager.GetStudentList(@"\Program Files\Assistant\Students.xml");
-
-            Student st = Student.GetStudentById(students, 24);
-            Card card = Card.GetCardByNum(cards, 24);
-
-            string[] strList = card.CardContents.Split('\n');
-            ticketNum = card.CardNumber.ToString();
-            question1 = strList[0];
-            question2 = strList[1];
-            question3 = strList[2];
-
-            txtStudent.Text = st.FIO;
-
-            foreach (Student.SubjectMark mark in st.subjectMarks)
-            {
-                ListViewItem item = new ListViewItem(mark.subject);
-                item.SubItems.Add(mark.mark.ToString());
-                lvMarks.Items.Add(item);
-            }
-            
             if (MessageBox.Show("Вы уверены?", "Подтверждение выхода", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
             {
                 try
@@ -664,6 +788,33 @@ namespace Assistant
         {
             TimerCallback timerDelegate = new TimerCallback(timerTick);
             timer = new System.Threading.Timer(timerDelegate, timerCount, 0, 1000);
+        }
+
+        private void btnChange_Click(object sender, EventArgs e)
+        {
+            if (btnChange.Text == "Изменить")
+            {
+                txtIP.Enabled = true;
+                txtPort.Enabled = true;
+                txtUserName.Enabled = true;
+                btnChange.Text = "Сохранить";
+            }
+            else
+            {
+                string ip, userName;
+                int port;
+
+                ip = txtIP.Text;
+                port = Convert.ToInt32(txtPort.Text);
+                userName = txtUserName.Text;
+
+                XMLFileManager.SaveConfig(config_xml, ip, port, userName);
+                
+                txtIP.Enabled = false;
+                txtPort.Enabled = false;
+                txtUserName.Enabled = false;
+                btnChange.Text = "Изменить";
+            }
         }
     }
 }

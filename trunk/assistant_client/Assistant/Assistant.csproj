@@ -83,7 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="cards.xml" />
-    <Content Include="Students.xml" />
+    <Content Include="students.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />
   <ProjectExtensions>

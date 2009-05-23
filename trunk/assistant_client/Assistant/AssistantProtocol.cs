@@ -14,6 +14,10 @@ namespace Assistant
         public const int OpcodeStudentRequestDenied = 170;
         public const int OpcodeStudentInfo = 300;
         public const int OpcodeStudentResults = 320;
+        public const int OpcodeNeedStudents = 400;
+        public const int OpcodeNeedCards = 410;
+        public const int OpcodeServerSendsStudents = 420;
+        public const int OpcodeServerSendsCards = 430;
         public const int OpcodeByeMsg = 500;
     }
 }
