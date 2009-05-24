@@ -124,6 +124,26 @@ bool DaemonService::readGreeting() {
 
 }
 
+bool DaemonService::readResults(QString &doc) {
+
+    QByteArray buffer;
+    int docLen = 0;
+
+    docLen = getIntFromMessage();
+    if(docLen == 0)
+        return false;
+    
+    int bytesRead = readIntoBuffer(docLen, buffer);
+    if(bytesRead < docLen)
+        return false;
+
+    doc = buffer;
+    buffer.clear();
+
+    return true;
+
+}
+
 bool DaemonService::sendGreetingReply(int replyOpcode, int stCount) {
 
     QByteArray buffer;
@@ -152,14 +172,15 @@ void DaemonService::getAuthenticationResult(int result, int memberId, int stCoun
 
 }
 
-bool DaemonService::sendStudentInfo(int studentID) {
+bool DaemonService::sendStudentInfo(int studentID, int cardNumber) {
 
     QByteArray buffer;
     QDataStream stream(&buffer, QIODevice::WriteOnly | QIODevice::Append);
 
     stream << (int)htonl(OpcodeStudentInfo);
-    stream << (int)htonl(sizeof(studentID));
+    stream << (int)htonl(2 * sizeof(int));
     stream << (int)htonl(studentID);
+    stream << (int)htonl(cardNumber);
 
     return sendMessage(buffer);
 
@@ -206,7 +227,21 @@ bool DaemonService::sendStudents(const QString &students) {
 
 }
 
+bool DaemonService::sendResultsRequest() {
+
+    QByteArray buffer;
+    QDataStream stream(&buffer, QIODevice::WriteOnly | QIODevice::Append);
+
+    stream << (int)htonl(OpcodeResultsRequest);
+    stream << 0;
+
+    return sendMessage(buffer);
+
+}
+
 void DaemonService::slotReadFromSocket() {
+
+    QString doc;
 
     if(!readHeader())
         return;
@@ -226,6 +261,13 @@ void DaemonService::slotReadFromSocket() {
 
     case OpcodeNeedStudents:
         emit signalExportStudents(clientID);
+        break;
+
+    case OpcodeClientSendsResults:
+        if(!readResults(doc))
+            return;
+
+        emit signalSaveResults(doc);
         break;
 
     case OpcodeByeMsg:

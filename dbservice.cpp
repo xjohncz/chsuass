@@ -211,6 +211,19 @@ bool dbservice::userAuth(QString username, int &userID, QString &name)
     return status;
 }
 
+int dbservice::getStudentCardNumber(int studentId, int examId) {
+
+    QSqlQuery query;
+    query.prepare("SELECT cardNumber FROM examstudentlist WHERE examID=:examId AND studentID=:studentId LIMIT 1");
+    query.bindValue(":studentId", studentId);
+    query.bindValue(":examId", examId);
+    query.exec();
+    query.next();
+
+    return query.value(0).toInt();
+
+}
+
 int dbservice::getStudentCount(int examId) {
 
     QSqlQuery query;
@@ -434,23 +447,21 @@ QDomDocument dbservice::exportStudentsToXML(int examId) {
     if(examType == QObject::trUtf8("Государственный экзамен")) {
 
         query.prepare("SELECT examstudentlist.studentID, students.surname, students.name, "
-                      "students.patronymic, examstudentlist.cardNumber FROM examstudentlist "
+                      "students.patronymic FROM examstudentlist "
                       "INNER JOIN students ON students.studentID = examstudentlist.studentID WHERE examstudentlist.examID = :examId");
         query.bindValue(":examId", examId);
         query.exec();
 
         while(query.next()) {
             int studentId = query.value(0).toInt();
-            //QString studentFio = query.value(1).toString() + " " + query.value(2).toString() + " " + query.value(3).toString();
-            int cardNumber = query.value(4).toInt();
+            //int cardNumber = query.value(4).toInt();
 
             QDomElement student = doc.createElement("student");
             student.setAttribute("id", studentId);
             student.setAttribute("surname", query.value(1).toString());
             student.setAttribute("name", query.value(2).toString());
             student.setAttribute("patronymic", query.value(3).toString());
-            //student.setAttribute("studentFio", studentFio);
-            student.setAttribute("cardNumber", cardNumber);
+            student.setAttribute("cardNumber", 0);
 
             QDomElement marks = doc.createElement("marks");
 
@@ -503,5 +514,53 @@ QDomDocument dbservice::exportStudentsToXML(int examId) {
     }
 
     return doc;
+
+}
+
+bool dbservice::saveResultsFromXML(const QString &xmlDoc) {
+
+    QDomDocument doc;
+    if(!doc.setContent(xmlDoc, false))
+        return false;
+
+    QDomElement root = doc.documentElement();
+    int examId = root.attributeNode("examId").value().toInt();
+    int memberId = root.attributeNode("memberId").value().toInt();
+
+    QDomElement st = root.firstChildElement();
+    while(!st.isNull()) {
+
+        int id = st.attributeNode("id").value().toInt();
+        QDomElement memberMarksNode = st.lastChildElement();
+
+        QDomElement mark = memberMarksNode.firstChildElement("mark1");
+        int mark1 = mark.text().toInt();
+
+        mark = memberMarksNode.nextSiblingElement("mark2");
+        int mark2 = mark.text().toInt();
+
+        mark = memberMarksNode.nextSiblingElement("mark3");
+        int mark3 = mark.text().toInt();
+
+        mark = memberMarksNode.nextSiblingElement("resMark");
+        int resMark = mark.text().toInt();
+
+        QSqlQuery query;
+        query.prepare("CALL setMarks(?,?,?,?,?,?,?,?)");
+        query.bindValue(0, id);
+        query.bindValue(1, memberId);
+        query.bindValue(2, examId);
+        query.bindValue(3, mark1);
+        query.bindValue(4, mark2);
+        query.bindValue(5, mark3);
+        query.bindValue(6, 0);
+        query.bindValue(7, 0);
+        query.bindValue(8, resMark);
+        query.exec();
+
+        st = st.nextSiblingElement();
+    }
+
+    return true;
 
 }

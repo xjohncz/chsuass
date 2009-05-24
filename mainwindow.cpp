@@ -49,6 +49,7 @@ void MainWindow::initSignalConnections() {
     connect(daemon, SIGNAL(signalRemoveUser(QString)), this, SLOT(slotRemoveUserSlot(QString)));
     connect(daemon, SIGNAL(signalExportCards(int)), this, SLOT(slotExportCards(int)));
     connect(daemon, SIGNAL(signalExportStudents(int)), this, SLOT(slotExportStudents(int)));
+    connect(daemon, SIGNAL(signalSaveResults(QString)), this, SLOT(slotSaveResults(QString)));
 
 }
 
@@ -111,6 +112,12 @@ void MainWindow::slotExportCards(int client) {
 
 void MainWindow::slotExportStudents(int client) {
     daemon->sendStudents(dbServ->exportStudentsToXML(currentExamID).toString(), client);
+}
+
+void MainWindow::slotSaveResults(QString xmlDoc) {
+    bool res = dbServ->saveResultsFromXML(xmlDoc);
+    if(!res)
+        QMessageBox::warning(this, tr("Ошибка сохранения результатов"), tr("Попытка сохранения результатов экзамена закончилась неудачей!"));
 }
 
 void MainWindow::on_groupsTableView_pressed(QModelIndex index)
@@ -365,7 +372,7 @@ void MainWindow::on_serverButton_clicked()
     }
 }
 
-/* FIXME: dbservice */
+/* FIXME: dbservice and not working! */
 void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
 {
     int row = index.row();
@@ -377,7 +384,8 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
         ui->currentExamCardNumberEdit->clear();
         ui->currentExamCardQuestionsTextEdit->clear();
 
-        query.prepare("SELECT cardNumber, questions FROM cards WHERE cardID=(SELECT cardID FROM examstudentlist WHERE examID=? AND studentID=? LIMIT 1)");
+        query.prepare("SELECT examstudentlist.cardNumber, cards.questions "
+                      "WHERE cards.cardNumber=examstudentlist.cardNumber AND examID=? AND studentID=? LIMIT 1");
         query.bindValue(0, currentExamID);
         query.bindValue(1, currentExamSelectedStudentID);
         query.exec();
@@ -407,7 +415,8 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
 
 void MainWindow::on_sendStudentInfoButton_clicked()
 {
-    daemon->sendStudentInfo(currentExamSelectedStudentID);
+    int cardNum = dbServ->getStudentCardNumber(currentExamSelectedStudentID, currentExamID);
+    daemon->sendStudentInfo(currentExamSelectedStudentID, cardNum);
 }
 
 /* FIXME: dbservice */
@@ -505,4 +514,9 @@ void MainWindow::on_showStudentInfoButton_clicked()
     int groupId = dbServ->getGroupsTableModel()->data(selectedGroupIndex).toInt();
 
     dbServ->importStudents(group, groupId);
+}
+
+void MainWindow::on_recvResultsButton_clicked()
+{
+    daemon->sendResultsRequest();
 }

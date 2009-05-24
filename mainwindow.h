@@ -70,8 +70,10 @@ private slots:
     void slotRemoveUserSlot(QString username);
     void slotExportStudents(int client);
     void slotExportCards(int client);
+    void slotSaveResults(QString xmlDoc);
 
 private slots:
+    void on_recvResultsButton_clicked();
     void on_showStudentInfoButton_clicked();
     void on_marksImportButton_clicked();
     void on_saveExamTimeButton_clicked();
