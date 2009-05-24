@@ -22,18 +22,12 @@ MainWindow::MainWindow(QWidget *parent)
         exit(0);
     }
 
+    initSignalConnections();
+
     ui->categoryList->setCurrentRow(0);
     ui->stackedWidget->setCurrentIndex(0);
 
     ui->examTaskStackedWidget->setVisible(false);
-
-    /* FIXME: separate daemon connections */
-    connect(daemon, SIGNAL(authentication(QString,int)), this, SLOT(authenticationClientSlot(QString,int)));
-    connect(daemon, SIGNAL(removeUser(QString)), this, SLOT(removeUserSlot(QString)));
-    connect(daemon, SIGNAL(studentRequestGranted()), this, SLOT(studentRequestGrantedSlot()));
-    connect(daemon, SIGNAL(saveStudentResults(int,QString,int,int,int,int,int,int)), this, SLOT(saveStudentResultsSlot(int,QString,int,int,int,int,int,int)));
-    connect(daemon, SIGNAL(exportCards(int)), this, SLOT(slotExportCards(int)));
-    connect(daemon, SIGNAL(exportStudents(int)), this, SLOT(slotExportStudents(int)));
 
     initGroups();
     initSubjects();
@@ -42,30 +36,20 @@ MainWindow::MainWindow(QWidget *parent)
     initMembers();
     initExamTypes();
 
-    QTextCodec *utf8_codec = QTextCodec::codecForName("utf-8");
-
-    QMap<int, QString> map = dbServ->getCards();
-    QString str = reportcreator::createCardReport(map);
-    reportcreator::writeReport("C:/Development/test.htm", str);
-
-    QFile file;
-    file.setFileName("C:/Development/cards.xml");
-    file.open(QIODevice::WriteOnly);
-    QTextStream stream(&file);
-    stream.setCodec(utf8_codec);
-    stream << dbServ->exportCardsToXML().toString();
-    file.close();
-
-    file.setFileName("C:/Development/students.xml");
-    file.open(QIODevice::WriteOnly);
-    stream << dbServ->exportStudentsToXML(2).toString();
-    file.close();
-
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::initSignalConnections() {
+
+    connect(daemon, SIGNAL(signalClientAuthentication(QString,int)), this, SLOT(slotClientAuthentication(QString,int)));
+    connect(daemon, SIGNAL(signalRemoveUser(QString)), this, SLOT(slotRemoveUserSlot(QString)));
+    connect(daemon, SIGNAL(signalExportCards(int)), this, SLOT(slotExportCards(int)));
+    connect(daemon, SIGNAL(signalExportStudents(int)), this, SLOT(slotExportStudents(int)));
+
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -84,7 +68,7 @@ int MainWindow::getSelectedRowFromTableView(QTableView *view) {
 
 }
 
-void MainWindow::authenticationClientSlot(QString username, int client)
+void MainWindow::slotClientAuthentication(QString username, int client)
 {
     int uid;
     QString name;
@@ -110,7 +94,7 @@ void MainWindow::authenticationClientSlot(QString username, int client)
     }
 }
 
-void MainWindow::removeUserSlot(QString username) {
+void MainWindow::slotRemoveUserSlot(QString username) {
 
     for(int i = 0; i < memberListModel->rowCount(); i++) {
         QString itemText = memberListModel->item(i, 2)->text();
@@ -119,68 +103,6 @@ void MainWindow::removeUserSlot(QString username) {
             break;
         }
     }
-}
-
-void MainWindow::studentRequestGrantedSlot() {
-
-    QString studentFIO;
-    QString studentTask;
-
-    QModelIndexList indexList = ui->currentExamStudentListTableView->selectionModel()->selectedIndexes();
-    QModelIndex index = indexList.at(0);
-    int row = index.row();
-
-    index = currentExamStudentListModel->index(row, 2);
-    studentFIO.append(index.data().toString() + " ");
-    index = currentExamStudentListModel->index(row, 3);
-    studentFIO.append(index.data().toString() + " ");
-    index = currentExamStudentListModel->index(row, 4);
-    studentFIO.append(index.data().toString());
-
-    if(currentExamTypeID == 1) {
-        QString task = ui->currentExamCardQuestionsTextEdit->toPlainText();
-        task.replace(QRegExp("\n"), "\r\n");
-        studentTask = tr("Билет: ") + ui->currentExamCardNumberEdit->text() + "\r\n" + task;
-    } else if(currentExamTypeID == 2) {
-        studentTask = ui->currentExamThemeTextEdit->toPlainText();
-    }
-
-    qDebug() << "StudentFIO Length: " << studentFIO.length();
-    qDebug() << "StudentTask Length: " << studentTask.length();
-
-    daemon->sendStudentInfo(currentExamSelectedStudentID);
-}
-
-/* FIXME: dbservice */
-void MainWindow::saveStudentResultsSlot(int studentID, QString username, int mark1, int mark2, int mark3, int mark4, int mark5, int resMark) {
-
-    int memberID;
-
-    QSqlQuery query;
-    query.prepare("SELECT memberID FROM sacmembers WHERE userID=(SELECT userID FROM users WHERE userName=? LIMIT 1)");
-    query.bindValue(0, username);
-    query.exec();
-    if(query.next()) {
-        memberID = query.value(0).toInt();
-    } else {
-        QMessageBox::warning(this, tr("Ошибка сохранения результатов студента"),
-                             tr("Поступившие от %1 результаты не могут быть сохранены,\nт.к. член комиссии с таким именем не найден"));
-        return;
-    }
-
-    query.prepare("CALL setMarks(?,?,?,?,?,?,?,?,?)");
-    query.bindValue(0, studentID);
-    query.bindValue(1, memberID);
-    query.bindValue(2, currentExamID);
-    query.bindValue(3, mark1);
-    query.bindValue(4, mark2);
-    query.bindValue(5, mark3);
-    query.bindValue(6, mark4);
-    query.bindValue(7, mark5);
-    query.bindValue(8, resMark);
-    query.exec();
-
-    on_currentExamStudentListTableView_clicked(ui->currentExamStudentListTableView->selectionModel()->selectedIndexes().at(0));
 }
 
 void MainWindow::slotExportCards(int client) {
@@ -485,7 +407,7 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
 
 void MainWindow::on_sendStudentInfoButton_clicked()
 {
-    daemon->sendWaitingInfoRequests();
+    daemon->sendStudentInfo(currentExamSelectedStudentID);
 }
 
 /* FIXME: dbservice */
