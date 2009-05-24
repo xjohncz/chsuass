@@ -204,7 +204,7 @@ bool DaemonService::readStudentResults(int &studentID, int &mark1, int &mark2, i
 
 }
 
-bool DaemonService::sendGreetingReply(int replyOpcode) {
+bool DaemonService::sendGreetingReply(int replyOpcode, int stCount) {
 
     qDebug() << "greeting reply sent: " << replyOpcode;
 
@@ -213,9 +213,10 @@ bool DaemonService::sendGreetingReply(int replyOpcode) {
 
     stream << (int)htonl(replyOpcode);
     if(replyOpcode == OpcodeAccessGranted) {
-        stream << (int) htonl(2 * sizeof(int));
+        stream << (int) htonl(3 * sizeof(int));
         stream << (int) htonl(currentExamId);
         stream << (int) htonl(userId);
+        stream << (int) htonl(stCount);
     } else
         stream << (int)0;
 
@@ -223,10 +224,10 @@ bool DaemonService::sendGreetingReply(int replyOpcode) {
 
 }
 
-void DaemonService::getAuthenticationResult(int result, int memberId) {
+void DaemonService::getAuthenticationResult(int result, int memberId, int stCount) {
 
     userId = memberId;
-    qDebug() << sendGreetingReply(result);
+    qDebug() << sendGreetingReply(result, stCount);
 
     if(result != OpcodeAccessGranted)
         socket->disconnectFromHost();

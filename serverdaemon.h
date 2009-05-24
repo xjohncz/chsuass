@@ -21,7 +21,7 @@ public:
     }
 
 public slots:
-    void getAuthenticationResult(int result, int client, int memberId);
+    void getAuthenticationResult(int result, int client, int memberId, int stCount);
 
 private slots:
     void authenticationClient(QString username, int client);

@@ -91,7 +91,7 @@ void MainWindow::authenticationClientSlot(QString username, int client)
 
     bool status = dbServ->userAuth(username, uid, name);
     if (!status) {
-        daemon->getAuthenticationResult(OpcodeUserNotFound, client, uid);
+        daemon->getAuthenticationResult(OpcodeUserNotFound, client, uid, 0);
     } else {
         QList<QStandardItem *> itemList;
 
@@ -104,7 +104,9 @@ void MainWindow::authenticationClientSlot(QString username, int client)
 
         memberListModel->appendRow(itemList);
 
-        daemon->getAuthenticationResult(OpcodeAccessGranted, client, uid);
+        int studentCount = dbServ->getStudentCount(currentExamID);
+
+        daemon->getAuthenticationResult(OpcodeAccessGranted, client, uid, studentCount);
     }
 }
 

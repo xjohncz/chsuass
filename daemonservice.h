@@ -32,7 +32,7 @@ signals:
     void exportCards(int);
 
 public slots:
-    void getAuthenticationResult(int result, int memberId);
+    void getAuthenticationResult(int result, int memberId, int stCount);
     bool sendStudentInfo(int studentID);
 
 private slots:
@@ -50,7 +50,7 @@ private:
 //                            float &mark4, float &mark5, int &resMark);
     bool readStudentResults(int &studentID, int &mark1, int &mark2, int &mark3,
                                        int &mark4, int &mark5, int &resMark);
-    bool sendGreetingReply(int replyOpcode);
+    bool sendGreetingReply(int replyOpcode, int stCount);
 
 
     int socketDescriptor;
