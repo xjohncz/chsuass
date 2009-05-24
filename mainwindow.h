@@ -35,14 +35,14 @@ protected:
     int getSelectedRowFromTableView(QTableView *view);
 
 private:
+    void initSignalConnections();
+
     void initGroups();
     void initSubjects();
     void initCards();
     void initThemes();
     void initMembers();
     void initExamTypes();
-    
-    //void fillDBConnection(QString dbuser, QString dbpass, QString dbname=QString("assistant_schema"), QString dbhost=QString("localhost"), int dbport=3306);
 
     void showSelectDialog(const QString &tableName, IdType type);
 
@@ -50,13 +50,6 @@ private:
 
     dbservice *dbServ;
     xlsreader *xlsRead;
-
-    //QSqlDatabase db;
-    //QSqlTableModel *groupsTableModel;
-    //QSqlTableModel *studentsTableModel;
-    //QSqlTableModel *cardsTableModel;
-    //QSqlTableModel *themesTableModel;
-    //QSqlRelationalTableModel *membersTableModel;
 
     ServerDaemon *daemon;
     int selectedGroupID;
@@ -73,10 +66,8 @@ private:
     //CURRENT EXAM
 
 private slots:
-    void authenticationClientSlot(QString username, int client);
-    void removeUserSlot(QString username);
-    void studentRequestGrantedSlot();
-    void saveStudentResultsSlot(int, QString, int, int, int, int, int, int);
+    void slotClientAuthentication(QString username, int client);
+    void slotRemoveUserSlot(QString username);
     void slotExportStudents(int client);
     void slotExportCards(int client);
 

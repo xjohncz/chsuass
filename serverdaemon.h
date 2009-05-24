@@ -10,7 +10,7 @@ class ServerDaemon : public QTcpServer
 
 public:
     ServerDaemon(QObject *parent);
-    void sendWaitingInfoRequests();
+    void getAuthenticationResult(int result, int client, int memberId, int stCount);
     void sendStudentInfo(int studenID);
     void setCurrentExamId(int examId) { currentExamId = examId; }
     bool sendStudents(const QString &students, int client) {
@@ -20,30 +20,22 @@ public:
         return getServiceById(client)->sendCards(cards);
     }
 
-public slots:
-    void getAuthenticationResult(int result, int client, int memberId, int stCount);
-
 private slots:
-    void authenticationClient(QString username, int client);
-    void removeUserSlot(QString username, DaemonService *);
-    void studentRequestGrantedSlot();
-    void saveStudentResultsSlot(int, QString, int, int, int, int, int, int);
-    void slotExportStudents(int client) { emit exportStudents(client); }
-    void slotExportCards(int client) { emit exportCards(client); }
+    void slotClientAuthentication(QString username, int client);
+    void slotRemoveUser(QString username, DaemonService *);
+    void slotExportStudents(int client) { emit signalExportStudents(client); }
+    void slotExportCards(int client) { emit signalExportCards(client); }
 
 signals:
-    void authentication(QString username, int client);
-    void removeUser(QString username);
-    void studentRequestGranted();
-    void saveStudentResults(int, QString, int, int, int, int, int, int);
-    void exportStudents(int);
-    void exportCards(int);
+    void signalClientAuthentication(QString username, int client);
+    void signalRemoveUser(QString username);
+    void signalExportStudents(int);
+    void signalExportCards(int);    
 
-protected:
+private:
     void incomingConnection(int socketDescriptor);
     DaemonService *getServiceById(int id);
 
-private:
     QList<DaemonService *> clients;
     int clientCount;
     int currentExamId;

@@ -13,12 +13,10 @@ void ServerDaemon::incomingConnection(int socketDescriptor) {
     service->setCurrentExamId(currentExamId);
 
     connect(service, SIGNAL(finished()), service, SLOT(deleteLater()));
-    connect(service, SIGNAL(authentication(QString,int)), this, SLOT(authenticationClient(QString,int)));
-    connect(service, SIGNAL(removeUser(QString,DaemonService*)), this, SLOT(removeUserSlot(QString,DaemonService*)));
-    connect(service, SIGNAL(studentRequestGranted()), this, SLOT(studentRequestGrantedSlot()));
-    connect(service, SIGNAL(saveStudentResults(int,QString,int,int,int,int,int,int)), this, SLOT(saveStudentResultsSlot(int,QString,int,int,int,int,int,int)));
-    connect(service, SIGNAL(exportCards(int)), this, SLOT(slotExportCards(int)));
-    connect(service, SIGNAL(exportStudents(int)), this, SLOT(slotExportStudents(int)));
+    connect(service, SIGNAL(signalClientAuthentication(QString,int)), this, SLOT(slotClientAuthentication(QString,int)));
+    connect(service, SIGNAL(signalRemoveUser(QString,DaemonService*)), this, SLOT(slotRemoveUser(QString,DaemonService*)));
+    connect(service, SIGNAL(signalExportCards(int)), this, SLOT(slotExportCards(int)));
+    connect(service, SIGNAL(signalExportStudents(int)), this, SLOT(slotExportStudents(int)));
 
     clients.append(service);
     clientCount++;
@@ -41,10 +39,21 @@ DaemonService *ServerDaemon::getServiceById(int id) {
 
 }
 
-void ServerDaemon::authenticationClient(QString username, int client) {
+void ServerDaemon::slotClientAuthentication(QString username, int client) {
 
-    emit authentication(username, client);
+    emit signalClientAuthentication(username, client);
 
+}
+
+
+void ServerDaemon::slotRemoveUser(QString username, DaemonService *service) {
+
+    for(int i = 0; i < clients.count(); i++)
+        if(clients.at(i) == service) {
+            clients.removeAt(i);
+        }
+
+    emit signalRemoveUser(username);
 }
 
 void ServerDaemon::getAuthenticationResult(int result, int client, int memberId, int stCount) {
@@ -57,39 +66,9 @@ void ServerDaemon::getAuthenticationResult(int result, int client, int memberId,
 
 }
 
-void ServerDaemon::removeUserSlot(QString username, DaemonService *service) {
-
-    for(int i = 0; i < clients.count(); i++)
-        if(clients.at(i) == service) {
-            clients.removeAt(i);
-            break;
-        }
-
-    emit removeUser(username);
-}
-
-void ServerDaemon::sendWaitingInfoRequests() {
-
-    for(int i = 0; i < clients.count(); i++)
-        clients.at(i)->sendWaitingInfoRequest();
-
-}
-
-void ServerDaemon::studentRequestGrantedSlot() {
-
-    emit studentRequestGranted();
-
-}
-
 void ServerDaemon::sendStudentInfo(int studentID) {
 
     for(int i = 0; i < clients.count(); i++)
         clients.at(i)->sendStudentInfo(studentID);
-
-}
-
-void ServerDaemon::saveStudentResultsSlot(int studentID, QString username, int mark1, int mark2, int mark3, int mark4, int mark5, int resMark) {
-
-    emit saveStudentResults(studentID, username, mark1, mark2, mark3, mark4, mark5, resMark);
 
 }
