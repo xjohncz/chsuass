@@ -45,6 +45,7 @@ public:
     void refreshGroupListModel();
 
     bool userAuth(QString username, int &userID, QString &name);
+    int getStudentCardNumber(int studentId, int examId);
     int getStudentCount(int examId);
 
     /* Data model manipulation */
@@ -92,6 +93,7 @@ public:
 
     QDomDocument exportCardsToXML();
     QDomDocument exportStudentsToXML(int examId);
+    bool saveResultsFromXML(const QString &xmlDoc);
 
 protected:
     void deleteRowFromTableModel(QSqlTableModel *, int row);

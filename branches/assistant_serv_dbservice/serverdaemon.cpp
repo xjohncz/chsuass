@@ -17,6 +17,7 @@ void ServerDaemon::incomingConnection(int socketDescriptor) {
     connect(service, SIGNAL(signalRemoveUser(QString,DaemonService*)), this, SLOT(slotRemoveUser(QString,DaemonService*)));
     connect(service, SIGNAL(signalExportCards(int)), this, SLOT(slotExportCards(int)));
     connect(service, SIGNAL(signalExportStudents(int)), this, SLOT(slotExportStudents(int)));
+    connect(service, SIGNAL(signalSaveResults(QString)), this, SLOT(slotSaveResults(QString)));
 
     clients.append(service);
     clientCount++;
@@ -66,9 +67,16 @@ void ServerDaemon::getAuthenticationResult(int result, int client, int memberId,
 
 }
 
-void ServerDaemon::sendStudentInfo(int studentID) {
+void ServerDaemon::sendStudentInfo(int studentID, int cardNumber) {
 
     for(int i = 0; i < clients.count(); i++)
-        clients.at(i)->sendStudentInfo(studentID);
+        clients.at(i)->sendStudentInfo(studentID, cardNumber);
+
+}
+
+void ServerDaemon::sendResultsRequest() {
+
+    for(int i = 0; i < clients.count(); i++)
+        clients.at(i)->sendResultsRequest();
 
 }
