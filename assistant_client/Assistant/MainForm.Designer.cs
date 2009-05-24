@@ -1,6 +1,6 @@
 ﻿namespace Assistant
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -31,7 +31,6 @@
         {
             this.mainMenu1 = new System.Windows.Forms.MainMenu();
             this.menuItem2 = new System.Windows.Forms.MenuItem();
-            this.menuItem1 = new System.Windows.Forms.MenuItem();
             this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -42,6 +41,9 @@
             this.txtStudent = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.prgBar = new System.Windows.Forms.ProgressBar();
+            this.lblState = new System.Windows.Forms.Label();
+            this.btnChange = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -71,7 +73,6 @@
             this.label10 = new System.Windows.Forms.Label();
             this.nudResultMark = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
-            this.btnChange = new System.Windows.Forms.Button();
             this.tabPage1.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -84,17 +85,11 @@
             // mainMenu1
             // 
             this.mainMenu1.MenuItems.Add(this.menuItem2);
-            this.mainMenu1.MenuItems.Add(this.menuItem1);
             // 
             // menuItem2
             // 
             this.menuItem2.Text = "Выход";
             this.menuItem2.Click += new System.EventHandler(this.menuItem2_Click);
-            // 
-            // menuItem1
-            // 
-            this.menuItem1.Text = "Таймер";
-            this.menuItem1.Click += new System.EventHandler(this.menuItem1_Click);
             // 
             // columnHeader2
             // 
@@ -163,6 +158,8 @@
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.prgBar);
+            this.tabPage3.Controls.Add(this.lblState);
             this.tabPage3.Controls.Add(this.btnChange);
             this.tabPage3.Controls.Add(this.label7);
             this.tabPage3.Controls.Add(this.label3);
@@ -175,6 +172,30 @@
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Size = new System.Drawing.Size(240, 242);
             this.tabPage3.Text = "Подкл";
+            // 
+            // prgBar
+            // 
+            this.prgBar.Location = new System.Drawing.Point(8, 193);
+            this.prgBar.Name = "prgBar";
+            this.prgBar.Size = new System.Drawing.Size(221, 20);
+            this.prgBar.Visible = false;
+            // 
+            // lblState
+            // 
+            this.lblState.Location = new System.Drawing.Point(7, 153);
+            this.lblState.Name = "lblState";
+            this.lblState.Size = new System.Drawing.Size(222, 37);
+            this.lblState.Text = "Состояние:";
+            this.lblState.Visible = false;
+            // 
+            // btnChange
+            // 
+            this.btnChange.Location = new System.Drawing.Point(116, 89);
+            this.btnChange.Name = "btnChange";
+            this.btnChange.Size = new System.Drawing.Size(112, 20);
+            this.btnChange.TabIndex = 4;
+            this.btnChange.Text = "Изменить";
+            this.btnChange.Click += new System.EventHandler(this.btnChange_Click);
             // 
             // label7
             // 
@@ -223,7 +244,7 @@
             // 
             // btnConnect
             // 
-            this.btnConnect.Location = new System.Drawing.Point(116, 115);
+            this.btnConnect.Location = new System.Drawing.Point(116, 219);
             this.btnConnect.Name = "btnConnect";
             this.btnConnect.Size = new System.Drawing.Size(112, 20);
             this.btnConnect.TabIndex = 2;
@@ -465,15 +486,6 @@
             this.label5.Size = new System.Drawing.Size(60, 18);
             this.label5.Text = "Результат:";
             // 
-            // btnChange
-            // 
-            this.btnChange.Location = new System.Drawing.Point(116, 89);
-            this.btnChange.Name = "btnChange";
-            this.btnChange.Size = new System.Drawing.Size(112, 20);
-            this.btnChange.TabIndex = 4;
-            this.btnChange.Text = "Изменить";
-            this.btnChange.Click += new System.EventHandler(this.btnChange_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -538,8 +550,9 @@
         private System.Windows.Forms.ListView lvMarks;
         private System.Windows.Forms.ColumnHeader columnHeader3;
         private System.Windows.Forms.ColumnHeader columnHeader4;
-        private System.Windows.Forms.MenuItem menuItem1;
         private System.Windows.Forms.Button btnChange;
+        private System.Windows.Forms.Label lblState;
+        private System.Windows.Forms.ProgressBar prgBar;
 
 
 

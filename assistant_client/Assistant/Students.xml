@@ -1,4 +1,4 @@
-<students examType="Государственный экзамен" examId="3" memberId="0" >
+<students examType="Государственный экзамен" examId="3" memberId="0" studentCount="1" >
  <student surname="Брусова" patronymic="Анатольевна" id="23" cardNumber="12" name="Тамара" >
   <marks/>
   <memberMarks>

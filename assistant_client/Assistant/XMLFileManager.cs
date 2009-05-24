@@ -13,6 +13,7 @@ namespace Assistant
         public string examType = "";
         public int examId = 0;
         public int memberId = 0;
+        public int studentCount = 0;
     }
     
     class XMLFileManager
@@ -30,6 +31,7 @@ namespace Assistant
                 exam.examType = root.Attributes["examType"].Value;
                 exam.examId = Convert.ToInt32(root.Attributes["examId"].Value);
                 exam.memberId = Convert.ToInt32(root.Attributes["memberId"].Value);
+                exam.studentCount = Convert.ToInt32(root.Attributes["studentCount"].Value);
             }
             catch (Exception err)
             {

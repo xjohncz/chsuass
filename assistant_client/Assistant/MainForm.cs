@@ -16,7 +16,7 @@ using System.Xml;
 
 namespace Assistant
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
 
         enum ReceiveState
@@ -45,38 +45,34 @@ namespace Assistant
 
         Socket socket;
         Thread recvThread;
-        //ReceiveState recvState;
 
         System.Threading.Timer timer;
         int timerCount = 10;
 
-        //private void timerTick(Object stateInfo);
         private delegate void UpdateHeaderHandler(int count);
-        //private void updateHeader(int count);
 
-        //private bool waitingStudent = false;
         private int examID = -1;
         private int studentID = -1;
+        private int prevStudentID = -1;
         private int memberID = -1;
-        //private string student;
-        //private string studentTask;
+        private int studentCount = 0;
 
         private string ticketNum;
         private string question1;
         private string question2;
         private string question3;
    
-        //int opcode = 0;
-        //int fieldCount = 0;
-        //int rcvMsgSize = 0;
-
         private ManualResetEvent recvDone = new ManualResetEvent(false);
 
         private delegate void UpdateStudentEventHandler();
         private delegate Int32 GetMarkValueHandler(NumericUpDown nudControl);
 
-        private List<Student> students = null;
-        //private Student currentStudent = null;
+        private delegate void SetProgressBarMaxHandler(int maxValue);
+        private delegate void UpdateProgressBarHandler(int value);
+        private delegate void SetStateLabelHandler(string state);
+
+        List<Card> cards = null;
+        List<Student> students = null;
 
         private void timerTick(Object stateInfo)
         {
@@ -89,32 +85,59 @@ namespace Assistant
             if (timerCount > 0)
             {
                 timerCount--;
-                this.Text = "Сбор - " + count.ToString() + " сек!";
+                this.Text = "!Сохр.-" + count.ToString() + " сек!";
             }
             else
             {
                 timerCount = 10;
                 this.Text = "Assistant";
+                Student st = Student.GetStudentById(students, prevStudentID);
+                XMLFileManager.SaveStudent(st, students_xml);
+                this.Invoke(new UpdateStudentEventHandler(this.UpdateStudentInfo));
                 timer.Dispose();
             }
         }
 
-        private void SaveStudentChanges(Student student)
+        private void SetProgressBarMax(int maxValue)
         {
-            if (student != null)
+            prgBar.Maximum = maxValue;
+            prgBar.Visible = true;
+            lblState.Visible = true;
+            //Cursor.Current = Cursors.WaitCursor;
+        }
+
+        private void UpdateProgressBar(int value)
+        {
+            prgBar.Value = value;
+            if(prgBar.Value == prgBar.Maximum) 
             {
-                foreach (Student st in students)
-                {
-                    if (st.ID == student.ID)
-                    {
-                        int ind = students.IndexOf(st);
-                        students.Remove(st);
-                        students.Insert(ind, student);
-                        break;
-                    }
-                }
+                prgBar.Visible = false;
+                lblState.Visible = false;
+                //Cursor.Current = Cursors.Default;
             }
         }
+
+        private void SetLabelState(string state)
+        {
+            lblState.Text = "Состояние: " + state;
+        }
+
+        //private void SaveStudentChanges(Student student)
+        //{
+        //    if (student != null)
+        //    {
+        //        foreach (Student st in students)
+        //        {
+        //            if (st.ID == student.ID)
+        //            {
+        //                int ind = students.IndexOf(st);
+        //                students.Remove(st);
+        //                students.Insert(ind, student);
+        //                break;
+        //            }
+        //        }
+        //    }
+        //}
 
         //private string getMD5Hash(String input)
         //{
@@ -259,6 +282,11 @@ namespace Assistant
                 int bytesRead = client.EndReceive(ar);
                 state.bytesRead += bytesRead;
 
+                if ((state.opcode == AssistantProtocol.OpcodeServerSendsCards ||
+                    state.opcode == AssistantProtocol.OpcodeServerSendsStudents) &&
+                    state.recvState == ReceiveState.RecvBody)
+                    this.Invoke(new UpdateProgressBarHandler(this.UpdateProgressBar), new Object[] { state.bytesRead });
+
                 // !!!CHECK!!!
                 /*if (bytesRead == 0)
                 {
@@ -316,6 +344,17 @@ namespace Assistant
             opcode = GetIntFromMessage(buffer, index);
             index += sizeof(int);
             recvMsgSize = GetIntFromMessage(buffer, index);
+
+            if (opcode == AssistantProtocol.OpcodeServerSendsStudents)
+            {
+                this.Invoke(new SetStateLabelHandler(this.SetLabelState), new Object[] { "получение списка студентов..." });
+                this.Invoke(new SetProgressBarMaxHandler(this.SetProgressBarMax), new Object[] { recvMsgSize });
+            } 
+            else if (opcode == AssistantProtocol.OpcodeServerSendsCards)
+            {
+                this.Invoke(new SetStateLabelHandler(this.SetLabelState), new Object[] { "получение списка билетов..." });
+                this.Invoke(new SetProgressBarMaxHandler(this.SetProgressBarMax), new Object[] { recvMsgSize });
+            }
         }
 
         private void ReadBody(int opcode, byte[] buffer)
@@ -372,7 +411,6 @@ namespace Assistant
                 case AssistantProtocol.OpcodeStudentInfo:
                     ReadStudentInfo(buffer);
                     //waitingStudent = false;
-                    this.Invoke(new UpdateStudentEventHandler(this.UpdateStudentInfo));
                     break;
 
                 case AssistantProtocol.OpcodeServerSendsStudents:
@@ -393,9 +431,19 @@ namespace Assistant
         private void ReadStudentInfo(byte[] buffer)
         {
             int index = 0;
-            
+
+            prevStudentID = studentID;
             studentID = GetIntFromMessage(buffer, index);
-            //index += sizeof(int);
+
+            if (prevStudentID != -1)
+            {
+                TimerCallback timerDelegate = new TimerCallback(timerTick);
+                timer = new System.Threading.Timer(timerDelegate, timerCount, 0, 1000);
+            }
+            else
+            {
+                this.Invoke(new UpdateStudentEventHandler(this.UpdateStudentInfo));
+            }
         }
 
         private void ReadExamInfo(byte[] buffer)
@@ -406,13 +454,16 @@ namespace Assistant
             index += sizeof(int);
 
             memberID = GetIntFromMessage(buffer, index);
+            index += sizeof(int);
+
+            studentCount = GetIntFromMessage(buffer, index);
 
             bool needStudents = false;
 
             if (File.Exists(students_xml))
             {
                 ExamInfo examInfo = XMLFileManager.GetExamInfo(students_xml);
-                if (examInfo.examId != examID) //|| examInfo.memberId != memberID)
+                if (examInfo.examId != examID || examInfo.studentCount != studentCount)
                     needStudents = true;
             }
             else
@@ -432,6 +483,7 @@ namespace Assistant
             else
             {
                 XMLFileManager.SaveMemberId(students_xml, memberID);
+                students = XMLFileManager.GetStudentList(students_xml);
             }
 
             if (!File.Exists(cards_xml))
@@ -442,6 +494,10 @@ namespace Assistant
 
                 byte[] msg = message.ToArray();
                 SendMessage(msg);
+            }
+            else
+            {
+                cards = XMLFileManager.GetCardList(cards_xml);
             }
         }
 
@@ -460,11 +516,9 @@ namespace Assistant
             fs.Close();
 
             XMLFileManager.SaveMemberId(students_xml, memberID);
-            //string students = GetStringFromMessage(buffer, index, studentsLen);
-            //XmlDocument doc = new XmlDocument();
+            
+            students = XMLFileManager.GetStudentList(students_xml);
 
-            //doc.LoadXml(students);
-            //doc.Save(students_xml);
         }
 
         private void ReadCards(byte[] buffer)
@@ -480,6 +534,9 @@ namespace Assistant
             FileStream fs = File.Create(cards_xml);
             fs.Write(buffer, index, cardsLen);
             fs.Close();
+            
+            cards = XMLFileManager.GetCardList(cards_xml);
+
         }
 
         private void ReadMessages()
@@ -519,14 +576,6 @@ namespace Assistant
 
         private void UpdateStudentInfo() 
         {
-            //txtStudent.Text = student;
-            //txtQuestion1.Text = ticketNum + "\n" + question1 + "\n";
-            //txtQuestion2.Text = ticketNum + "\n" + question2 + "\n";
-            //txtQuestion3.Text = ticketNum + "\n" + question3 + "\n";
-            //txtStudentTask.Text = studentTask;
-            List<Card> cards = XMLFileManager.GetCardList(@"\Program Files\Assistant\cards.xml");
-            List<Student> students = XMLFileManager.GetStudentList(@"\Program Files\Assistant\Students.xml");
-
             Student st = Student.GetStudentById(students, studentID);
             Card card = Card.GetCardByNum(cards, st.CardNumber);
 
@@ -537,6 +586,15 @@ namespace Assistant
             question3 = strList[2];
 
             txtStudent.Text = st.FIO;
+
+            lvMarks.Clear;
+            nudMark1.Value = 0;
+            nudMark2.Value = 0;
+            nudMark3.Value = 0;
+            nudMark11.Value = 0;
+            nudMark22.Value = 0;
+            nudMark33.Value = 0;
+            nudResultMark.Value = 0;            
 
             foreach (Student.SubjectMark mark in st.subjectMarks)
             {
@@ -555,7 +613,7 @@ namespace Assistant
             return (Int32)nudControl.Value;
         }
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
         }
@@ -722,6 +780,8 @@ namespace Assistant
 
         private void button1_Click(object sender, EventArgs e)
         {
+            studentID = -1;
+            
             string address = txtIP.Text;
             int port = Convert.ToInt32(txtPort.Text);
 
@@ -782,12 +842,6 @@ namespace Assistant
         private void nudMark3_ValueChanged_1(object sender, EventArgs e)
         {
             nudMark33.Value = nudMark3.Value;
-        }
-
-        private void menuItem1_Click(object sender, EventArgs e)
-        {
-            TimerCallback timerDelegate = new TimerCallback(timerTick);
-            timer = new System.Threading.Timer(timerDelegate, timerCount, 0, 1000);
         }
 
         private void btnChange_Click(object sender, EventArgs e)
