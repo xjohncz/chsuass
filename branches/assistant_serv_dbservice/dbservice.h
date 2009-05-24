@@ -45,6 +45,7 @@ public:
     void refreshGroupListModel();
 
     bool userAuth(QString username, int &userID, QString &name);
+    int getStudentCount(int examId);
 
     /* Data model manipulation */
     void addGroup();

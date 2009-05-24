@@ -47,11 +47,11 @@ void ServerDaemon::authenticationClient(QString username, int client) {
 
 }
 
-void ServerDaemon::getAuthenticationResult(int result, int client, int memberId) {
+void ServerDaemon::getAuthenticationResult(int result, int client, int memberId, int stCount) {
 
     for(int i = 0; i < clients.count(); i++)
         if(clients.at(i)->getClientID() == client) {
-            clients.at(i)->getAuthenticationResult(result, memberId);
+            clients.at(i)->getAuthenticationResult(result, memberId, stCount);
             break;
         }
 

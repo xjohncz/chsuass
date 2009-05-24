@@ -211,6 +211,19 @@ bool dbservice::userAuth(QString username, int &userID, QString &name)
     return status;
 }
 
+int dbservice::getStudentCount(int examId) {
+
+    QSqlQuery query;
+    query.prepare("SELECT COUNT(*) FROM examstudentlist "
+                      "INNER JOIN students ON students.studentID = examstudentlist.studentID WHERE examstudentlist.examID = :examId");
+    query.bindValue(":examId", examId);
+    query.exec();
+    query.next();
+
+    return query.value(0).toInt();
+
+}
+
 void dbservice::deleteRowFromTableModel(QSqlTableModel *model, int row) {
 
     if(model == NULL)
@@ -480,6 +493,7 @@ QDomDocument dbservice::exportStudentsToXML(int examId) {
 
             root.appendChild(student);
         }
+        root.setAttribute("studentCount", query.size());
 
     } else
         if (examType == QObject::trUtf8("Защита диплома")) {
