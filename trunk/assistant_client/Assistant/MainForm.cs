@@ -53,7 +53,8 @@ namespace Assistant
 
         private int examID = -1;
         private int studentID = -1;
-        private int prevStudentID = -1;
+        private int newStudentID = -1;
+        //private int prevStudentID = -1;
         private int memberID = -1;
         private int studentCount = 0;
 
@@ -65,6 +66,7 @@ namespace Assistant
         private ManualResetEvent recvDone = new ManualResetEvent(false);
 
         private delegate void UpdateStudentEventHandler();
+        private delegate void SaveStudentHandler();
         private delegate Int32 GetMarkValueHandler(NumericUpDown nudControl);
 
         private delegate void SetProgressBarMaxHandler(int maxValue);
@@ -89,12 +91,12 @@ namespace Assistant
             }
             else
             {
+                timer.Dispose();
+
                 timerCount = 10;
                 this.Text = "Assistant";
-                Student st = Student.GetStudentById(students, prevStudentID);
-                XMLFileManager.SaveStudent(st, students_xml);
-                this.Invoke(new UpdateStudentEventHandler(this.UpdateStudentInfo));
-                timer.Dispose();
+                this.Invoke(new SaveStudentHandler(this.SaveStudent));
+                this.Invoke(new UpdateStudentEventHandler(this.UpdateStudentInfo));                
             }
         }
 
@@ -153,7 +155,7 @@ namespace Assistant
         //    return pass;
         //}
 
-        private void InitializeConnection(string address, int port)
+        private bool InitializeConnection(string address, int port)
         {
             try
             {              
@@ -161,14 +163,13 @@ namespace Assistant
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream,
                     ProtocolType.Tcp);
                 socket.Connect(endPoint);
+
+                return true;
             }
             catch (SocketException socketEx)
             {
                 MessageBox.Show("Исключение, вызванное сокетом: " + socketEx.Message);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Исключение: " + ex.Message);
+                return false;
             }
         }
 
@@ -208,43 +209,23 @@ namespace Assistant
             SendMessage(msg);
         }
 
-        private void SendStudentRequestGranted()
+        private void SendStudents()
         {
+            this.Invoke(new SaveStudentHandler(this.SaveStudent));
+
             List<byte> message = new List<byte>();
-            message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(AssistantProtocol.OpcodeStudentRequestGranted)));
-            message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(0)));
+            message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(AssistantProtocol.OpcodeClientSendsResults)));
 
-            byte[] msg = message.ToArray();
-            SendMessage(msg);
-        }
-
-        private void SendStudentRequestDenied()
-        {
-            List<byte> message = new List<byte>();
-            message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(AssistantProtocol.OpcodeStudentRequestDenied)));
-            message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(0)));
-
-            byte[] msg = message.ToArray();
-            SendMessage(msg);
-        }
-
-        private void SendStudentResults(int studentID, int mark1, int mark2, int mark3,
-            int mark4, int mark5, int resMark)
-        {
-            List<byte> message = new List<byte>();
-            message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(AssistantProtocol.OpcodeStudentResults)));
-            //message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(7)));
-
-            int msgSize = 5 * sizeof(int);
+            FileStream fs = File.OpenRead(students_xml);
+            int fsLen = (int)fs.Length;
+            int msgSize = fsLen + sizeof(int);
+            byte[] buffer = new byte[fsLen];
+            fs.Read(buffer, 0, fsLen);
+            fs.Close();
 
             message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(msgSize)));
-            message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(studentID)));
-            message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(mark1)));
-            message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(mark2)));
-            message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(mark3)));
-            //message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(mark4)));
-            //message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(mark5)));
-            message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(resMark)));
+            message.AddRange(BitConverter.GetBytes(IPAddress.HostToNetworkOrder(fsLen)));
+            message.AddRange(buffer);
 
             byte[] msg = message.ToArray();
             SendMessage(msg);
@@ -270,6 +251,44 @@ namespace Assistant
         private string GetStringFromMessage(byte[] buffer, int index, int length)
         {
             return System.Text.Encoding.UTF8.GetString(buffer, index, length);
+        }
+
+        private void ReadMessages()
+        {
+            while (true)
+            {
+                try
+                {
+                    recvDone.Reset();
+
+                    StateObject state = new StateObject();
+                    state.workSocket = socket;
+                    state.recvState = ReceiveState.RecvHeader;
+
+                    if (!socket.Connected)
+                    {
+                        socket.Close();
+                        break;
+                    }
+
+                    socket.BeginReceive(state.buffer, 0, 2 * sizeof(int), SocketFlags.None,
+                        new AsyncCallback(ReadCallback), state);
+
+                    recvDone.WaitOne();
+                }
+                catch (SocketException socketEx)
+                {
+                    Console.WriteLine("Исключение, вызванное сокетом: " + socketEx.Message);
+                }
+                catch (ThreadAbortException)
+                {
+                    socket.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Исключение: " + ex.Message);
+                }
+            }
         }
 
         private void ReadCallback(IAsyncResult ar)
@@ -366,18 +385,7 @@ namespace Assistant
                     socket.Close();
                     return;
 
-                case AssistantProtocol.OpcodeUserIsAlreadyEntered:
-                    MessageBox.Show("Пользователь с таким именем уже подключен!\nПодключение будет разорвано.", "Ошибка аутентификации", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-                    socket.Close();
-                    return;
-
-                case AssistantProtocol.OpcodeUserPassIncorrect:
-                    MessageBox.Show("Неверный пароль!\nПодключение будет разорвано.", "Ошибка аутентификации", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-                    socket.Close();
-                    return;
-
                 case AssistantProtocol.OpcodeAccessGranted:
-                    //waitingStudent = true;
                     ReadExamInfo(buffer);
                     MessageBox.Show("Соединение успешно установлено.");
                     break;
@@ -387,30 +395,8 @@ namespace Assistant
                     socket.Close();
                     return;
 
-                case AssistantProtocol.OpcodeStudentRequest:
-                    //if (waitingStudent)
-                    //SendStudentRequestGranted();                    
-
-                    int mark1 = 0, mark2 = 0, mark3 = 0;//, mark4, mark5;
-                    int resMark = 0;
-
-                    //mark1 = (Int32)nudMark1.Value;
-                    //mark2 = (Int32)nudMark2.Value;
-                    //mark3 = (Int32)nudMark3.Value;
-                    //mark4 = (Int32) nudMark4.Value;
-                    //mark5 = (Int32) nudMark5.Value;
-                    //resMark = (Int32)nudResultMark.Value;
-                    mark1 = (Int32)this.Invoke(new GetMarkValueHandler(this.GetMarkValue), new Object[] { nudMark1 });
-                    mark2 = (Int32)this.Invoke(new GetMarkValueHandler(this.GetMarkValue), new Object[] { nudMark2 });
-                    mark3 = (Int32)this.Invoke(new GetMarkValueHandler(this.GetMarkValue), new Object[] { nudMark3 });
-                    SendStudentResults(studentID, mark1, mark2, mark3, 0, 0, resMark);
-                    //else
-                    //    SendStudentRequestDenied();
-                    break;
-
                 case AssistantProtocol.OpcodeStudentInfo:
                     ReadStudentInfo(buffer);
-                    //waitingStudent = false;
                     break;
 
                 case AssistantProtocol.OpcodeServerSendsStudents:
@@ -419,6 +405,10 @@ namespace Assistant
                     
                 case AssistantProtocol.OpcodeServerSendsCards:
                     ReadCards(buffer);
+                    break;
+
+                case AssistantProtocol.OpcodeResultsRequest:
+                    SendStudents();
                     break;
 
                 default:
@@ -432,10 +422,17 @@ namespace Assistant
         {
             int index = 0;
 
-            prevStudentID = studentID;
-            studentID = GetIntFromMessage(buffer, index);
+            //prevStudentID = studentID;
+            if(studentID == -1)
+                studentID = GetIntFromMessage(buffer, index);
+            else
+                newStudentID = GetIntFromMessage(buffer, index);
+            index += sizeof(int);
 
-            if (prevStudentID != -1)
+            int cardNumber = GetIntFromMessage(buffer, index);
+            Student.GetStudentById(students, studentID).CardNumber = cardNumber;
+
+            if (newStudentID != -1)
             {
                 TimerCallback timerDelegate = new TimerCallback(timerTick);
                 timer = new System.Threading.Timer(timerDelegate, timerCount, 0, 1000);
@@ -539,41 +536,6 @@ namespace Assistant
 
         }
 
-        private void ReadMessages()
-        {
-            while (true)
-            {
-                try
-                {
-                    recvDone.Reset();
-                    
-                    StateObject state = new StateObject();
-                    state.workSocket = socket;
-                    state.recvState = ReceiveState.RecvHeader;
-
-                    if (!socket.Connected)
-                        break;
-
-                    socket.BeginReceive(state.buffer, 0, 2 * sizeof(int), SocketFlags.None,
-                        new AsyncCallback(ReadCallback), state);
-                    
-                    recvDone.WaitOne();                    
-                }
-                catch (SocketException socketEx)
-                {
-                    Console.WriteLine("Исключение, вызванное сокетом: " + socketEx.Message);
-                }
-                catch (ThreadAbortException)
-                {
-                    socket.Close();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Исключение: " + ex.Message);
-                }
-            }
-        }
-
         private void UpdateStudentInfo() 
         {
             Student st = Student.GetStudentById(students, studentID);
@@ -587,14 +549,14 @@ namespace Assistant
 
             txtStudent.Text = st.FIO;
 
-            lvMarks.Clear;
-            nudMark1.Value = 0;
-            nudMark2.Value = 0;
-            nudMark3.Value = 0;
-            nudMark11.Value = 0;
-            nudMark22.Value = 0;
-            nudMark33.Value = 0;
-            nudResultMark.Value = 0;            
+            lvMarks.Items.Clear();
+            nudMark1.Value = st.Mark1;
+            nudMark2.Value = st.Mark2;
+            nudMark3.Value = st.Mark3;
+            nudMark11.Value = st.Mark1;
+            nudMark22.Value = st.Mark2;
+            nudMark33.Value = st.Mark3;
+            nudResultMark.Value = st.ResultMark;            
 
             foreach (Student.SubjectMark mark in st.subjectMarks)
             {
@@ -606,6 +568,18 @@ namespace Assistant
             txtQuestion1.Text = "Билет №" + ticketNum.ToString() + "\r\n" + question1;
             txtQuestion2.Text = "Билет №" + ticketNum.ToString() + "\r\n" + question2;
             txtQuestion3.Text = "Билет №" + ticketNum.ToString() + "\r\n" + question3;
+        }
+
+        private void SaveStudent()
+        {
+            Student st = Student.GetStudentById(students, studentID);
+            st.Mark1 = Convert.ToInt32(nudMark1.Value);
+            st.Mark2 = Convert.ToInt32(nudMark2.Value);
+            st.Mark3 = Convert.ToInt32(nudMark3.Value);
+            st.ResultMark = Convert.ToInt32(nudResultMark.Value);
+
+            XMLFileManager.SaveStudent(st, students_xml);
+            studentID = newStudentID;
         }
 
         private Int32 GetMarkValue(NumericUpDown nudControl)
@@ -785,7 +759,8 @@ namespace Assistant
             string address = txtIP.Text;
             int port = Convert.ToInt32(txtPort.Text);
 
-            InitializeConnection(address, port);
+            if (!InitializeConnection(address, port))
+                return;
 
             string usrName = txtUserName.Text;
             //string password = txtPassword.Text;

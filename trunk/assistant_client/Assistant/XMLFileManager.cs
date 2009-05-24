@@ -110,12 +110,13 @@ namespace Assistant
             {
                 doc.Load(fileName);
 
-                XmlNode stud;
-                XmlNode root = doc.DocumentElement;
+                XmlNode stud = doc.SelectSingleNode("/students/student [@id='" + student.ID.ToString() + "']");
+                stud.Attributes["cardNumber"].Value = student.CardNumber.ToString();
 
-                stud = root.SelectSingleNode("/students/student[@id='" + student.ID.ToString() + "']/memberMarks");
+                XmlNode studMarks;
+                studMarks = doc.SelectSingleNode("/students/student [@id='" + student.ID.ToString() + "']/memberMarks");
 
-                XmlNodeList memberMarks = stud.ChildNodes;
+                XmlNodeList memberMarks = studMarks.ChildNodes;
                 foreach (XmlNode markNode in memberMarks)
                 {
                     if (markNode.Name == "mark1")
