@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QTextStream>
 #include <QTextCodec>
+#include <QtGui>
 
 xlsreader::xlsreader()
 {

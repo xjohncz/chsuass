@@ -66,6 +66,20 @@ private:
     //CURRENT EXAM
 
 private slots:
+    void on_applyMembersButton_clicked();
+    void on_cancelMembersButton_clicked();
+    void on_addMemberButton_clicked();
+    void on_deleteMemberButton_clicked();
+    void on_applyThemesButton_clicked();
+    void on_cancelThemesButton_clicked();
+    void on_addThemeButton_clicked();
+    void on_deleteThemeButton_clicked();
+    void on_applySubjectsButton_clicked();
+    void on_cancelSubkectsButton_clicked();
+    void on_addSubjectButton_clicked();
+    void on_deleteSubjectButton_clicked();
+    void on_importSubjectsButton_clicked();
+    void on_exportCardsButton_clicked();
     void slotClientAuthentication(QString username, int client);
     void slotRemoveUserSlot(QString username);
     void slotExportStudents(int client);

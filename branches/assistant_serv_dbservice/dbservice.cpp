@@ -48,6 +48,9 @@ void dbservice::initGroups() {
     groupsTableModel->setTable("groups");
     groupsTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
+    groupsTableModel->setHeaderData(1, Qt::Horizontal, tr("Имя группы"));
+    groupsTableModel->setHeaderData(2, Qt::Horizontal, tr("Год выпуска"));
+
     groupsTableModel->select();
 
 }
@@ -61,6 +64,11 @@ void dbservice::initStudents() {
     studentsTableModel->setTable("students");
     studentsTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
+    studentsTableModel->setHeaderData(1, Qt::Horizontal, tr("Номер зач."));
+    studentsTableModel->setHeaderData(2, Qt::Horizontal, tr("Фамилия"));
+    studentsTableModel->setHeaderData(3, Qt::Horizontal, tr("Имя"));
+    studentsTableModel->setHeaderData(4, Qt::Horizontal, tr("Отчество"));
+
 }
 
 void dbservice::initSubjects() {
@@ -71,6 +79,8 @@ void dbservice::initSubjects() {
     subjectsTableModel = new QSqlTableModel(this, db);
     subjectsTableModel->setTable("subjects");
     subjectsTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+
+    subjectsTableModel->setHeaderData(1, Qt::Horizontal, tr("Название дисциплины"));
 
     subjectsTableModel->select();
 
@@ -85,6 +95,9 @@ void dbservice::initCards() {
     cardsTableModel->setTable("cards");
     cardsTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
+    cardsTableModel->setHeaderData(0, Qt::Horizontal, tr("№ билета"));
+    cardsTableModel->setHeaderData(1, Qt::Horizontal, tr("Содержание билета"));
+
     cardsTableModel->select();
 
 }
@@ -98,6 +111,11 @@ void dbservice::initThemes() {
     themesTableModel->setTable("themes");
     themesTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
 
+    themesTableModel->setHeaderData(1, Qt::Horizontal, tr("Тема"));
+    themesTableModel->setHeaderData(2, Qt::Horizontal, tr("ID студента"));
+    themesTableModel->setHeaderData(3, Qt::Horizontal, tr("ID консультанта"));
+    themesTableModel->setHeaderData(4, Qt::Horizontal, tr("ID руководителя"));
+
     themesTableModel->select();
 
 }
@@ -110,6 +128,12 @@ void dbservice::initMembers() {
     membersTableModel = new QSqlTableModel(this, db);
     membersTableModel->setTable("sacmembers");
     membersTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+
+    membersTableModel->setHeaderData(1, Qt::Horizontal, tr("Фамилия"));
+    membersTableModel->setHeaderData(2, Qt::Horizontal, tr("Имя"));
+    membersTableModel->setHeaderData(3, Qt::Horizontal, tr("Отчество"));
+    membersTableModel->setHeaderData(4, Qt::Horizontal, tr("Должность"));
+    membersTableModel->setHeaderData(5, Qt::Horizontal, tr("Логин"));
 
     membersTableModel->select();
 
@@ -332,6 +356,9 @@ QString dbservice::submitStudentMarkChanges(bool &ok) { return submitChanges(stu
 
 void dbservice::importStudents(const QMap<int, QString> &students, int groupId) {
 
+    if(students.isEmpty())
+        return;
+
     QMapIterator<int, QString> i(students);
 
     while(i.hasNext()) {
@@ -409,7 +436,7 @@ QMap<int, QString> dbservice::getCards() {
 
 QDomDocument dbservice::exportCardsToXML() {
 
-    QSqlQuery query("SELECT * FROM cards");
+    QSqlQuery query("SELECT * FROM cards", db);
     query.exec();
 
     QDomDocument doc;
@@ -536,17 +563,17 @@ bool dbservice::saveResultsFromXML(const QString &xmlDoc) {
         QDomElement mark = memberMarksNode.firstChildElement("mark1");
         int mark1 = mark.text().toInt();
 
-        mark = memberMarksNode.nextSiblingElement("mark2");
+        mark = mark.nextSiblingElement("mark2");
         int mark2 = mark.text().toInt();
 
-        mark = memberMarksNode.nextSiblingElement("mark3");
+        mark = mark.nextSiblingElement("mark3");
         int mark3 = mark.text().toInt();
 
-        mark = memberMarksNode.nextSiblingElement("resMark");
+        mark = mark.nextSiblingElement("resMark");
         int resMark = mark.text().toInt();
 
-        QSqlQuery query;
-        query.prepare("CALL setMarks(?,?,?,?,?,?,?,?)");
+        QSqlQuery query(db);
+        query.prepare("CALL setMarks(?,?,?,?,?,?,?,?,?)");
         query.bindValue(0, id);
         query.bindValue(1, memberId);
         query.bindValue(2, examId);
