@@ -17,15 +17,15 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     dbServ = new dbservice(this);
-    if(!dbServ->connect("root", "1")) {
+    if(!dbServ->connect("adm_user", "adm_user")) {
         QMessageBox::critical(this, tr("Ошибка подключения к БД"), tr("Попытка подключения к БД MySQL завершилась неудачей!"));
         exit(0);
     }
 
     initSignalConnections();
 
-    ui->categoryList->setCurrentRow(0);
-    ui->stackedWidget->setCurrentIndex(0);
+    //ui->categoryList->setCurrentRow(0);
+    //ui->stackedWidget->setCurrentIndex(0);
 
     ui->examTaskStackedWidget->setVisible(false);
 
@@ -159,6 +159,8 @@ void MainWindow::initSubjects() {
     ui->subjectsTableView->setModel(dbServ->getSubjectsTableModel());
     ui->subjectsTableView->hideColumn(0);
 
+    ui->subjectsTableView->setColumnWidth(1, 250);
+
     QDataWidgetMapper *subjectsMapper = new QDataWidgetMapper(this);
     subjectsMapper->setModel(dbServ->getSubjectsTableModel());
     subjectsMapper->addMapping(ui->subjectEdit, 1);
@@ -171,12 +173,14 @@ void MainWindow::initCards() {
 
     dbServ->initCards();
     ui->cardsTableView->setModel(dbServ->getCardsTableModel());
-    ui->cardsTableView->hideColumn(0);
+
+    ui->cardsTableView->setColumnWidth(0, 70);
+    ui->cardsTableView->setColumnWidth(1, 850);
 
     QDataWidgetMapper *cardsMapper = new QDataWidgetMapper(this);
     cardsMapper->setModel(dbServ->getCardsTableModel());
-    cardsMapper->addMapping(ui->cardNumberEdit, 1);
-    cardsMapper->addMapping(ui->cardQuestionEdit1, 2);
+    cardsMapper->addMapping(ui->cardNumberEdit, 0);
+    cardsMapper->addMapping(ui->cardQuestionEdit1, 1);
 
     connect(ui->cardsTableView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)), cardsMapper, SLOT(setCurrentModelIndex(QModelIndex)));
 
@@ -203,6 +207,8 @@ void MainWindow::initMembers() {
     dbServ->initMembers();
     ui->membersTableView->setModel(dbServ->getMembersTableModel());
     ui->membersTableView->hideColumn(0);
+
+    ui->membersTableView->setColumnWidth(4, 450);
 
     QDataWidgetMapper *membersMapper = new QDataWidgetMapper(this);
     membersMapper->setModel(dbServ->getMembersTableModel());
@@ -258,22 +264,29 @@ void MainWindow::onIdSelected(int id) {
 void MainWindow::on_deleteCardButton_clicked()
 {
     //deleteRowFromTableModel(cardsTableModel, ui->cardsTableView);
+    int row = getSelectedRowFromTableView(ui->cardsTableView);
+    dbServ->deleteCard(row);
 }
 
 void MainWindow::on_addCardButton_clicked()
 {
     //addRowToTableModel(cardsTableModel);
-    //dbServ->addCard();
+    dbServ->addCard();
 }
 
 void MainWindow::on_cancelCardsButton_clicked()
 {
     //revertChanges(cardsTableModel);
-    //dbServ->revertCardChanges();
+    dbServ->revertCardChanges();
 }
 
 void MainWindow::on_applyCardsButton_clicked()
 {
+    bool ok;
+    QString err = dbServ->submitCardChanges(ok);
+
+    if(!ok)
+        QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных вернула ошибку: %1").arg(err));
     //submitChanges(cardsTableModel);
 }
 
@@ -350,10 +363,19 @@ void MainWindow::on_fillCurrentExamButton_clicked()
         return;
     }
 
-    currentExamStudentListModel->setQuery(QString("SELECT * FROM students WHERE studentID IN "
-                                                  "(SELECT studentID FROM examstudentlist WHERE examID=%1)").arg(currentExamID), dbServ->getDatabase());
+    currentExamStudentListModel->setQuery(QString("SELECT students.studentNumber, students.surname, "
+                                                "students.name, students.patronymic, groups.groupName "
+                                                "FROM students INNER JOIN groups "
+                                                "WHERE ((students.groupID=groups.groupID) AND "
+                                                "(students.studentID IN (SELECT studentID FROM examstudentlist WHERE examID=%1)))").arg(currentExamID), dbServ->getDatabase());
+    currentExamStudentListModel->setHeaderData(0, Qt::Horizontal, tr("Номер зач."));
+    currentExamStudentListModel->setHeaderData(1, Qt::Horizontal, tr("Фамилия"));
+    currentExamStudentListModel->setHeaderData(2, Qt::Horizontal, tr("Имя"));
+    currentExamStudentListModel->setHeaderData(3, Qt::Horizontal, tr("Отчество"));
+    currentExamStudentListModel->setHeaderData(4, Qt::Horizontal, tr("Название группы"));
 
     ui->currentExamStudentListTableView->setModel(currentExamStudentListModel);
+    ui->currentExamStudentListTableView->setColumnWidth(4, 125);
 
     ui->examTaskStackedWidget->setCurrentIndex(currentExamTypeID - 1);
     ui->examTaskStackedWidget->setVisible(true);
@@ -384,7 +406,7 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
         ui->currentExamCardNumberEdit->clear();
         ui->currentExamCardQuestionsTextEdit->clear();
 
-        query.prepare("SELECT examstudentlist.cardNumber, cards.questions "
+        query.prepare("SELECT examstudentlist.cardNumber, cards.questions FROM examstudentlist, cards "
                       "WHERE cards.cardNumber=examstudentlist.cardNumber AND examID=? AND studentID=? LIMIT 1");
         query.bindValue(0, currentExamID);
         query.bindValue(1, currentExamSelectedStudentID);
@@ -405,7 +427,7 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
     }
 
     QString modelQuery;
-    modelQuery = QString("SELECT username, surname, name, patronymic, mark1, mark2, mark3, mark4, mark5, memberResultMark "
+    modelQuery = QString("SELECT login, surname, name, patronymic, mark1, mark2, mark3, memberResultMark "
                             "FROM sacmembers INNER JOIN exammarks ON sacmembers.memberID = exammarks.memberID "
                             "WHERE (((exammarks.examID)=%1) AND ((exammarks.studentID)=%2))").arg(currentExamID).arg(currentExamSelectedStudentID);
     currentExamStudenMarksModel->setQuery(modelQuery, dbServ->getDatabase());
@@ -464,17 +486,15 @@ void MainWindow::on_applyGroupsButton_clicked()
 void MainWindow::on_deleteStudentButton_clicked()
 {
     //deleteRowFromTableModel(studentsTableModel, ui->studentsTableView);
+    int row = getSelectedRowFromTableView(ui->studentsTableView);
+    dbServ->deleteStudent(row);
 }
 
 void MainWindow::on_addStudentButton_clicked()
 {
-//    addRowToTableModel(studentsTableModel);
-//
-//    int row = studentsTableModel->rowCount() - 1;
-//    int selectedGroupRow = ui->groupsTableView->selectionModel()->selectedIndexes().at(0).row();
-//    QModelIndex selectedGroupIndex = groupsTableModel->index(selectedGroupRow, 0);
-//    QModelIndex newStudentIndex = studentsTableModel->index(row, 5);
-//    studentsTableModel->setData(newStudentIndex, groupsTableModel->data(selectedGroupIndex));
+    int selectedGroupRow = ui->groupsTableView->selectionModel()->selectedIndexes().at(0).row();
+    QModelIndex selectedGroupIndex = dbServ->getGroupsTableModel()->index(selectedGroupRow, 0);
+    dbServ->addStudent(dbServ->getGroupsTableModel()->data(selectedGroupIndex).toInt());
 }
 
 void MainWindow::on_cancelStudentsButton_clicked()
@@ -506,7 +526,12 @@ void MainWindow::on_marksImportButton_clicked()
 
 void MainWindow::on_showStudentInfoButton_clicked()
 {
-    xlsRead->setXLSFileName("C:/Development/52.xls");
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Импорт группы..."), QDir::homePath(),
+                                                    tr("Файлы Excel (*.xls)"));
+    if(fileName.isNull())
+        return;
+
+    xlsRead->setXLSFileName(fileName);
     QMap<int, QString> group = xlsRead->readGroupXLS();
 
     int selectedGroupRow = getSelectedRowFromTableView(ui->groupsTableView);
@@ -519,4 +544,93 @@ void MainWindow::on_showStudentInfoButton_clicked()
 void MainWindow::on_recvResultsButton_clicked()
 {
     daemon->sendResultsRequest();
+}
+
+void MainWindow::on_exportCardsButton_clicked()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранение отчета"), QDir::homePath(), tr("Файлы html (*.html)"));
+
+    QMap<int, QString> cards = dbServ->getCards();
+    QString cardReport = reportcreator::createCardReport(cards);
+    reportcreator::writeReport(fileName, cardReport);
+}
+
+void MainWindow::on_importSubjectsButton_clicked()
+{
+
+}
+
+void MainWindow::on_deleteSubjectButton_clicked()
+{
+    int row = getSelectedRowFromTableView(ui->subjectsTableView);
+    dbServ->deleteSubject(row);
+}
+
+void MainWindow::on_addSubjectButton_clicked()
+{
+    dbServ->addSubject();
+}
+
+void MainWindow::on_cancelSubkectsButton_clicked()
+{
+    dbServ->revertSubjectChanges();
+}
+
+void MainWindow::on_applySubjectsButton_clicked()
+{
+    bool ok;
+    QString err = dbServ->submitSubjectChanges(ok);
+
+    if(!ok)
+        QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных вернула ошибку: %1").arg(err));
+}
+
+void MainWindow::on_deleteThemeButton_clicked()
+{
+    int row = getSelectedRowFromTableView(ui->themesTableView);
+    dbServ->deleteTheme(row);
+}
+
+void MainWindow::on_addThemeButton_clicked()
+{
+    dbServ->addTheme();
+}
+
+void MainWindow::on_cancelThemesButton_clicked()
+{
+    dbServ->revertThemeChanges();
+}
+
+void MainWindow::on_applyThemesButton_clicked()
+{
+    bool ok;
+    QString err = dbServ->submitThemeChanges(ok);
+
+    if(!ok)
+        QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных вернула ошибку: %1").arg(err));
+}
+
+void MainWindow::on_deleteMemberButton_clicked()
+{
+    int row = getSelectedRowFromTableView(ui->membersTableView);
+    dbServ->deleteMember(row);
+}
+
+void MainWindow::on_addMemberButton_clicked()
+{
+    dbServ->addMember();
+}
+
+void MainWindow::on_cancelMembersButton_clicked()
+{
+    dbServ->revertMemberChanges();
+}
+
+void MainWindow::on_applyMembersButton_clicked()
+{
+    bool ok;
+    QString err = dbServ->submitMemberChanges(ok);
+
+    if(!ok)
+        QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных вернула ошибку: %1").arg(err));
 }
