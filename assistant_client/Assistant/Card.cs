@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Assistant
 {
-    class Card
+    public class Card
     {
         private int cardNumber = 0;
         public int CardNumber

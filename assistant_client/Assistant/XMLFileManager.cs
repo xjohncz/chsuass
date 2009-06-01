@@ -3,8 +3,6 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using System.Windows.Forms;
-/* FIXME: remove windows forms from class */
 
 namespace Assistant
 {
@@ -35,7 +33,7 @@ namespace Assistant
             }
             catch (Exception err)
             {
-                MessageBox.Show("Ошибка чтения XML: " + err);
+                Console.WriteLine("Ошибка чтения XML: " + err);
             }
 
             return exam;
@@ -80,13 +78,13 @@ namespace Assistant
                             foreach (XmlNode memberMark in memberMarks)
                             {
                                 if (memberMark.Name == "mark1")
-                                    student.Mark1 = Convert.ToInt32(markNode.InnerText);
+                                    student.Mark1 = Convert.ToInt32(memberMark.InnerText);
                                 else if (memberMark.Name == "mark2")
-                                    student.Mark2 = Convert.ToInt32(markNode.InnerText);
+                                    student.Mark2 = Convert.ToInt32(memberMark.InnerText);
                                 else if (memberMark.Name == "mark3")
-                                    student.Mark3 = Convert.ToInt32(markNode.InnerText);
+                                    student.Mark3 = Convert.ToInt32(memberMark.InnerText);
                                 else if (memberMark.Name == "resMark")
-                                    student.ResultMark = Convert.ToInt32(markNode.InnerText);
+                                    student.ResultMark = Convert.ToInt32(memberMark.InnerText);
                             }
                         }
                     }
@@ -96,7 +94,7 @@ namespace Assistant
             }
             catch (Exception err)
             {
-                MessageBox.Show("Ошибка чтения XML: " + err);
+                Console.WriteLine("Ошибка чтения XML: " + err);
             }
 
             return students;
@@ -133,7 +131,7 @@ namespace Assistant
             }
             catch (Exception err)
             {
-                MessageBox.Show("Ошибка чтения/записи XML: " + err);
+                Console.WriteLine("Ошибка чтения/записи XML: " + err);
             }
         }
 
@@ -152,7 +150,7 @@ namespace Assistant
             }
             catch (Exception err)
             {
-                MessageBox.Show("Ошибка чтения/записи XML: " + err);
+                Console.WriteLine("Ошибка чтения/записи XML: " + err);
             }
         }
 
@@ -179,7 +177,7 @@ namespace Assistant
             }
             catch (Exception err)
             {
-                MessageBox.Show("Ошибка чтения/записи XML: " + err);
+                Console.WriteLine("Ошибка чтения/записи XML: " + err);
             }
 
             return cards;
@@ -206,7 +204,7 @@ namespace Assistant
                 ip = null;
                 port = 0;
                 userName = null;
-                MessageBox.Show("Ошибка чтения/записи XML: " + err);
+                Console.WriteLine("Ошибка чтения/записи XML: " + err);
             }
         }
 
@@ -229,7 +227,7 @@ namespace Assistant
             }
             catch (Exception err)
             {
-                MessageBox.Show("Ошибка чтения/записи XML: " + err);
+                Console.WriteLine("Ошибка чтения/записи XML: " + err);
             }
         }
     }

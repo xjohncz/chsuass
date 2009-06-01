@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Assistant
+﻿namespace Assistant
 {
     public class AssistantProtocol
     {
