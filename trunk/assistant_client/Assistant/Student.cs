@@ -3,17 +3,23 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using System.Windows.Forms;
 
 namespace Assistant
 {
-    class Student
+    public class Student
     {
 
         public class SubjectMark 
         {
             public string subject = "";
             public int mark = 0;
+        }
+
+        public class StudentUpdate
+        {
+            public Student student;
+            public Student newStudent;
+            public Card card;
         }
 
         private int id = 0;

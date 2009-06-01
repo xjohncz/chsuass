@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="AssistantProtocol.cs" />
     <Compile Include="Card.cs" />
+    <Compile Include="NetworkManager.cs" />
     <Compile Include="XMLFileManager.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
