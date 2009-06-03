@@ -33,6 +33,8 @@ protected:
     void closeEvent(QCloseEvent *event);
 
     int getSelectedRowFromTableView(QTableView *view);
+    void showRowInTableView(QTableView *view, int column, int id);
+    void filterNewExamStudentsTableView(int column);
 
 private:
     void initSignalConnections();
@@ -43,6 +45,7 @@ private:
     void initThemes();
     void initMembers();
     void initExamTypes();
+    void initNewExam();
 
     void showSelectDialog(const QString &tableName, IdType type);
 
@@ -60,12 +63,17 @@ private:
     int currentExamID;
     int currentExamTypeID;
     int currentExamSelectedStudentID;
-    QStandardItemModel *memberListModel;
-    QSqlQueryModel *currentExamStudentListModel;
-    QSqlQueryModel *currentExamStudenMarksModel;
     //CURRENT EXAM
 
 private slots:
+    void on_deleteAllMemberFromExamButton_clicked();
+    void on_addAllMemberToExamButton_clicked();
+    void on_deleteMemberFromExamButton_clicked();
+    void on_addMemberToExamButton_clicked();
+    void on_deleteAllStudentFromExamButton_clicked();
+    void on_addAllStudentsToExamButton_clicked();
+    void on_deleteStudentFromExamButton_clicked();
+    void on_addStudentToExamButton_clicked();
     void on_applyMembersButton_clicked();
     void on_cancelMembersButton_clicked();
     void on_addMemberButton_clicked();
@@ -89,7 +97,6 @@ private slots:
 private slots:
     void on_recvResultsButton_clicked();
     void on_showStudentInfoButton_clicked();
-    void on_marksImportButton_clicked();
     void on_saveExamTimeButton_clicked();
     void on_applyStudentsButton_clicked();
     void on_cancelStudentsButton_clicked();

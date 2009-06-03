@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QStringListModel>
 #include <QDomDocument>
+#include <QStandardItemModel>
 
 #include <QtSql>
 
@@ -31,6 +32,13 @@ public:
     QStringListModel *getExamTypesModel() { return examTypesListModel; }
     QStringListModel *getGroupListModel() { return groupListModel; }
     QStringListModel *getYearListModel() { return yearListModel; }
+    QSqlTableModel *getNewExamStudentsFromTableModel() { return newExamStudentsFromTableModel; }
+    //QSqlTableModel *getNewExamMembersFromTableModel() { return newExamMembersFromTableModel; }
+    QStandardItemModel *getNewExamStudentsToItemModel() { return newExamStudentsToItemModel; }
+    QStandardItemModel *getNewExamMembersToItemModel() { return newExamMembersToItemModel; }
+    QStandardItemModel *getCurrentExamMemberListModel() { return currentExamMemberListModel; }
+    QSqlQueryModel *getCurrentExamStudentListModel() { return currentExamStudentListModel; }
+    QSqlQueryModel *getCurrentExamStudentMarksModel() { return currentExamStudentMarksModel; }
 
     void initGroups();
     void initStudents();
@@ -39,14 +47,18 @@ public:
     void initThemes();
     void initMembers();
     void initExamTypes();
+    void initNewExam();
     void initStudentMarks();
-    void filterStudents(int groupId);
+    void filterStudents(int groupId, QSqlTableModel *stTableModel);
     void filterStudentMarks(int studentId);
     void refreshGroupListModel();
+    void fillCurrentExam(const int examId);
 
     bool userAuth(QString username, int &userID, QString &name);
     int getStudentCardNumber(int studentId, int examId);
     int getStudentCount(int examId);
+    int getCurrentExamId(int &typeId);
+    int getGroupId(const QString &groupName, const int year);
 
     /* Data model manipulation */
     void addGroup();
@@ -85,6 +97,16 @@ public:
     QString submitStudentMarkChanges(bool &ok);
     /* End of data model manipulation */
 
+    void addMemberUserOnLogon(const int uid, const QString &name, const QString &username);
+    void removeMemberUserOnDisconnect(const QString &username);
+
+    void addNewExamStudent(const int row);
+    int removeNewExamStudent(const int row);
+    bool newExamStudentIsInList(int id);
+
+    void addNewExamMember(const int row);
+    int removeNewExamMember(const int row);
+
     void importStudents(const QMap<int, QString> &students, int groupId);
     void importSubjects(const QStringList &subjects);
     void importStudentMarks(const QMap<QString, int> &marks, int studentId);
@@ -103,6 +125,7 @@ protected:
 
 private:
     QSqlDatabase db;
+    bool connected;
 
     QSqlTableModel *groupsTableModel;
     QSqlTableModel *studentsTableModel;
@@ -117,7 +140,15 @@ private:
     QStringListModel *groupListModel;
     QStringListModel *yearListModel;
 
-    bool connected;
+    QSqlTableModel *newExamStudentsFromTableModel;
+    //QSqlTableModel *newExamMembersFromTableModel;
+    QStandardItemModel *newExamStudentsToItemModel;
+    QList<int> newExamStudentsId;
+    QStandardItemModel *newExamMembersToItemModel;
+
+    QStandardItemModel *currentExamMemberListModel;
+    QSqlQueryModel *currentExamStudentListModel;
+    QSqlQueryModel *currentExamStudentMarksModel;
 };
 
 #endif	/* _DBSERVICE_H */

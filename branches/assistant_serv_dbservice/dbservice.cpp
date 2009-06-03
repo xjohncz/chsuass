@@ -2,10 +2,14 @@
 
 dbservice::dbservice(QObject *parent)
         : QObject(parent),
-        connected(false)
+        connected(false),
+        groupListModel(new QStringListModel(this)),
+        yearListModel(new QStringListModel(this)),
+        currentExamMemberListModel(new QStandardItemModel(0, 3, this)),
+        currentExamStudentListModel(new QSqlQueryModel(this)),
+        currentExamStudentMarksModel(new QSqlQueryModel(this))
 {
-    groupListModel = new QStringListModel(this);
-    yearListModel = new QStringListModel(this);
+
 }
 
 dbservice::~dbservice()
@@ -68,7 +72,6 @@ void dbservice::initStudents() {
     studentsTableModel->setHeaderData(2, Qt::Horizontal, tr("Фамилия"));
     studentsTableModel->setHeaderData(3, Qt::Horizontal, tr("Имя"));
     studentsTableModel->setHeaderData(4, Qt::Horizontal, tr("Отчество"));
-
 }
 
 void dbservice::initSubjects() {
@@ -132,11 +135,22 @@ void dbservice::initMembers() {
     membersTableModel->setHeaderData(1, Qt::Horizontal, tr("Фамилия"));
     membersTableModel->setHeaderData(2, Qt::Horizontal, tr("Имя"));
     membersTableModel->setHeaderData(3, Qt::Horizontal, tr("Отчество"));
-    membersTableModel->setHeaderData(4, Qt::Horizontal, tr("Должность"));
+    membersTableModel->setHeaderData(4, Qt::Horizontal, tr("Деятельность"));
     membersTableModel->setHeaderData(5, Qt::Horizontal, tr("Логин"));
 
     membersTableModel->select();
 
+//    newExamMembersFromTableModel = new QSqlTableModel(this, db);
+//    newExamMembersFromTableModel->setTable("sacmembers");
+//    newExamMembersFromTableModel->setEditStrategy(QSqlTableModel::OnManualSubmit);
+//
+//    newExamMembersFromTableModel->setHeaderData(1, Qt::Horizontal, tr("Фамилия"));
+//    newExamMembersFromTableModel->setHeaderData(2, Qt::Horizontal, tr("Имя"));
+//    newExamMembersFromTableModel->setHeaderData(3, Qt::Horizontal, tr("Отчество"));
+//    newExamMembersFromTableModel->setHeaderData(4, Qt::Horizontal, tr("Деятельность"));
+//    newExamMembersFromTableModel->setHeaderData(5, Qt::Horizontal, tr("Логин"));
+//
+//    newExamMembersFromTableModel->select();
 }
 
 void dbservice::initExamTypes() {
@@ -155,6 +169,31 @@ void dbservice::initExamTypes() {
 
 }
 
+void dbservice::initNewExam() {
+
+    newExamStudentsFromTableModel = new QSqlTableModel(this, db);
+    newExamStudentsFromTableModel->setTable("students");
+
+    newExamStudentsFromTableModel->setHeaderData(1, Qt::Horizontal, tr("Номер зач."));
+    newExamStudentsFromTableModel->setHeaderData(2, Qt::Horizontal, tr("Фамилия"));
+    newExamStudentsFromTableModel->setHeaderData(3, Qt::Horizontal, tr("Имя"));
+    newExamStudentsFromTableModel->setHeaderData(4, Qt::Horizontal, tr("Отчество"));
+
+    newExamStudentsToItemModel = new QStandardItemModel(0, 4, this);
+    newExamStudentsToItemModel->setHeaderData(0, Qt::Horizontal, tr("id студента"));
+    newExamStudentsToItemModel->setHeaderData(1, Qt::Horizontal, tr("Фамилия"));
+    newExamStudentsToItemModel->setHeaderData(2, Qt::Horizontal, tr("Имя"));
+    newExamStudentsToItemModel->setHeaderData(3, Qt::Horizontal, tr("Отчество"));
+
+    newExamMembersToItemModel = new QStandardItemModel(0, 5, this);
+    newExamMembersToItemModel->setHeaderData(0, Qt::Horizontal, tr("id члена"));
+    newExamMembersToItemModel->setHeaderData(1, Qt::Horizontal, tr("Фамилия"));
+    newExamMembersToItemModel->setHeaderData(2, Qt::Horizontal, tr("Имя"));
+    newExamMembersToItemModel->setHeaderData(3, Qt::Horizontal, tr("Отчество"));
+    newExamMembersToItemModel->setHeaderData(4, Qt::Horizontal, tr("Логин"));
+
+}
+
 void dbservice::initStudentMarks() {
 
     if(!connected)
@@ -168,13 +207,13 @@ void dbservice::initStudentMarks() {
 
 }
 
-void dbservice::filterStudents(int groupId) {
+void dbservice::filterStudents(int groupId, QSqlTableModel *stTableModel) {
 
     if(!connected)
         return;
 
-    studentsTableModel->setFilter(QString("groupID=%1").arg(groupId));
-    studentsTableModel->select();
+    stTableModel->setFilter(QString("groupID=%1").arg(groupId));
+    stTableModel->select();
 
 }
 
@@ -210,6 +249,21 @@ void dbservice::refreshGroupListModel() {
 
     groupListModel->setStringList(groupList);
     yearListModel->setStringList(yearList);
+
+}
+
+void dbservice::fillCurrentExam(const int examId) {
+
+    currentExamStudentListModel->setQuery(QString("SELECT students.studentNumber, students.surname, "
+                                                "students.name, students.patronymic, groups.groupName "
+                                                "FROM students INNER JOIN groups "
+                                                "WHERE ((students.groupID=groups.groupID) AND "
+                                                "(students.studentID IN (SELECT studentID FROM examstudentlist WHERE examID=%1)))").arg(examId), db);
+    currentExamStudentListModel->setHeaderData(0, Qt::Horizontal, tr("Номер зач."));
+    currentExamStudentListModel->setHeaderData(1, Qt::Horizontal, tr("Фамилия"));
+    currentExamStudentListModel->setHeaderData(2, Qt::Horizontal, tr("Имя"));
+    currentExamStudentListModel->setHeaderData(3, Qt::Horizontal, tr("Отчество"));
+    currentExamStudentListModel->setHeaderData(4, Qt::Horizontal, tr("Название группы"));
 
 }
 
@@ -258,6 +312,40 @@ int dbservice::getStudentCount(int examId) {
     query.next();
 
     return query.value(0).toInt();
+
+}
+
+int dbservice::getCurrentExamId(int &typeId) {
+
+    QSqlQuery query;
+    query.prepare("SELECT examID, typeID FROM exams WHERE isCurrent=?");
+    query.bindValue(0, 1);
+    query.exec();
+
+    int examId = -1;
+
+    if(query.next()) {
+        examId = query.value(0).toInt();
+        typeId = query.value(1).toInt();
+    }
+
+    return examId;
+
+}
+
+int dbservice::getGroupId(const QString &groupName, const int year) {
+
+    QSqlQuery query;
+    query.prepare("SELECT groupID FROM groups WHERE (groupName=?) AND (year_=?)");
+    query.bindValue(0, groupName);
+    query.bindValue(1, year);
+    query.exec();
+
+    int groupId = -1;
+    if(query.next())
+        groupId = query.value(0).toInt();
+
+    return groupId;
 
 }
 
@@ -354,6 +442,129 @@ void dbservice::revertStudentMarkChanges() { revertChanges(studentMarksTableMode
 QString dbservice::submitStudentMarkChanges(bool &ok) { return submitChanges(studentMarksTableModel, ok); }
 /* End of data model manipulation */
 
+void dbservice::addMemberUserOnLogon(int uid, const QString &name, const QString &username) {
+
+    QList<QStandardItem *> itemList;
+
+    QStandardItem *item = new QStandardItem(uid);
+    itemList.append(item);
+    item = new QStandardItem(name);
+    itemList.append(item);
+    item = new QStandardItem(username);
+    itemList.append(item);
+
+    currentExamMemberListModel->appendRow(itemList);
+
+}
+
+void dbservice::removeMemberUserOnDisconnect(const QString &username) {
+
+    for(int i = 0; i < currentExamMemberListModel->rowCount(); i++) {
+        QString itemText = currentExamMemberListModel->item(i, 2)->text();
+        if(itemText == username) {
+            currentExamMemberListModel->removeRow(i);
+            break;
+        }
+    }
+
+}
+
+void dbservice::addNewExamStudent(const int row) {
+
+    QModelIndex index = newExamStudentsFromTableModel->index(row, 0);
+    int stId = newExamStudentsFromTableModel->data(index).toInt();
+
+    index = newExamStudentsFromTableModel->index(row, 2);
+    QString surname = newExamStudentsFromTableModel->data(index).toString();
+
+    index = newExamStudentsFromTableModel->index(row, 3);
+    QString name = newExamStudentsFromTableModel->data(index).toString();
+
+    index = newExamStudentsFromTableModel->index(row, 4);
+    QString patronymic = newExamStudentsFromTableModel->data(index).toString();
+
+    QList<QStandardItem *> itemList;
+    QStandardItem *item = new QStandardItem(QString::number(stId));
+    itemList.append(item);
+    item = new QStandardItem(surname);
+    itemList.append(item);
+    item = new QStandardItem(name);
+    itemList.append(item);
+    item = new QStandardItem(patronymic);
+    itemList.append(item);
+
+    newExamStudentsToItemModel->appendRow(itemList);
+    newExamStudentsId.append(stId);
+
+}
+
+int dbservice::removeNewExamStudent(const int row) {
+
+    QModelIndex index = newExamStudentsToItemModel->index(row, 0);
+    int studentId = newExamStudentsToItemModel->data(index).toInt();
+
+    newExamStudentsToItemModel->removeRow(row);
+    int pos = newExamStudentsId.indexOf(studentId);
+    newExamStudentsId.removeAt(pos);
+
+    return studentId;
+
+}
+
+void dbservice::addNewExamMember(const int row) {
+
+    QModelIndex index = membersTableModel->index(row, 0);
+    int memberId = membersTableModel->data(index).toInt();
+
+    index = membersTableModel->index(row, 1);
+    QString surname = membersTableModel->data(index).toString();
+
+    index = membersTableModel->index(row, 2);
+    QString name = membersTableModel->data(index).toString();
+
+    index = membersTableModel->index(row, 3);
+    QString patronymic = membersTableModel->data(index).toString();
+
+    index = membersTableModel->index(row, 5);
+    QString login = membersTableModel->data(index).toString();
+
+    QList<QStandardItem *> itemList;
+    QStandardItem *item = new QStandardItem(QString::number(memberId));
+    itemList.append(item);
+    item = new QStandardItem(surname);
+    itemList.append(item);
+    item = new QStandardItem(name);
+    itemList.append(item);
+    item = new QStandardItem(patronymic);
+    itemList.append(item);
+    item = new QStandardItem(login);
+    itemList.append(item);
+
+    newExamMembersToItemModel->appendRow(itemList);
+
+}
+
+int dbservice::removeNewExamMember(const int row) {
+
+    QModelIndex index = newExamMembersToItemModel->index(row, 0);
+    int memberId = newExamMembersToItemModel->data(index).toInt();
+
+    newExamMembersToItemModel->removeRow(row);
+
+    return memberId;
+
+}
+
+bool dbservice::newExamStudentIsInList(int id) {
+
+    bool res = false;
+    if(newExamStudentsId.indexOf(id) != -1)
+        res = true;
+
+    return res;
+
+}
+
 void dbservice::importStudents(const QMap<int, QString> &students, int groupId) {
 
     if(students.isEmpty())
@@ -393,7 +604,7 @@ void dbservice::importSubjects(const QStringList &subjects) {
         int row = subjectsTableModel->rowCount() - 1;
 
         QModelIndex newSubjectIndex = subjectsTableModel->index(row, subjectsTableModel->fieldIndex("subjectName"));
-        studentsTableModel->setData(newSubjectIndex, subjects.at(i));
+        subjectsTableModel->setData(newSubjectIndex, subjects.at(i));
     }
 
 }
