@@ -532,7 +532,7 @@ void MainWindow::on_saveExamTimeButton_clicked()
 void MainWindow::on_showStudentInfoButton_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Импорт группы..."), QDir::homePath(),
-                                                    tr("Файлы Excel (*.xls) (*.xls)"));
+                                                    tr("Файлы Excel (*.xls)"));
     if(fileName.isNull())
         return;
 
@@ -553,7 +553,11 @@ void MainWindow::on_recvResultsButton_clicked()
 
 void MainWindow::on_exportCardsButton_clicked()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранение отчета"), QDir::homePath(), tr("Файлы html (*.html) (*.html)"));
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранение отчета"), QDir::homePath(),
+                                                    tr("Файлы html (*.html)"));
+
+    if(fileName.isNull())
+        return;
 
     QMap<int, QString> cards = dbServ->getCards();
     QString cardReport = reportcreator::createCardReport(cards);
@@ -563,7 +567,7 @@ void MainWindow::on_exportCardsButton_clicked()
 void MainWindow::on_importSubjectsButton_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Импорт дисциплин..."), QDir::homePath(),
-                                                    tr("Файлы Excel (*.xls) (*.xls)"));
+                                                    tr("Файлы Excel (*.xls)"));
     if(fileName.isNull())
         return;
 
