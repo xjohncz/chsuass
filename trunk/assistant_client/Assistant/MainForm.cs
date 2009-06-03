@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Threading;
+using System.Media;
 
 
 namespace Assistant
@@ -25,10 +26,13 @@ namespace Assistant
         private System.Threading.Timer timer;
         private int timerCount = 10;
 
+        private SoundPlayer sndPlayer = null;
+
         private delegate void UpdateHeaderHandler(Student.StudentUpdate stCard);
 
         public void StartTimer(Student.StudentUpdate stCard)
         {
+            sndPlayer.Play();
             SetProgressBarMax(10);
             TimerCallback timerDelegate = new TimerCallback(timerTick);
             timer = new System.Threading.Timer(timerDelegate, stCard, 0, 1000);
@@ -198,6 +202,7 @@ namespace Assistant
             students_xml = app_path + @"\students.xml";
 
             netManager = new NetworkManager(this, cards_xml, students_xml);
+            sndPlayer = new SoundPlayer(app_path + @"\beep.wav");
         }
 
         private void Form1_Load(object sender, EventArgs e)
