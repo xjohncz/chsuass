@@ -570,7 +570,6 @@ QString dbservice::addNewExam(const QDate &date, const QString &type, bool isCur
     ok = false;
     QString res = "";
 
-    //db.transaction();
     QSqlQuery typeQuery;
     typeQuery.prepare("SELECT typeID FROM examtypes WHERE typeName=:type");
     typeQuery.bindValue(":type", type);
@@ -584,13 +583,43 @@ QString dbservice::addNewExam(const QDate &date, const QString &type, bool isCur
         return res;
     }
 
-    QSqlQuery examQuery;
+    //db.transaction();
+
+    QSqlQuery examQuery(db);
     examQuery.prepare("INSERT INTO exams (typeID, examDate, isCurrent) VALUES (:typeId, :date, :isCurrent)");
     examQuery.bindValue(":typeId", typeId);
     examQuery.bindValue(":date", date);
     examQuery.bindValue(":isCurrent", isCurrent);
     examQuery.exec();
+
+    /* FIXME */
+    int examId = 0;
+
+    for(int i = 0; i < newExamStudentsToItemModel->rowCount(); i++) {
+        QStandardItem *item = newExamStudentsToItemModel->item(i, 0);
+        int studentId = item->data().toInt();
+
+        QSqlQuery studentQuery(db);
+        studentQuery.prepare("INSERT INTO examstudentlist (examID, studentID) VALUES (:examId, :studentId)");
+        studentQuery.bindValue(":examId", examId);
+        studentQuery.bindValue(":studentId", studentId);
+        studentQuery.exec();
+    }
+
+    for(int i = 0; i < newExamMembersToItemModel->rowCount(); i++) {
+        QStandardItem *item = newExamMembersToItemModel->item(i, 0);
+        int memberId = item->data().toInt();
+
+        QSqlQuery memberQuery(db);
+        memberQuery.prepare("INSERT INTO exammemberlist (examID, memberID) VALUES (:examId, :memberId)");
+        memberQuery.bindValue(":examId", examId);
+        memberQuery.bindValue(":memberId", memberId);
+        memberQuery.exec();
+    }
+
     //db.commit();
+
+    return res;
 
 }
 
