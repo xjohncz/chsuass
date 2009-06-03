@@ -10,14 +10,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui(new Ui::MainWindowClass),
     xlsRead(new xlsreader()),
     daemon(new ServerDaemon(this)),
-    selectedGroupID(0),
-    currentExamStudentListModel(new QSqlQueryModel(this)),
-    currentExamStudenMarksModel(new QSqlQueryModel(this))
+    selectedGroupID(0)
 {
     ui->setupUi(this);
 
     dbServ = new dbservice(this);
-    if(!dbServ->connect("adm_user", "adm_user")) {
+    if(!dbServ->connect("assistant_user", "assistant_user")) {
         QMessageBox::critical(this, tr("Ошибка подключения к БД"), tr("Попытка подключения к БД MySQL завершилась неудачей!"));
         exit(0);
     }
@@ -35,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     initThemes();
     initMembers();
     initExamTypes();
+    initNewExam();
 
 }
 
@@ -69,6 +68,44 @@ int MainWindow::getSelectedRowFromTableView(QTableView *view) {
 
 }
 
+void MainWindow::showRowInTableView(QTableView *view, int column, int id) {
+
+    QAbstractItemModel *model = view->model();
+    if(model == NULL)
+        return;
+
+    int row = -1;
+    for(int i = 0; i < model->rowCount(); i++) {
+        QModelIndex index = model->index(i, column);
+        if(model->data(index).toInt() == id) {
+            row = i;
+            break;
+        }
+    }
+
+    if(row == -1)
+        return;
+
+    view->showRow(row);
+
+}
+
+void MainWindow::filterNewExamStudentsTableView(int column) {
+
+    QAbstractItemModel *model = ui->tvNewExamStudentsFrom->model();
+    if(model == NULL)
+        return;
+
+    for(int i = 0; i < model->rowCount(); i++) {
+        QModelIndex index = model->index(i, column);
+        int studentId = model->data(index).toInt();
+
+        if(dbServ->newExamStudentIsInList(studentId))
+            ui->tvNewExamStudentsFrom->hideRow(i);
+    }
+
+}
+
 void MainWindow::slotClientAuthentication(QString username, int client)
 {
     int uid;
@@ -78,16 +115,8 @@ void MainWindow::slotClientAuthentication(QString username, int client)
     if (!status) {
         daemon->getAuthenticationResult(OpcodeUserNotFound, client, uid, 0);
     } else {
-        QList<QStandardItem *> itemList;
 
-        QStandardItem *item = new QStandardItem(QString::number(uid));
-        itemList.append(item);
-        item = new QStandardItem(name);
-        itemList.append(item);
-        item = new QStandardItem(username);
-        itemList.append(item);
-
-        memberListModel->appendRow(itemList);
+        dbServ->addMemberUserOnLogon(uid, name, username);
 
         int studentCount = dbServ->getStudentCount(currentExamID);
 
@@ -97,13 +126,8 @@ void MainWindow::slotClientAuthentication(QString username, int client)
 
 void MainWindow::slotRemoveUserSlot(QString username) {
 
-    for(int i = 0; i < memberListModel->rowCount(); i++) {
-        QString itemText = memberListModel->item(i, 2)->text();
-        if(itemText == username) {
-            memberListModel->removeRow(i);
-            break;
-        }
-    }
+    dbServ->removeMemberUserOnDisconnect(username);
+
 }
 
 void MainWindow::slotExportCards(int client) {
@@ -126,21 +150,11 @@ void MainWindow::on_groupsTableView_pressed(QModelIndex index)
     QModelIndex idx = index.model()->index(row, 0);
     selectedGroupID = idx.data().toInt();
 
-    dbServ->filterStudents(selectedGroupID);
+    dbServ->filterStudents(selectedGroupID, dbServ->getStudentsTableModel());
 
     ui->studentsTableView->hideColumn(0);
     ui->studentsTableView->hideColumn(5);
 }
-
-/*void MainWindow::on_pushButton_clicked()
-{
-    QHostAddress address("192.168.1.5");
-
-    if(!daemon->listen())
-        QMessageBox::critical(this, tr("Can't start server"), tr("fucking shit message"));;
-    QMessageBox::information(this, "port", QString("%1").arg(daemon->serverPort()));
-
-}*/
 
 void MainWindow::initGroups() {
 
@@ -220,8 +234,8 @@ void MainWindow::initMembers() {
 
     connect(ui->membersTableView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)), membersMapper, SLOT(setCurrentModelIndex(QModelIndex)));
 
-    memberListModel = new QStandardItemModel(0, 3, this);
-    ui->currentExamMemberListTableView->setModel(memberListModel);
+    ui->currentExamMemberListTableView->setModel(dbServ->getCurrentExamMemberListModel());
+
 }
 
 void MainWindow::initExamTypes() {
@@ -229,6 +243,20 @@ void MainWindow::initExamTypes() {
     dbServ->initExamTypes();
     ui->examTypeCombobox->setModel(dbServ->getExamTypesModel());
 
+}
+
+void MainWindow::initNewExam() {
+
+    dbServ->refreshGroupListModel();
+
+    ui->groupFilterComboBox->setModel(dbServ->getGroupListModel());
+    ui->yearFilterComboBox->setModel(dbServ->getYearListModel());
+
+    dbServ->initNewExam();
+    ui->tvNewExamStudentsTo->setModel(dbServ->getNewExamStudentsToItemModel());
+    //ui->tvNewExamMembersFrom->setModel(dbServ->getNewExamMembersFromTableModel());
+    ui->tvNewExamMembersFrom->setModel(dbServ->getMembersTableModel());
+    ui->tvNewExamMembersTo->setModel(dbServ->getNewExamMembersToItemModel());
 }
 
 void MainWindow::showSelectDialog(const QString &tableName, IdType type) {
@@ -307,15 +335,12 @@ void MainWindow::on_browseInstructorButton_clicked()
 
 void MainWindow::on_refreshFilterListsButton_clicked()
 {
-
     dbServ->refreshGroupListModel();
 
     ui->groupFilterComboBox->setModel(dbServ->getGroupListModel());
     ui->yearFilterComboBox->setModel(dbServ->getYearListModel());
-
 }
 
-/* FIXME: dbservice */
 void MainWindow::on_filterButton_clicked()
 {
     int groupInd = ui->groupFilterComboBox->currentIndex();
@@ -324,57 +349,32 @@ void MainWindow::on_filterButton_clicked()
     QString groupName = ui->groupFilterComboBox->itemText(groupInd);
     int year = ui->yearFilterComboBox->itemText(yearInd).toInt();
 
-    QSqlQuery query;
-    query.prepare("SELECT groupID FROM groups WHERE (groupName=?) AND (year_=?)");
-    query.bindValue(0, groupName);
-    query.bindValue(1, year);
-    query.exec();
-
-    int groupID;
-    if(query.next())
-        groupID = query.value(0).toInt();
-    else {
+    int groupId = dbServ->getGroupId(groupName, year);
+    if(groupId == -1) {
         QMessageBox::information(this, tr("Группа не найдена"), tr("Нет группы, удовлетворяющей условиям фильтрации"));
         return;
     }
 
-    QSqlTableModel *fromExamStudentsTableModel = new QSqlTableModel(this, dbServ->getDatabase());
-    fromExamStudentsTableModel->setTable("students");
-    fromExamStudentsTableModel->setFilter(QString("groupID=%1").arg(groupID));
-    fromExamStudentsTableModel->select();
+    dbServ->filterStudents(groupId, dbServ->getNewExamStudentsFromTableModel());
+    filterNewExamStudentsTableView(0);
 
-    ui->fromExamStudentsTableView->setModel(fromExamStudentsTableModel);
+    ui->tvNewExamStudentsFrom->setModel(dbServ->getNewExamStudentsFromTableModel());
 }
 
-/* FIXME: dbservice */
 void MainWindow::on_fillCurrentExamButton_clicked()
 {
-    QSqlQuery query;
-    query.prepare("SELECT examID, typeID FROM exams WHERE isCurrent=?");
-    query.bindValue(0, 1);
-    query.exec();
+    int examId = dbServ->getCurrentExamId(currentExamTypeID);
 
-    if(query.next()) {
-        currentExamID = query.value(0).toInt();
-        currentExamTypeID = query.value(1).toInt();
-    }
-    else {
+    if(examId == -1) {
         QMessageBox::warning(this, tr("Ошибка поиска экзамена"), tr("Нет признака текущего ни у одного экзамена в БД"));
         return;
     }
 
-    currentExamStudentListModel->setQuery(QString("SELECT students.studentNumber, students.surname, "
-                                                "students.name, students.patronymic, groups.groupName "
-                                                "FROM students INNER JOIN groups "
-                                                "WHERE ((students.groupID=groups.groupID) AND "
-                                                "(students.studentID IN (SELECT studentID FROM examstudentlist WHERE examID=%1)))").arg(currentExamID), dbServ->getDatabase());
-    currentExamStudentListModel->setHeaderData(0, Qt::Horizontal, tr("Номер зач."));
-    currentExamStudentListModel->setHeaderData(1, Qt::Horizontal, tr("Фамилия"));
-    currentExamStudentListModel->setHeaderData(2, Qt::Horizontal, tr("Имя"));
-    currentExamStudentListModel->setHeaderData(3, Qt::Horizontal, tr("Отчество"));
-    currentExamStudentListModel->setHeaderData(4, Qt::Horizontal, tr("Название группы"));
+    currentExamID = examId;
 
-    ui->currentExamStudentListTableView->setModel(currentExamStudentListModel);
+    dbServ->fillCurrentExam(currentExamID);
+
+    ui->currentExamStudentListTableView->setModel(dbServ->getCurrentExamStudentListModel());
     ui->currentExamStudentListTableView->setColumnWidth(4, 125);
 
     ui->examTaskStackedWidget->setCurrentIndex(currentExamTypeID - 1);
@@ -430,9 +430,9 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
     modelQuery = QString("SELECT login, surname, name, patronymic, mark1, mark2, mark3, memberResultMark "
                             "FROM sacmembers INNER JOIN exammarks ON sacmembers.memberID = exammarks.memberID "
                             "WHERE (((exammarks.examID)=%1) AND ((exammarks.studentID)=%2))").arg(currentExamID).arg(currentExamSelectedStudentID);
-    currentExamStudenMarksModel->setQuery(modelQuery, dbServ->getDatabase());
+    dbServ->getCurrentExamStudentMarksModel()->setQuery(modelQuery, dbServ->getDatabase());
 
-    ui->currentExamStudentMarksTableView->setModel(currentExamStudenMarksModel);
+    ui->currentExamStudentMarksTableView->setModel(dbServ->getCurrentExamStudentMarksModel());
 }
 
 void MainWindow::on_sendStudentInfoButton_clicked()
@@ -518,16 +518,10 @@ void MainWindow::on_saveExamTimeButton_clicked()
 
 }
 
-void MainWindow::on_marksImportButton_clicked()
-{
-    QString fileName = QFileDialog::getOpenFileName(this, "Open file...");
-
-}
-
 void MainWindow::on_showStudentInfoButton_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Импорт группы..."), QDir::homePath(),
-                                                    tr("Файлы Excel (*.xls)"));
+                                                    tr("Файлы Excel (*.xls) (*.xls)"));
     if(fileName.isNull())
         return;
 
@@ -548,7 +542,7 @@ void MainWindow::on_recvResultsButton_clicked()
 
 void MainWindow::on_exportCardsButton_clicked()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранение отчета"), QDir::homePath(), tr("Файлы html (*.html)"));
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранение отчета"), QDir::homePath(), tr("Файлы html (*.html) (*.html)"));
 
     QMap<int, QString> cards = dbServ->getCards();
     QString cardReport = reportcreator::createCardReport(cards);
@@ -557,7 +551,15 @@ void MainWindow::on_exportCardsButton_clicked()
 
 void MainWindow::on_importSubjectsButton_clicked()
 {
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Импорт дисциплин..."), QDir::homePath(),
+                                                    tr("Файлы Excel (*.xls) (*.xls)"));
+    if(fileName.isNull())
+        return;
 
+    xlsRead->setXLSFileName(fileName);
+    QStringList subjectsList = xlsRead->readSubjectsFromXLSStudentCard();
+
+    dbServ->importSubjects(subjectsList);
 }
 
 void MainWindow::on_deleteSubjectButton_clicked()
@@ -633,4 +635,90 @@ void MainWindow::on_applyMembersButton_clicked()
 
     if(!ok)
         QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных вернула ошибку: %1").arg(err));
+}
+
+void MainWindow::on_addStudentToExamButton_clicked()
+{
+    QModelIndexList rowList = ui->tvNewExamStudentsFrom->selectionModel()->selectedRows();
+    for(int i = 0; i < rowList.count(); i++) {
+        int row = rowList.at(i).row();
+        dbServ->addNewExamStudent(row);
+        ui->tvNewExamStudentsFrom->hideRow(row);
+    }
+}
+
+void MainWindow::on_deleteStudentFromExamButton_clicked()
+{
+    while(true) {
+        QModelIndexList rowList = ui->tvNewExamStudentsTo->selectionModel()->selectedRows();
+        if(rowList.isEmpty())
+            break;
+
+        int row = rowList.at(0).row();
+        int studentId = dbServ->removeNewExamStudent(row);
+        showRowInTableView(ui->tvNewExamStudentsFrom, 0, studentId);
+    }
+}
+
+void MainWindow::on_addAllStudentsToExamButton_clicked()
+{
+    QAbstractItemModel *model = ui->tvNewExamStudentsFrom->model();
+    for(int i = 0; i < model->rowCount(); i++) {
+        if(ui->tvNewExamStudentsFrom->isRowHidden(i))
+            continue;
+        dbServ->addNewExamStudent(i);
+        ui->tvNewExamStudentsFrom->hideRow(i);
+    }
+}
+
+void MainWindow::on_deleteAllStudentFromExamButton_clicked()
+{
+    QAbstractItemModel *model = ui->tvNewExamStudentsTo->model();
+    while(model->rowCount() > 0) {
+        int studentId = dbServ->removeNewExamStudent(0);
+        showRowInTableView(ui->tvNewExamStudentsFrom, 0, studentId);
+    }
+}
+
+void MainWindow::on_addMemberToExamButton_clicked()
+{
+    QModelIndexList rowList = ui->tvNewExamMembersFrom->selectionModel()->selectedRows();
+    for(int i = 0; i < rowList.count(); i++) {
+        int row = rowList.at(i).row();
+        dbServ->addNewExamMember(row);
+        ui->tvNewExamMembersFrom->hideRow(row);
+    }
+}
+
+void MainWindow::on_deleteMemberFromExamButton_clicked()
+{
+    while(true) {
+        QModelIndexList rowList = ui->tvNewExamMembersTo->selectionModel()->selectedRows();
+        if(rowList.isEmpty())
+            break;
+
+        int row = rowList.at(0).row();
+        int memberId = dbServ->removeNewExamMember(row);
+        showRowInTableView(ui->tvNewExamMembersFrom, 0, memberId);
+    }
+}
+
+void MainWindow::on_addAllMemberToExamButton_clicked()
+{
+    QAbstractItemModel *model = ui->tvNewExamMembersFrom->model();
+    for(int i = 0; i < model->rowCount(); i++) {
+        if(ui->tvNewExamMembersFrom->isRowHidden(i))
+            continue;
+        dbServ->addNewExamMember(i);
+        ui->tvNewExamMembersFrom->hideRow(i);
+    }
+}
+
+void MainWindow::on_deleteAllMemberFromExamButton_clicked()
+{
+    QAbstractItemModel *model = ui->tvNewExamMembersTo->model();
+    while(model->rowCount() > 0) {
+        int memberId = dbServ->removeNewExamMember(0);
+        showRowInTableView(ui->tvNewExamMembersFrom, 0, memberId);
+    }
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>713</width>
-    <height>619</height>
+    <width>707</width>
+    <height>613</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,7 +31,7 @@
       </property>
       <widget class="QWidget" name="tab_11">
        <attribute name="title">
-        <string>Подготовка экзамена</string>
+        <string>Подготовка к экзамену</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
@@ -227,7 +227,7 @@
                  <item>
                   <widget class="QPushButton" name="importSubjectsButton">
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="text">
                     <string>Импорт...</string>
@@ -251,14 +251,14 @@
                  <item>
                   <widget class="QPushButton" name="cancelSubkectsButton">
                    <property name="text">
-                    <string>Применить</string>
+                    <string>Отменить</string>
                    </property>
                   </widget>
                  </item>
                  <item>
                   <widget class="QPushButton" name="applySubjectsButton">
                    <property name="text">
-                    <string>Отменить</string>
+                    <string>Применить</string>
                    </property>
                   </widget>
                  </item>
@@ -745,7 +745,7 @@
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_21">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_19" stretch="3,0,0">
+             <layout class="QHBoxLayout" name="horizontalLayout_19" stretch="3,0,0,0,0">
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_18">
                 <item>
@@ -771,7 +771,7 @@
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>16777215</width>
+                    <width>100</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -785,19 +785,6 @@
                    <bool>true</bool>
                   </property>
                  </widget>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer_4">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
                 </item>
                </layout>
               </item>
@@ -827,6 +814,26 @@
                  </widget>
                 </item>
                </layout>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="isCurrentExamCheckBox">
+                <property name="text">
+                 <string>Текущий</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_4">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
               <item>
                <widget class="QPushButton" name="saveNewExam">
@@ -961,12 +968,15 @@
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_23">
                   <item>
-                   <widget class="QTableView" name="fromExamStudentsTableView">
+                   <widget class="QTableView" name="tvNewExamStudentsFrom">
                     <property name="selectionMode">
                      <enum>QAbstractItemView::ExtendedSelection</enum>
                     </property>
                     <property name="selectionBehavior">
                      <enum>QAbstractItemView::SelectRows</enum>
+                    </property>
+                    <property name="gridStyle">
+                     <enum>Qt::DashLine</enum>
                     </property>
                    </widget>
                   </item>
@@ -986,16 +996,30 @@
                      </spacer>
                     </item>
                     <item>
+                     <widget class="QPushButton" name="addAllStudentsToExamButton">
+                      <property name="text">
+                       <string>&gt;&gt;</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
                      <widget class="QPushButton" name="addStudentToExamButton">
                       <property name="text">
-                       <string>Добавить &gt;&gt;</string>
+                       <string>&gt;</string>
                       </property>
                      </widget>
                     </item>
                     <item>
                      <widget class="QPushButton" name="deleteStudentFromExamButton">
                       <property name="text">
-                       <string>&lt;&lt; Удалить</string>
+                       <string>&lt;</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="deleteAllStudentFromExamButton">
+                      <property name="text">
+                       <string>&lt;&lt;</string>
                       </property>
                      </widget>
                     </item>
@@ -1015,7 +1039,14 @@
                    </layout>
                   </item>
                   <item>
-                   <widget class="QTableView" name="toExamStudentsTableView"/>
+                   <widget class="QTableView" name="tvNewExamStudentsTo">
+                    <property name="selectionBehavior">
+                     <enum>QAbstractItemView::SelectRows</enum>
+                    </property>
+                    <property name="gridStyle">
+                     <enum>Qt::DashLine</enum>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </item>
@@ -1027,7 +1058,14 @@
                </attribute>
                <layout class="QHBoxLayout" name="horizontalLayout_24">
                 <item>
-                 <widget class="QTableView" name="fromNewExamMemberTableView"/>
+                 <widget class="QTableView" name="tvNewExamMembersFrom">
+                  <property name="selectionBehavior">
+                   <enum>QAbstractItemView::SelectRows</enum>
+                  </property>
+                  <property name="gridStyle">
+                   <enum>Qt::DashLine</enum>
+                  </property>
+                 </widget>
                 </item>
                 <item>
                  <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -1045,16 +1083,30 @@
                    </spacer>
                   </item>
                   <item>
+                   <widget class="QPushButton" name="addAllMemberToExamButton">
+                    <property name="text">
+                     <string>&gt;&gt;</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <widget class="QPushButton" name="addMemberToExamButton">
                     <property name="text">
-                     <string>Добавить &gt;&gt;</string>
+                     <string>&gt;</string>
                     </property>
                    </widget>
                   </item>
                   <item>
                    <widget class="QPushButton" name="deleteMemberFromExamButton">
                     <property name="text">
-                     <string>&lt;&lt; Удалить</string>
+                     <string>&lt;</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="deleteAllMemberFromExamButton">
+                    <property name="text">
+                     <string>&lt;&lt;</string>
                     </property>
                    </widget>
                   </item>
@@ -1074,13 +1126,110 @@
                  </layout>
                 </item>
                 <item>
-                 <widget class="QTableView" name="toNewExamMembersTableView"/>
+                 <widget class="QTableView" name="tvNewExamMembersTo">
+                  <property name="selectionBehavior">
+                   <enum>QAbstractItemView::SelectRows</enum>
+                  </property>
+                  <property name="gridStyle">
+                   <enum>Qt::DashLine</enum>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </widget>
              </widget>
             </item>
            </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_22">
+       <attribute name="title">
+        <string>Список экзаменов</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_22">
+        <item>
+         <widget class="QTableView" name="tableView"/>
+        </item>
+        <item>
+         <widget class="QTabWidget" name="tabWidget_2">
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="tab_4">
+           <attribute name="title">
+            <string>Tab 1</string>
+           </attribute>
+           <widget class="QTableView" name="tableView_2">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>10</y>
+              <width>256</width>
+              <height>192</height>
+             </rect>
+            </property>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="tab_5">
+           <attribute name="title">
+            <string>Tab 2</string>
+           </attribute>
+           <widget class="QTableView" name="tableView_5">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>10</y>
+              <width>591</width>
+              <height>151</height>
+             </rect>
+            </property>
+           </widget>
+           <widget class="QTabWidget" name="tabWidget_3">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>170</y>
+              <width>591</width>
+              <height>191</height>
+             </rect>
+            </property>
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="tab_6">
+             <attribute name="title">
+              <string>Tab 1</string>
+             </attribute>
+             <widget class="QTableView" name="tableView_6">
+              <property name="geometry">
+               <rect>
+                <x>10</x>
+                <y>20</y>
+                <width>256</width>
+                <height>71</height>
+               </rect>
+              </property>
+             </widget>
+            </widget>
+            <widget class="QWidget" name="tab_7">
+             <attribute name="title">
+              <string>Tab 2</string>
+             </attribute>
+             <widget class="QTableView" name="tableView_7">
+              <property name="geometry">
+               <rect>
+                <x>20</x>
+                <y>20</y>
+                <width>256</width>
+                <height>71</height>
+               </rect>
+              </property>
+             </widget>
+            </widget>
+           </widget>
           </widget>
          </widget>
         </item>
@@ -1413,96 +1562,6 @@
              </widget>
             </item>
            </layout>
-          </widget>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab_22">
-       <attribute name="title">
-        <string>Итоги экзаменов</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_22">
-        <item>
-         <widget class="QTableView" name="tableView"/>
-        </item>
-        <item>
-         <widget class="QTabWidget" name="tabWidget_2">
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
-          <widget class="QWidget" name="tab_4">
-           <attribute name="title">
-            <string>Tab 1</string>
-           </attribute>
-           <widget class="QTableView" name="tableView_2">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>10</y>
-              <width>256</width>
-              <height>192</height>
-             </rect>
-            </property>
-           </widget>
-          </widget>
-          <widget class="QWidget" name="tab_5">
-           <attribute name="title">
-            <string>Tab 2</string>
-           </attribute>
-           <widget class="QTableView" name="tableView_5">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>10</y>
-              <width>591</width>
-              <height>151</height>
-             </rect>
-            </property>
-           </widget>
-           <widget class="QTabWidget" name="tabWidget_3">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>170</y>
-              <width>591</width>
-              <height>191</height>
-             </rect>
-            </property>
-            <property name="currentIndex">
-             <number>0</number>
-            </property>
-            <widget class="QWidget" name="tab_6">
-             <attribute name="title">
-              <string>Tab 1</string>
-             </attribute>
-             <widget class="QTableView" name="tableView_6">
-              <property name="geometry">
-               <rect>
-                <x>10</x>
-                <y>20</y>
-                <width>256</width>
-                <height>71</height>
-               </rect>
-              </property>
-             </widget>
-            </widget>
-            <widget class="QWidget" name="tab_7">
-             <attribute name="title">
-              <string>Tab 2</string>
-             </attribute>
-             <widget class="QTableView" name="tableView_7">
-              <property name="geometry">
-               <rect>
-                <x>20</x>
-                <y>20</y>
-                <width>256</width>
-                <height>71</height>
-               </rect>
-              </property>
-             </widget>
-            </widget>
-           </widget>
           </widget>
          </widget>
         </item>
