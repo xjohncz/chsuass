@@ -565,6 +565,35 @@ bool dbservice::newExamStudentIsInList(int id) {
 
 }
 
+QString dbservice::addNewExam(const QDate &date, const QString &type, bool isCurrent, bool &ok) {
+
+    ok = false;
+    QString res = "";
+
+    //db.transaction();
+    QSqlQuery typeQuery;
+    typeQuery.prepare("SELECT typeID FROM examtypes WHERE typeName=:type");
+    typeQuery.bindValue(":type", type);
+    typeQuery.exec();
+
+    int typeId;
+    if(typeQuery.next())
+        typeId = typeQuery.value(0).toInt();
+    else {
+        res = "Cannot found typeExam";
+        return res;
+    }
+
+    QSqlQuery examQuery;
+    examQuery.prepare("INSERT INTO exams (typeID, examDate, isCurrent) VALUES (:typeId, :date, :isCurrent)");
+    examQuery.bindValue(":typeId", typeId);
+    examQuery.bindValue(":date", date);
+    examQuery.bindValue(":isCurrent", isCurrent);
+    examQuery.exec();
+    //db.commit();
+
+}
+
 void dbservice::importStudents(const QMap<int, QString> &students, int groupId) {
 
     if(students.isEmpty())

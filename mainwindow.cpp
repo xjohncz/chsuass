@@ -161,10 +161,11 @@ void MainWindow::initGroups() {
     dbServ->initGroups();
     ui->groupsTableView->setModel(dbServ->getGroupsTableModel());
     ui->groupsTableView->hideColumn(0);
+    //ui->groupsTableView->resizeRowsToContents();
 
     dbServ->initStudents();
     ui->studentsTableView->setModel(dbServ->getStudentsTableModel());
-
+    //ui->studentsTableView->resizeRowsToContents();
 }
 
 void MainWindow::initSubjects() {
@@ -174,6 +175,7 @@ void MainWindow::initSubjects() {
     ui->subjectsTableView->hideColumn(0);
 
     ui->subjectsTableView->setColumnWidth(1, 250);
+    //ui->subjectsTableView->resizeRowsToContents();
 
     QDataWidgetMapper *subjectsMapper = new QDataWidgetMapper(this);
     subjectsMapper->setModel(dbServ->getSubjectsTableModel());
@@ -223,6 +225,7 @@ void MainWindow::initMembers() {
     ui->membersTableView->hideColumn(0);
 
     ui->membersTableView->setColumnWidth(4, 450);
+    //ui->membersTableView->resizeRowsToContents();
 
     QDataWidgetMapper *membersMapper = new QDataWidgetMapper(this);
     membersMapper->setModel(dbServ->getMembersTableModel());
@@ -252,11 +255,21 @@ void MainWindow::initNewExam() {
     ui->groupFilterComboBox->setModel(dbServ->getGroupListModel());
     ui->yearFilterComboBox->setModel(dbServ->getYearListModel());
 
-    dbServ->initNewExam();
+    dbServ->initNewExam();    
+    ui->tvNewExamStudentsFrom->setModel(dbServ->getNewExamStudentsFromTableModel());
+    ui->tvNewExamStudentsFrom->hideColumn(0);
+    ui->tvNewExamStudentsFrom->hideColumn(1);
+    ui->tvNewExamStudentsFrom->hideColumn(5);
+
     ui->tvNewExamStudentsTo->setModel(dbServ->getNewExamStudentsToItemModel());
-    //ui->tvNewExamMembersFrom->setModel(dbServ->getNewExamMembersFromTableModel());
+    ui->tvNewExamStudentsTo->hideColumn(0);
+
     ui->tvNewExamMembersFrom->setModel(dbServ->getMembersTableModel());
+    ui->tvNewExamMembersFrom->hideColumn(0);
+
     ui->tvNewExamMembersTo->setModel(dbServ->getNewExamMembersToItemModel());
+    ui->tvNewExamMembersTo->hideColumn(0);
+
 }
 
 void MainWindow::showSelectDialog(const QString &tableName, IdType type) {
@@ -357,8 +370,6 @@ void MainWindow::on_filterButton_clicked()
 
     dbServ->filterStudents(groupId, dbServ->getNewExamStudentsFromTableModel());
     filterNewExamStudentsTableView(0);
-
-    ui->tvNewExamStudentsFrom->setModel(dbServ->getNewExamStudentsFromTableModel());
 }
 
 void MainWindow::on_fillCurrentExamButton_clicked()
@@ -721,4 +732,10 @@ void MainWindow::on_deleteAllMemberFromExamButton_clicked()
         int memberId = dbServ->removeNewExamMember(0);
         showRowInTableView(ui->tvNewExamMembersFrom, 0, memberId);
     }
+}
+
+void MainWindow::on_saveNewExam_clicked()
+{
+    bool ok;
+    dbServ->addNewExam(ui->examDateEdit->date(), ui->examTypeCombobox->currentText(), false, ok);
 }

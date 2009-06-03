@@ -37,7 +37,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget_8">
           <property name="currentIndex">
-           <number>0</number>
+           <number>5</number>
           </property>
           <widget class="QWidget" name="tab_16">
            <attribute name="title">
@@ -55,7 +55,11 @@
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_2">
                 <item>
-                 <widget class="QTableView" name="groupsTableView"/>
+                 <widget class="QTableView" name="groupsTableView">
+                  <property name="gridStyle">
+                   <enum>Qt::DashLine</enum>
+                  </property>
+                 </widget>
                 </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -110,7 +114,11 @@
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_16">
                 <item>
-                 <widget class="QTableView" name="studentsTableView"/>
+                 <widget class="QTableView" name="studentsTableView">
+                  <property name="gridStyle">
+                   <enum>Qt::DashLine</enum>
+                  </property>
+                 </widget>
                 </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -182,7 +190,11 @@
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_6">
                <item>
-                <widget class="QTableView" name="subjectsTableView"/>
+                <widget class="QTableView" name="subjectsTableView">
+                 <property name="gridStyle">
+                  <enum>Qt::DashLine</enum>
+                 </property>
+                </widget>
                </item>
                <item>
                 <widget class="QGroupBox" name="groupBox_13">
@@ -287,6 +299,9 @@
                    <width>0</width>
                    <height>200</height>
                   </size>
+                 </property>
+                 <property name="gridStyle">
+                  <enum>Qt::DashLine</enum>
                  </property>
                 </widget>
                </item>
@@ -404,7 +419,11 @@
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_4">
                <item>
-                <widget class="QTableView" name="themesTableView"/>
+                <widget class="QTableView" name="themesTableView">
+                 <property name="gridStyle">
+                  <enum>Qt::DashLine</enum>
+                 </property>
+                </widget>
                </item>
                <item>
                 <widget class="QGroupBox" name="groupBox_10">
@@ -612,7 +631,11 @@
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_7">
                <item>
-                <widget class="QTableView" name="membersTableView"/>
+                <widget class="QTableView" name="membersTableView">
+                 <property name="gridStyle">
+                  <enum>Qt::DashLine</enum>
+                 </property>
+                </widget>
                </item>
                <item>
                 <widget class="QGroupBox" name="groupBox_4">

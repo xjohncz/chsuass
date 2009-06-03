@@ -66,6 +66,7 @@ private:
     //CURRENT EXAM
 
 private slots:
+    void on_saveNewExam_clicked();
     void on_deleteAllMemberFromExamButton_clicked();
     void on_addAllMemberToExamButton_clicked();
     void on_deleteMemberFromExamButton_clicked();
