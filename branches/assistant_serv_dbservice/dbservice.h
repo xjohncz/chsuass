@@ -107,6 +107,8 @@ public:
     void addNewExamMember(const int row);
     int removeNewExamMember(const int row);
 
+    QString addNewExam(const QDate &date, const QString &type, bool isCurrent, bool &ok);
+
     void importStudents(const QMap<int, QString> &students, int groupId);
     void importSubjects(const QStringList &subjects);
     void importStudentMarks(const QMap<QString, int> &marks, int studentId);
