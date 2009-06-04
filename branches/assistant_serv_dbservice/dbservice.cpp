@@ -570,7 +570,7 @@ QString dbservice::addNewExam(const QDate &date, const QString &type, bool isCur
     ok = false;
     QString res = "";
 
-    QSqlQuery typeQuery;
+    QSqlQuery typeQuery(db);
     typeQuery.prepare("SELECT typeID FROM examtypes WHERE typeName=:type");
     typeQuery.bindValue(":type", type);
     typeQuery.exec();
@@ -583,42 +583,60 @@ QString dbservice::addNewExam(const QDate &date, const QString &type, bool isCur
         return res;
     }
 
-    //db.transaction();
+    db.transaction();
+
+    if(isCurrent) {
+        QSqlQuery unsetCurrentQuery(db);
+        unsetCurrentQuery.prepare("UPDATE exams SET isCurrent=0 WHERE isCurrent=1");
+        unsetCurrentQuery.exec();
+    }
 
     QSqlQuery examQuery(db);
     examQuery.prepare("INSERT INTO exams (typeID, examDate, isCurrent) VALUES (:typeId, :date, :isCurrent)");
     examQuery.bindValue(":typeId", typeId);
     examQuery.bindValue(":date", date);
     examQuery.bindValue(":isCurrent", isCurrent);
-    examQuery.exec();
+    if(!examQuery.exec()) {
+        db.rollback();
+        res = db.lastError().text();
+        return res;
+    }
 
-    /* FIXME */
-    int examId = 0;
+    int examId = examQuery.lastInsertId().toInt();
 
     for(int i = 0; i < newExamStudentsToItemModel->rowCount(); i++) {
-        QStandardItem *item = newExamStudentsToItemModel->item(i, 0);
-        int studentId = item->data().toInt();
+        QModelIndex index = newExamStudentsToItemModel->index(i, 0);
+        int studentId = newExamStudentsToItemModel->data(index).toInt();
 
         QSqlQuery studentQuery(db);
         studentQuery.prepare("INSERT INTO examstudentlist (examID, studentID) VALUES (:examId, :studentId)");
         studentQuery.bindValue(":examId", examId);
         studentQuery.bindValue(":studentId", studentId);
-        studentQuery.exec();
+        if(!studentQuery.exec()) {
+            db.rollback();
+            res = db.lastError().text();
+            return res;
+        }
     }
 
     for(int i = 0; i < newExamMembersToItemModel->rowCount(); i++) {
-        QStandardItem *item = newExamMembersToItemModel->item(i, 0);
-        int memberId = item->data().toInt();
+        QModelIndex index = newExamMembersToItemModel->index(i, 0);
+        int memberId = newExamMembersToItemModel->data(index).toInt();
 
         QSqlQuery memberQuery(db);
         memberQuery.prepare("INSERT INTO exammemberlist (examID, memberID) VALUES (:examId, :memberId)");
         memberQuery.bindValue(":examId", examId);
         memberQuery.bindValue(":memberId", memberId);
-        memberQuery.exec();
+        if(!memberQuery.exec()) {
+            db.rollback();
+            res = db.lastError().text();
+            return res;
+        }
     }
 
-    //db.commit();
+    db.commit();
 
+    ok = true;
     return res;
 
 }
