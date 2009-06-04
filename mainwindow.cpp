@@ -741,5 +741,11 @@ void MainWindow::on_deleteAllMemberFromExamButton_clicked()
 void MainWindow::on_saveNewExam_clicked()
 {
     bool ok;
-    dbServ->addNewExam(ui->examDateEdit->date(), ui->examTypeCombobox->currentText(), false, ok);
+    QDate date = ui->examDateEdit->date();
+    QString examType = ui->examTypeCombobox->currentText();
+    bool isCurrent = ui->isCurrentExamCheckBox->isChecked();
+
+    QString err = dbServ->addNewExam(date, examType, isCurrent, ok);
+    if(!ok)
+        QMessageBox::warning(this, tr("Ошибка сохранения экзамена"), tr("База данных вернула ошибку: %1").arg(err));
 }
