@@ -21,7 +21,7 @@
        <enum>QTabWidget::West</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <property name="tabsClosable">
        <bool>false</bool>
@@ -139,6 +139,13 @@
                    <widget class="QPushButton" name="showStudentInfoButton">
                     <property name="text">
                      <string>Импорт...</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="showStudentMarksButton">
+                    <property name="text">
+                     <string>Импорт оценок...</string>
                     </property>
                    </widget>
                   </item>

@@ -3,6 +3,7 @@
 #include "dialog.h"
 #include "protocol.h"
 #include "reportcreator.h"
+#include "marksdialog.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -386,6 +387,7 @@ void MainWindow::on_fillCurrentExamButton_clicked()
     dbServ->fillCurrentExam(currentExamID);
 
     ui->currentExamStudentListTableView->setModel(dbServ->getCurrentExamStudentListModel());
+    ui->currentExamStudentListTableView->hideColumn(0);
     ui->currentExamStudentListTableView->setColumnWidth(4, 125);
 
     ui->examTaskStackedWidget->setCurrentIndex(currentExamTypeID - 1);
@@ -408,8 +410,8 @@ void MainWindow::on_serverButton_clicked()
 /* FIXME: dbservice and not working! */
 void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
 {
-    int row = index.row();
-    QModelIndex selectedIndex = ui->currentExamStudentListTableView->model()->index(row, 0);
+    //int row = index.row();
+    QModelIndex selectedIndex = ui->currentExamStudentListTableView->selectionModel()->selectedRows(0).at(0);
     currentExamSelectedStudentID = selectedIndex.data().toInt();
 
     QSqlQuery query;
@@ -536,7 +538,7 @@ void MainWindow::on_saveExamTimeButton_clicked()
 
 void MainWindow::on_showStudentInfoButton_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Импорт группы..."), QDir::homePath(),
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Импорт группы..."), QDir::currentPath(),
                                                     tr("Файлы Excel (*.xls)"));
     if(fileName.isNull())
         return;
@@ -558,7 +560,7 @@ void MainWindow::on_recvResultsButton_clicked()
 
 void MainWindow::on_exportCardsButton_clicked()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранение отчета"), QDir::homePath(),
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранение отчета"), QDir::currentPath(),
                                                     tr("Файлы html (*.html)"));
 
     if(fileName.isNull())
@@ -571,7 +573,7 @@ void MainWindow::on_exportCardsButton_clicked()
 
 void MainWindow::on_importSubjectsButton_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Импорт дисциплин..."), QDir::homePath(),
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Импорт дисциплин..."), QDir::currentPath(),
                                                     tr("Файлы Excel (*.xls)"));
     if(fileName.isNull())
         return;
@@ -753,4 +755,33 @@ void MainWindow::on_saveNewExam_clicked()
     QString err = dbServ->addNewExam(date, examType, isCurrent, ok);
     if(!ok)
         QMessageBox::warning(this, tr("Ошибка сохранения экзамена"), tr("База данных вернула ошибку: %1").arg(err));
+}
+
+void MainWindow::on_showStudentMarksButton_clicked()
+{
+    int selectedStudentRow = getSelectedRowFromTableView(ui->studentsTableView);
+    QModelIndex selectedStudentIndex = dbServ->getStudentsTableModel()->index(selectedStudentRow, 0);
+    int studentId = dbServ->getStudentsTableModel()->data(selectedStudentIndex).toInt();
+//
+//    marksdialog *dialog = new marksdialog(dbServ, studentId, this);
+//    dialog->setModal(true);
+//    dialog->exec();
+
+    //delete dialog;
+
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Импорт оценок..."), QDir::currentPath(),
+                                                    tr("Файлы Excel (*.xls)"));
+    if(fileName.isNull())
+        return;
+
+    xlsRead->setXLSFileName(fileName);
+    QMap<QString, int> marks = xlsRead->readStudentMarksFromXLSStudentCard();
+
+    dbServ->importStudentMarks(marks, studentId);
+
+    //bool ok;
+    //QString err = dbServ->submitStudentMarkChanges(ok);
+
+    //if(!ok)
+    //    QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных вернула ошибку: %1").arg(err));
 }

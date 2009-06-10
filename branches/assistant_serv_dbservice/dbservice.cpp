@@ -254,16 +254,16 @@ void dbservice::refreshGroupListModel() {
 
 void dbservice::fillCurrentExam(const int examId) {
 
-    currentExamStudentListModel->setQuery(QString("SELECT students.studentNumber, students.surname, "
+    currentExamStudentListModel->setQuery(QString("SELECT students.studentID, students.studentNumber, students.surname, "
                                                 "students.name, students.patronymic, groups.groupName "
                                                 "FROM students INNER JOIN groups "
                                                 "WHERE ((students.groupID=groups.groupID) AND "
                                                 "(students.studentID IN (SELECT studentID FROM examstudentlist WHERE examID=%1)))").arg(examId), db);
-    currentExamStudentListModel->setHeaderData(0, Qt::Horizontal, tr("Номер зач."));
-    currentExamStudentListModel->setHeaderData(1, Qt::Horizontal, tr("Фамилия"));
-    currentExamStudentListModel->setHeaderData(2, Qt::Horizontal, tr("Имя"));
-    currentExamStudentListModel->setHeaderData(3, Qt::Horizontal, tr("Отчество"));
-    currentExamStudentListModel->setHeaderData(4, Qt::Horizontal, tr("Название группы"));
+    currentExamStudentListModel->setHeaderData(1, Qt::Horizontal, tr("Номер зач."));
+    currentExamStudentListModel->setHeaderData(2, Qt::Horizontal, tr("Фамилия"));
+    currentExamStudentListModel->setHeaderData(3, Qt::Horizontal, tr("Имя"));
+    currentExamStudentListModel->setHeaderData(4, Qt::Horizontal, tr("Отчество"));
+    currentExamStudentListModel->setHeaderData(5, Qt::Horizontal, tr("Название группы"));
 
 }
 
@@ -703,18 +703,27 @@ void dbservice::importStudentMarks(const QMap<QString, int> &marks, int studentI
     while(i.hasNext()) {
         i.next();
 
-        addStudentMark();
+//        addStudentMark();
+//
+//        int row = studentMarksTableModel->rowCount() - 1;
+//
+//        QModelIndex newMarkIndex = studentMarksTableModel->index(row, studentMarksTableModel->fieldIndex("studentID"));
+//        studentMarksTableModel->setData(newMarkIndex, studentId);
+//
+//        newMarkIndex = studentMarksTableModel->index(row, studentMarksTableModel->fieldIndex("subjectName"));
+//        studentMarksTableModel->setData(newMarkIndex, i.key());
+//
+//        newMarkIndex = studentMarksTableModel->index(row, studentMarksTableModel->fieldIndex("mark"));
+//        studentMarksTableModel->setData(newMarkIndex, i.value());
 
-        int row = studentMarksTableModel->rowCount() - 1;
+        QSqlQuery query(db);
+        query.prepare("INSERT INTO studentmarks (studentID, subjectID, mark) VALUES "
+                      "(:studentID, (SELECT subjectID FROM subjects WHERE subjectName=:subjectName LIMIT 1), :mark)");
+        query.bindValue(":studentID", studentId);
+        query.bindValue(":subjectName", i.key());
+        query.bindValue(":mark", i.value());
+        query.exec();
 
-        QModelIndex newMarkIndex = studentMarksTableModel->index(row, studentMarksTableModel->fieldIndex("studentID"));
-        studentMarksTableModel->setData(newMarkIndex, studentId);
-
-        newMarkIndex = studentMarksTableModel->index(row, studentMarksTableModel->fieldIndex("subjectName"));
-        studentMarksTableModel->setData(newMarkIndex, i.key());
-
-        newMarkIndex = studentMarksTableModel->index(row, studentMarksTableModel->fieldIndex("mark"));
-        studentMarksTableModel->setData(newMarkIndex, i.value());
     }
 
 }
@@ -848,7 +857,10 @@ QDomDocument dbservice::exportStudentsToXML(int examId) {
                 student.setAttribute("surname", query.value(1).toString());
                 student.setAttribute("name", query.value(2).toString());
                 student.setAttribute("patronymic", query.value(3).toString());
-                student.setAttribute("theme", query.value(4).toString());
+                if(!query.value(4).isNull())
+                    student.setAttribute("theme", query.value(4).toString());
+                else
+                    student.setAttribute("theme", " ");
 
                 QDomElement marks = doc.createElement("marks");
 
@@ -962,7 +974,7 @@ bool dbservice::saveResultsFromXML(const QString &xmlDoc) {
             mark = mark.nextSiblingElement("mark3");
             int mark3 = mark.text().toInt();
 
-            mark = memberMarksNode.firstChildElement("mark4");
+            mark = mark.nextSiblingElement("mark4");
             int mark4 = mark.text().toInt();
 
             mark = mark.nextSiblingElement("mark5");

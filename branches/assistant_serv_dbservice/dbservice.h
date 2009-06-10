@@ -29,11 +29,11 @@ public:
     QSqlTableModel *getCardsTableModel() { return cardsTableModel; }
     QSqlTableModel *getThemesTableModel() { return themesTableModel; }
     QSqlTableModel *getMembersTableModel() { return membersTableModel; }
+    QSqlRelationalTableModel *getStudentMarksTableModel() { return studentMarksTableModel; }
     QStringListModel *getExamTypesModel() { return examTypesListModel; }
     QStringListModel *getGroupListModel() { return groupListModel; }
     QStringListModel *getYearListModel() { return yearListModel; }
     QSqlTableModel *getNewExamStudentsFromTableModel() { return newExamStudentsFromTableModel; }
-    //QSqlTableModel *getNewExamMembersFromTableModel() { return newExamMembersFromTableModel; }
     QStandardItemModel *getNewExamStudentsToItemModel() { return newExamStudentsToItemModel; }
     QStandardItemModel *getNewExamMembersToItemModel() { return newExamMembersToItemModel; }
     QStandardItemModel *getCurrentExamMemberListModel() { return currentExamMemberListModel; }
