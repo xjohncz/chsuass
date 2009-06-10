@@ -28,7 +28,7 @@ void xlsreader::convertToCSV(const QString &outFileName) {
 #endif
 
 #ifdef Q_OS_WIN32
-    QString xls2csv = QDir::currentPath() + "/libs/xls2csv/xls2csv.exe";
+    QString xls2csv = QCoreApplication::applicationDirPath() + "/libs/xls2csv/xls2csv.exe";
     proc.start(xls2csv, QStringList() << "-s" << "cp1251" << "-d" << "utf-8" << "-c" << ";" << fileXLS);
 #endif
 
