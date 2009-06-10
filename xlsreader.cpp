@@ -86,7 +86,8 @@ QStringList xlsreader::readSubjectsFromCSV(const QString &fileName) {
             continue;
 
         QString subject = getSectionFromCSV(str, 30, 30);
-        resList.append(subject);
+        if(resList.indexOf(subject) == -1)
+            resList.append(subject);
     }
 
     file.close();

@@ -59,6 +59,7 @@ public:
     int getStudentCount(int examId);
     int getCurrentExamId(int &typeId);
     int getGroupId(const QString &groupName, const int year);
+    QString getExamTypeName(int examId);
 
     /* Data model manipulation */
     void addGroup();

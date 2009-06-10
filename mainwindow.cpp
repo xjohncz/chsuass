@@ -448,8 +448,13 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
 
 void MainWindow::on_sendStudentInfoButton_clicked()
 {
-    int cardNum = dbServ->getStudentCardNumber(currentExamSelectedStudentID, currentExamID);
-    daemon->sendStudentInfo(currentExamSelectedStudentID, cardNum);
+    QString examType = dbServ->getExamTypeName(currentExamID);
+
+    if(currentExamTypeID == trUtf8("Государственный экзамен")) {
+        int cardNum = dbServ->getStudentCardNumber(currentExamSelectedStudentID, currentExamID);
+        daemon->sendStudentInfo(currentExamSelectedStudentID, cardNum);
+    } else
+        daemon->sendStudentInfo(currentExamSelectedStudentID, 0);
 }
 
 /* FIXME: dbservice */
