@@ -349,6 +349,18 @@ int dbservice::getGroupId(const QString &groupName, const int year) {
 
 }
 
+QString dbservice::getExamTypeName(int examId) {
+
+    QSqlQuery query(QString("SELECT typeName FROM examtypes WHERE typeId = (SELECT typeId FROM exams WHERE examId = %1 LIMIT 1)").arg(examId), db);
+    query.exec();
+    query.next();
+
+    QString examType = query.value(0).toString();
+
+    return examType;
+
+}
+
 void dbservice::deleteRowFromTableModel(QSqlTableModel *model, int row) {
 
     if(model == NULL)
@@ -745,11 +757,7 @@ QDomDocument dbservice::exportCardsToXML() {
 
 QDomDocument dbservice::exportStudentsToXML(int examId) {
 
-    QSqlQuery query(QString("SELECT typeName FROM examtypes WHERE typeId = (SELECT typeId FROM exams WHERE examId = %1 LIMIT 1)").arg(examId), db);
-    query.exec();
-    query.next();
-
-    QString examType = query.value(0).toString();
+    QString examType = getTypeName(examId);
 
     QDomDocument doc;
     QDomElement root = doc.createElement("students");
@@ -823,7 +831,65 @@ QDomDocument dbservice::exportStudentsToXML(int examId) {
     } else
         if (examType == QObject::trUtf8("Защита диплома")) {
 
+            query.prepare("SELECT examstudentlist.studentID, students.surname, students.name, "
+                      "students.patronymic, themes.theme FROM (students INNER JOIN examstudentlist "
+                      "ON students.studentID = examstudentlist.studentID) LEFT JOIN themes ON students.studentID = themes.studentID WHERE examstudentlist.examID = :examId");
+            query.bindValue(":examId", examId);
+            query.exec();
 
+            while(query.next()) {
+                int studentId = query.value(0).toInt();
+                //int cardNumber = query.value(4).toInt();
+
+                QDomElement student = doc.createElement("student");
+                student.setAttribute("id", studentId);
+                student.setAttribute("surname", query.value(1).toString());
+                student.setAttribute("name", query.value(2).toString());
+                student.setAttribute("patronymic", query.value(3).toString());
+                student.setAttribute("theme", query.value(4).toString());
+
+                QDomElement marks = doc.createElement("marks");
+
+                QSqlQuery marksQuery(db);
+                marksQuery.prepare("SELECT subjects.subjectName, studentmarks.mark FROM studentmarks "
+                                   "INNER JOIN subjects ON subjects.subjectID = studentmarks.subjectID WHERE studentmarks.studentID = :studentId");
+                marksQuery.bindValue(":studentId", studentId);
+                marksQuery.exec();
+
+                while(marksQuery.next()) {
+
+                    QDomElement subjMark = doc.createElement("mark");
+                    subjMark.setAttribute("subject", marksQuery.value(0).toString());
+                    QDomText subjMarkVal = doc.createTextNode(QString::number(marksQuery.value(1).toInt()));
+
+                    subjMark.appendChild(subjMarkVal);
+                    marks.appendChild(subjMark);
+
+                }
+
+                student.appendChild(marks);
+
+                QDomElement memberMarks = doc.createElement("memberMarks");
+                //memberMarks.setAttribute("memberId", 0);
+
+                for(int i = 1; i < 7; i++) {
+                    QDomElement mark = doc.createElement("mark" + QString::number(i));
+                    QDomText markVal = doc.createTextNode(QString::number(0));
+
+                    mark.appendChild(markVal);
+                    memberMarks.appendChild(mark);
+                }
+
+                //QDomElement resMemberMark = doc.createElement("resMark");
+                //QDomText resMarkVal = doc.createTextNode(QString::number(0));
+                //resMemberMark.appendChild(resMarkVal);
+                //memberMarks.appendChild(resMemberMark);
+
+                student.appendChild(memberMarks);
+
+                root.appendChild(student);
+            }
+            root.setAttribute("studentCount", query.size());
 
     }
 
