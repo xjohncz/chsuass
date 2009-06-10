@@ -450,7 +450,7 @@ void MainWindow::on_sendStudentInfoButton_clicked()
 {
     QString examType = dbServ->getExamTypeName(currentExamID);
 
-    if(currentExamTypeID == trUtf8("Государственный экзамен")) {
+    if(examType == trUtf8("Государственный экзамен")) {
         int cardNum = dbServ->getStudentCardNumber(currentExamSelectedStudentID, currentExamID);
         daemon->sendStudentInfo(currentExamSelectedStudentID, cardNum);
     } else

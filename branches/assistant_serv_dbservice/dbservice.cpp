@@ -757,7 +757,7 @@ QDomDocument dbservice::exportCardsToXML() {
 
 QDomDocument dbservice::exportStudentsToXML(int examId) {
 
-    QString examType = getTypeName(examId);
+    QString examType = getExamTypeName(examId);
 
     QDomDocument doc;
     QDomElement root = doc.createElement("students");
@@ -768,6 +768,7 @@ QDomDocument dbservice::exportStudentsToXML(int examId) {
 
     if(examType == QObject::trUtf8("Государственный экзамен")) {
 
+        QSqlQuery query;
         query.prepare("SELECT examstudentlist.studentID, students.surname, students.name, "
                       "students.patronymic FROM examstudentlist "
                       "INNER JOIN students ON students.studentID = examstudentlist.studentID WHERE examstudentlist.examID = :examId");
@@ -831,6 +832,7 @@ QDomDocument dbservice::exportStudentsToXML(int examId) {
     } else
         if (examType == QObject::trUtf8("Защита диплома")) {
 
+            QSqlQuery query;
             query.prepare("SELECT examstudentlist.studentID, students.surname, students.name, "
                       "students.patronymic, themes.theme FROM (students INNER JOIN examstudentlist "
                       "ON students.studentID = examstudentlist.studentID) LEFT JOIN themes ON students.studentID = themes.studentID WHERE examstudentlist.examID = :examId");
@@ -908,37 +910,83 @@ bool dbservice::saveResultsFromXML(const QString &xmlDoc) {
     int memberId = root.attributeNode("memberId").value().toInt();
 
     QDomElement st = root.firstChildElement();
-    while(!st.isNull()) {
+    QString examType = getExamTypeName(examId);
 
-        int id = st.attributeNode("id").value().toInt();
-        QDomElement memberMarksNode = st.lastChildElement();
+    if(examType == QObject::trUtf8("Государственный экзамен")) {
 
-        QDomElement mark = memberMarksNode.firstChildElement("mark1");
-        int mark1 = mark.text().toInt();
+        while(!st.isNull()) {
 
-        mark = mark.nextSiblingElement("mark2");
-        int mark2 = mark.text().toInt();
+            int id = st.attributeNode("id").value().toInt();
+            QDomElement memberMarksNode = st.lastChildElement();
 
-        mark = mark.nextSiblingElement("mark3");
-        int mark3 = mark.text().toInt();
+            QDomElement mark = memberMarksNode.firstChildElement("mark1");
+            int mark1 = mark.text().toInt();
 
-        mark = mark.nextSiblingElement("resMark");
-        int resMark = mark.text().toInt();
+            mark = mark.nextSiblingElement("mark2");
+            int mark2 = mark.text().toInt();
 
-        QSqlQuery query(db);
-        query.prepare("CALL setMarks(?,?,?,?,?,?,?,?,?)");
-        query.bindValue(0, id);
-        query.bindValue(1, memberId);
-        query.bindValue(2, examId);
-        query.bindValue(3, mark1);
-        query.bindValue(4, mark2);
-        query.bindValue(5, mark3);
-        query.bindValue(6, 0);
-        query.bindValue(7, 0);
-        query.bindValue(8, resMark);
-        query.exec();
+            mark = mark.nextSiblingElement("mark3");
+            int mark3 = mark.text().toInt();
 
-        st = st.nextSiblingElement();
+            //mark = mark.nextSiblingElement("resMark");
+            //int resMark = mark.text().toInt();
+
+            QSqlQuery query(db);
+            query.prepare("CALL setMarks(?,?,?,?,?,?,?,?,?)");
+            query.bindValue(0, id);
+            query.bindValue(1, memberId);
+            query.bindValue(2, examId);
+            query.bindValue(3, mark1);
+            query.bindValue(4, mark2);
+            query.bindValue(5, mark3);
+            query.bindValue(6, 0);
+            query.bindValue(7, 0);
+            query.bindValue(8, 0);
+            query.exec();
+
+            st = st.nextSiblingElement();
+        }
+    } else {
+
+        while(!st.isNull()) {
+
+            int id = st.attributeNode("id").value().toInt();
+            QDomElement memberMarksNode = st.lastChildElement();
+
+            QDomElement mark = memberMarksNode.firstChildElement("mark1");
+            int mark1 = mark.text().toInt();
+
+            mark = mark.nextSiblingElement("mark2");
+            int mark2 = mark.text().toInt();
+
+            mark = mark.nextSiblingElement("mark3");
+            int mark3 = mark.text().toInt();
+
+            mark = memberMarksNode.firstChildElement("mark4");
+            int mark4 = mark.text().toInt();
+
+            mark = mark.nextSiblingElement("mark5");
+            int mark5 = mark.text().toInt();
+
+            mark = mark.nextSiblingElement("mark6");
+            int mark6 = mark.text().toInt();
+
+            QSqlQuery query(db);
+            query.prepare("CALL setMarks(?,?,?,?,?,?,?,?,?)");
+            query.bindValue(0, id);
+            query.bindValue(1, memberId);
+            query.bindValue(2, examId);
+            query.bindValue(3, mark1);
+            query.bindValue(4, mark2);
+            query.bindValue(5, mark3);
+            query.bindValue(6, mark4);
+            query.bindValue(7, mark5);
+            query.bindValue(8, mark6);
+            query.exec();
+
+            st = st.nextSiblingElement();
+        }
+
     }
 
     return true;
