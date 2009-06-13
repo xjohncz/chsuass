@@ -1,7 +1,8 @@
 #include "serverdaemon.h"
 
 ServerDaemon::ServerDaemon(QObject *parent)
-    : QTcpServer(parent), clientCount(0) {
+    : QTcpServer(parent),
+    clientIds(0) {
 
 }
 
@@ -9,7 +10,7 @@ void ServerDaemon::incomingConnection(int socketDescriptor) {
 
     qDebug() << "incoming connection";
 
-    DaemonService *service = new DaemonService(this, socketDescriptor, clients.count());
+    DaemonService *service = new DaemonService(this, socketDescriptor, clientIds);
     service->setCurrentExamId(currentExamId);
 
     connect(service, SIGNAL(finished()), service, SLOT(deleteLater()));
@@ -20,7 +21,7 @@ void ServerDaemon::incomingConnection(int socketDescriptor) {
     connect(service, SIGNAL(signalSaveResults(QString)), this, SLOT(slotSaveResults(QString)));
 
     clients.append(service);
-    clientCount++;
+    clientIds++;
 
     service->run();
 

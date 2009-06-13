@@ -5,6 +5,11 @@
 #include <QTcpSocket>
 #include <QByteArray>
 
+//enum NetworkState {
+//    recvHeaderState,
+//    recvBodyState
+//};
+
 class DaemonService : public QThread
 {
 
@@ -41,12 +46,15 @@ private:
     bool sendMessage(const QByteArray &buffer);
     int readIntoBuffer(int bytes, QByteArray &buffer);
     int getIntFromMessage();
-    bool readHeader();
+    void readHeader();
+    void readBody();
     bool readGreeting();
     bool readResults(QString &doc);
     bool sendGreetingReply(int replyOpcode, int stCount);
 
     /* Class fields */
+//    NetworkState netState;
+
     int socketDescriptor;
     QTcpSocket *socket;
     int opcode;

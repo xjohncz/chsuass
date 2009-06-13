@@ -40,7 +40,7 @@ private:
     DaemonService *getServiceById(int id);
 
     QList<DaemonService *> clients;
-    int clientCount;
+    int clientIds;
     int currentExamId;
 };
 
