@@ -411,8 +411,8 @@ void MainWindow::on_serverButton_clicked()
 void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
 {
     //int row = index.row();
-    QModelIndex selectedIndex = ui->currentExamStudentListTableView->selectionModel()->selectedRows(0).at(0);
-    currentExamSelectedStudentID = selectedIndex.data().toInt();
+    index = ui->currentExamStudentListTableView->selectionModel()->selectedRows(0).at(0);
+    currentExamSelectedStudentID = index.data().toInt();
 
     QSqlQuery query;
     if(currentExamTypeID == 1) {
@@ -440,7 +440,7 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
     }
 
     QString modelQuery;
-    modelQuery = QString("SELECT login, surname, name, patronymic, mark1, mark2, mark3, memberResultMark "
+    modelQuery = QString("SELECT login, surname, name, patronymic, mark1, mark2, mark3, mark4, mark5, mark6 "
                             "FROM sacmembers INNER JOIN exammarks ON sacmembers.memberID = exammarks.memberID "
                             "WHERE (((exammarks.examID)=%1) AND ((exammarks.studentID)=%2))").arg(currentExamID).arg(currentExamSelectedStudentID);
     dbServ->getCurrentExamStudentMarksModel()->setQuery(modelQuery, dbServ->getDatabase());

@@ -2,6 +2,7 @@
 #include "protocol.h"
 
 #include <string.h>
+#include <QTextCodec>
 
 #ifdef Q_OS_LINUX
     #include <arpa/inet.h>
@@ -12,17 +13,20 @@
 #endif
 
 DaemonService::DaemonService(QObject *parent, int socketDescriptorInit, int client)
-        : QThread(parent), socketDescriptor(socketDescriptorInit),
-        opcode(0), clientID(client) {
+        : QThread(parent),
+//        netState(recvHeaderState),
+        socketDescriptor(socketDescriptorInit),
+        socket(new QTcpSocket(this)),
+        opcode(0),
+        rcvMsgSize(0),
+        clientID(client) {
 
-    socket = new QTcpSocket(this);
     if(!socket->setSocketDescriptor(socketDescriptor)) {
         emit signalError(socket->error());
         return;
     }
 
     initSignalConnections();
-
 }
 
 void DaemonService::initSignalConnections() {
@@ -56,69 +60,110 @@ bool DaemonService::sendMessage(const QByteArray &buffer) {
 
 }
 
-int DaemonService::readIntoBuffer(int bytes, QByteArray &buffer) {
+//int DaemonService::readIntoBuffer(int bytes, QByteArray &buffer) {
+//
+//    int bytesRead = 0;
+//
+//    while(bytesRead < bytes) {
+//
+//        QByteArray inputBuffer = socket->read(bytes - bytesRead);
+//
+//        if(inputBuffer.isEmpty()) {
+//            socket->disconnectFromHost();
+//            socket->waitForDisconnected();
+//        }
+//
+//        buffer.append(inputBuffer);
+//        bytesRead += inputBuffer.size();
+//    }
+//
+//    return bytesRead;
+//}
+//
+//int DaemonService::getIntFromMessage() {
+//
+//    uint bytesRead = 0;
+//    QByteArray buffer;
+//
+//    bytesRead = readIntoBuffer(sizeof(int), buffer);
+//
+//    if(bytesRead < sizeof(int))
+//        return 0;
+//
+//    int res = 0;
+//    memcpy(&res, buffer, sizeof(int));
+//    res = ntohl(res);
+//
+//    return res;
+//
+//}
 
-    int bytesRead = 0;
+void DaemonService::readHeader() {
 
-    while(bytesRead < bytes) {
-        QByteArray inputBuffer = socket->read(bytes - bytesRead);
+    QDataStream in(socket);
 
-        if(inputBuffer.isEmpty()) {
-            socket->disconnectFromHost();
-            socket->waitForDisconnected();
-        }
+    in >> opcode >> rcvMsgSize;
+}
 
-        buffer.append(inputBuffer);
-        bytesRead += inputBuffer.size();
+void DaemonService::readBody() {
+
+    QString doc;
+
+    switch(opcode) {
+
+    case OpcodeGreeting:
+        readGreeting();
+        emit signalClientAuthentication(userName, clientID);
+        break;
+
+    case OpcodeNeedCards:
+        emit signalExportCards(clientID);
+        break;
+
+    case OpcodeNeedStudents:
+        emit signalExportStudents(clientID);
+        break;
+
+    case OpcodeClientSendsResults:
+        readResults(doc);
+        emit signalSaveResults(doc);
+        break;
+
+    case OpcodeByeMsg:
+        socket->disconnectFromHost();
+        break;
+    default:
+        socket->disconnectFromHost();
+
     }
-    
-    return bytesRead;
-}
 
-int DaemonService::getIntFromMessage() {
-
-    uint bytesRead = 0;
-    QByteArray buffer;
-
-    bytesRead = readIntoBuffer(sizeof(int), buffer);
-
-    if(bytesRead < sizeof(int))
-        return 0;
-
-    int res = 0;
-    memcpy(&res, buffer, sizeof(int));
-    res = ntohl(res);
-
-    return res;
-
-}
-
-bool DaemonService::readHeader() {
-
-    opcode = getIntFromMessage();
-    rcvMsgSize = getIntFromMessage();
-
-    if(opcode == 0)
-        return false;
-
-    return true;
 }
 
 bool DaemonService::readGreeting() {
 
-    QByteArray buffer;
-    int usrLen = 0;
+//    QByteArray buffer;
+//    int usrLen = 0;
+//
+//    usrLen = getIntFromMessage();
+//    if(usrLen == 0)
+//        return false;
+//
+//    int bytesRead = readIntoBuffer(usrLen, buffer);
+//    if(bytesRead < usrLen)
+//        return false;
+//
+//    userName = buffer;
+//    buffer.clear();
 
-    usrLen = getIntFromMessage();
-    if(usrLen == 0)
-        return false;
+    QDataStream in(socket);
+    QTextStream in_text(socket);
+    QTextCodec *utf8_codec = QTextCodec::codecForName("utf-8");
+    in_text.setCodec(utf8_codec);
 
-    int bytesRead = readIntoBuffer(usrLen, buffer);
-    if(bytesRead < usrLen)
-        return false;
+    int len = 0;
 
-    userName = buffer;
-    buffer.clear();
+    in >> len;
+    userName = in_text.read(len);
 
     return true;
 
@@ -126,19 +171,29 @@ bool DaemonService::readGreeting() {
 
 bool DaemonService::readResults(QString &doc) {
 
-    QByteArray buffer;
-    int docLen = 0;
+//    QByteArray buffer;
+//    int docLen = 0;
+//
+//    docLen = getIntFromMessage();
+//    if(docLen == 0)
+//        return false;
+//
+//    int bytesRead = readIntoBuffer(docLen, buffer);
+//    if(bytesRead < docLen)
+//        return false;
+//
+//    doc = buffer;
+//    buffer.clear();
 
-    docLen = getIntFromMessage();
-    if(docLen == 0)
-        return false;
-    
-    int bytesRead = readIntoBuffer(docLen, buffer);
-    if(bytesRead < docLen)
-        return false;
+    QDataStream in(socket);
+    QTextStream in_text(socket);
+    QTextCodec *utf8_codec = QTextCodec::codecForName("utf-8");
+    in_text.setCodec(utf8_codec);
 
-    doc = buffer;
-    buffer.clear();
+    int len = 0;
+
+    in >> len;
+    doc = in_text.read(len);
 
     return true;
 
@@ -147,16 +202,17 @@ bool DaemonService::readResults(QString &doc) {
 bool DaemonService::sendGreetingReply(int replyOpcode, int stCount) {
 
     QByteArray buffer;
-    QDataStream stream(&buffer, QIODevice::WriteOnly | QIODevice::Append);
+    QDataStream stream(&buffer, QIODevice::WriteOnly);
 
-    stream << (int)htonl(replyOpcode);
     if(replyOpcode == OpcodeAccessGranted) {
-        stream << (int) htonl(3 * sizeof(int));
-        stream << (int) htonl(currentExamId);
-        stream << (int) htonl(userId);
-        stream << (int) htonl(stCount);
+        stream  << (int) htonl(replyOpcode)
+                << (int) htonl(3 * sizeof(int))
+                << (int) htonl(currentExamId)
+                << (int) htonl(userId)
+                << (int) htonl(stCount);
     } else
-        stream << (int)0;
+        stream  << (int) htonl(replyOpcode)
+                << (int) 0;
 
     return sendMessage(buffer);
 
@@ -175,12 +231,12 @@ void DaemonService::getAuthenticationResult(int result, int memberId, int stCoun
 bool DaemonService::sendStudentInfo(int studentID, int cardNumber) {
 
     QByteArray buffer;
-    QDataStream stream(&buffer, QIODevice::WriteOnly | QIODevice::Append);
+    QDataStream stream(&buffer, QIODevice::WriteOnly);
 
-    stream << (int)htonl(OpcodeStudentInfo);
-    stream << (int)htonl(2 * sizeof(int));
-    stream << (int)htonl(studentID);
-    stream << (int)htonl(cardNumber);
+    stream << (int) htonl(OpcodeStudentInfo)
+           << (int) htonl(2 * sizeof(int))
+           << (int) htonl(studentID)
+           << (int) htonl(cardNumber);
 
     return sendMessage(buffer);
 
@@ -188,40 +244,30 @@ bool DaemonService::sendStudentInfo(int studentID, int cardNumber) {
 
 bool DaemonService::sendCards(const QString &cards) {
 
-    QByteArray temp_buffer;
-    QDataStream temp_stream(&temp_buffer, QIODevice::WriteOnly | QIODevice::Append);
-
-    QByteArray temp = cards.toUtf8();
-    temp_stream << temp.data();
-
-    int msgSize = temp_buffer.size();
     QByteArray buffer;
-    QDataStream stream(&buffer, QIODevice::WriteOnly | QIODevice::Append);
+    QDataStream stream(&buffer, QIODevice::WriteOnly);
 
-    stream << (int)htonl(OpcodeServerSendsCards);
-    stream << (int)htonl(msgSize);
-    temp = cards.toUtf8();
-    stream << temp.data();
+    stream  << (int) htonl(OpcodeServerSendsCards)
+            << (int) htonl(0)
+            << cards.toUtf8().data();
+
+    stream.device()->seek(sizeof(int));
+    stream << (int) htonl(buffer.size() - 2 * sizeof(int));
 
     return sendMessage(buffer);
 }
 
 bool DaemonService::sendStudents(const QString &students) {
 
-    QByteArray temp_buffer;
-    QDataStream temp_stream(&temp_buffer, QIODevice::WriteOnly | QIODevice::Append);
-
-    QByteArray temp = students.toUtf8();
-    temp_stream << temp.data();
-
-    int msgSize = temp_buffer.size();
     QByteArray buffer;
-    QDataStream stream(&buffer, QIODevice::WriteOnly | QIODevice::Append);
+    QDataStream stream(&buffer, QIODevice::WriteOnly);
 
-    stream << (int)htonl(OpcodeServerSendsStudents);
-    stream << (int)htonl(msgSize);
-    temp = students.toUtf8();
-    stream << temp.data();
+    stream  << (int) htonl(OpcodeServerSendsStudents)
+            << (int) htonl(0)
+            << students.toUtf8().data();
+
+    stream.device()->seek(sizeof(int));
+    stream << (int) htonl(buffer.size() - 2 * sizeof(int));
 
     return sendMessage(buffer);
 
@@ -230,10 +276,10 @@ bool DaemonService::sendStudents(const QString &students) {
 bool DaemonService::sendResultsRequest() {
 
     QByteArray buffer;
-    QDataStream stream(&buffer, QIODevice::WriteOnly | QIODevice::Append);
+    QDataStream stream(&buffer, QIODevice::WriteOnly);
 
-    stream << (int)htonl(OpcodeResultsRequest);
-    stream << 0;
+    stream  << (int) htonl(OpcodeResultsRequest)
+            << (int) 0;
 
     return sendMessage(buffer);
 
@@ -241,40 +287,20 @@ bool DaemonService::sendResultsRequest() {
 
 void DaemonService::slotReadFromSocket() {
 
-    QString doc;
+    while(true) {
 
-    if(!readHeader())
-        return;
+        if(rcvMsgSize == 0) {
+            if((unsigned int) socket->bytesAvailable() < 2 * sizeof(int))
+                break;
+            readHeader();
+        }
 
-    switch(opcode) {
+        if(socket->bytesAvailable() < rcvMsgSize)
+            break;
 
-    case OpcodeGreeting:
-        if(!readGreeting())
-            return;
+        readBody();
 
-        emit signalClientAuthentication(userName, clientID);
-        break;
-
-    case OpcodeNeedCards:
-        emit signalExportCards(clientID);
-        break;
-
-    case OpcodeNeedStudents:
-        emit signalExportStudents(clientID);
-        break;
-
-    case OpcodeClientSendsResults:
-        if(!readResults(doc))
-            return;
-
-        emit signalSaveResults(doc);
-        break;
-
-    case OpcodeByeMsg:
-        socket->disconnectFromHost();
-        //socket->waitForDisconnected();
-        break;
-
+        rcvMsgSize = 0;
     }
 
 }
