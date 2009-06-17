@@ -107,6 +107,52 @@ void MainWindow::filterNewExamStudentsTableView(int column) {
 
 }
 
+void MainWindow::addPresidentOrSecretary(QTableWidget *tableWidget) {
+
+    QModelIndexList rowList = ui->tvNewExamMembersFrom->selectionModel()->selectedRows();
+    if(!rowList.isEmpty()) {
+        int colCount = ui->tvNewExamMembersFrom->model()->columnCount();
+
+        tableWidget->setRowCount(1);
+        tableWidget->setColumnCount(colCount);
+
+        QStringList headers;
+        headers << tr("id") << tr("Фамилия") << tr("Имя")
+                << tr("Отчество") << tr("Деятельность") << tr("Логин");
+        ui->twPresident->setHorizontalHeaderLabels(headers);
+
+        int row = rowList.at(0).row();
+
+        for(int i = 0; i < colCount; i++) {
+            QModelIndex idx = ui->tvNewExamMembersFrom->model()->index(row, i);
+            QString col = ui->tvNewExamMembersFrom->model()->data(idx).toString();
+
+            QTableWidgetItem *item = new QTableWidgetItem(col);
+            tableWidget->setItem(0, i, item);
+        }
+
+        tableWidget->hideColumn(0);
+        tableWidget->hideColumn(4);
+        tableWidget->resizeRowsToContents();
+        ui->tvNewExamMembersFrom->hideRow(row);
+        ui->tvNewExamMembersFrom->selectionModel()->clearSelection();
+    }
+
+}
+
+void MainWindow::removePresidentOrSecretary(QTableWidget *tableWidget) {
+
+    if(tableWidget->rowCount() != 0) {
+        QModelIndex idx = tableWidget->model()->index(0, 0);
+        int memberId = tableWidget->model()->data(idx).toInt();
+
+        showRowInTableView(ui->tvNewExamMembersFrom, 0, memberId);
+        tableWidget->clear();
+        tableWidget->setRowCount(0);
+        tableWidget->setColumnCount(0);
+    }
+}
+
 void MainWindow::slotClientAuthentication(QString username, int client)
 {
     int uid;
@@ -166,6 +212,10 @@ void MainWindow::initGroups() {
 
     dbServ->initStudents();
     ui->studentsTableView->setModel(dbServ->getStudentsTableModel());
+
+    dbServ->initStudentMarks();
+    ui->tvStudentMarks->setModel(dbServ->getStudentMarksTableModel());
+    ui->tvStudentMarks->hideColumn(0);
     //ui->studentsTableView->resizeRowsToContents();
 }
 
@@ -238,7 +288,7 @@ void MainWindow::initMembers() {
 
     connect(ui->membersTableView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)), membersMapper, SLOT(setCurrentModelIndex(QModelIndex)));
 
-    ui->currentExamMemberListTableView->setModel(dbServ->getCurrentExamMemberListModel());
+    ui->tvCurrentExamMembersOnline->setModel(dbServ->getCurrentExamMemberListModel());
 
 }
 
@@ -416,7 +466,7 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
 
     QSqlQuery query;
     if(currentExamTypeID == 1) {
-        ui->currentExamCardNumberEdit->clear();
+        ui->cmbCurrentExamCardNumber->clear();
         ui->currentExamCardQuestionsTextEdit->clear();
 
         query.prepare("SELECT examstudentlist.cardNumber, cards.questions FROM examstudentlist, cards "
@@ -425,7 +475,8 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
         query.bindValue(1, currentExamSelectedStudentID);
         query.exec();
         if(query.next()) {
-            ui->currentExamCardNumberEdit->setText(query.value(0).toString());
+            /* !!!!!FIXME!!!! */
+            //ui->cmbCurrentExamCardNumber->setText(query.value(0).toString());
             ui->currentExamCardQuestionsTextEdit->setPlainText(query.value(1).toString());
         }
     } else if(currentExamTypeID == 2) {
@@ -466,7 +517,7 @@ void MainWindow::on_currentExamSaveCardNumberButton_clicked()
     query.prepare("CALL setCardNumber(?,?,?)");
     query.bindValue(0, currentExamID);
     query.bindValue(1, currentExamSelectedStudentID);
-    query.bindValue(2, ui->currentExamCardNumberEdit->text().toInt());
+    query.bindValue(2, ui->cmbCurrentExamCardNumber->currentText().toInt());
     query.exec();
 
     on_currentExamStudentListTableView_clicked(ui->currentExamStudentListTableView->selectionModel()->selectedIndexes().at(0));
@@ -667,6 +718,7 @@ void MainWindow::on_addStudentToExamButton_clicked()
         dbServ->addNewExamStudent(row);
         ui->tvNewExamStudentsFrom->hideRow(row);
     }
+    ui->tvNewExamStudentsFrom->selectionModel()->clearSelection();
 }
 
 void MainWindow::on_deleteStudentFromExamButton_clicked()
@@ -710,6 +762,7 @@ void MainWindow::on_addMemberToExamButton_clicked()
         dbServ->addNewExamMember(row);
         ui->tvNewExamMembersFrom->hideRow(row);
     }
+    ui->tvNewExamMembersFrom->selectionModel()->clearSelection();
 }
 
 void MainWindow::on_deleteMemberFromExamButton_clicked()
@@ -784,4 +837,47 @@ void MainWindow::on_showStudentMarksButton_clicked()
 
     //if(!ok)
     //    QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных вернула ошибку: %1").arg(err));
+}
+
+void MainWindow::on_studentsTableView_pressed(QModelIndex index)
+{
+    int row = index.row();
+    QModelIndex idx = index.model()->index(row, 0);
+    int selectedStudentID = idx.data().toInt();
+
+    dbServ->filterStudentMarks(selectedStudentID);
+
+    ui->tvStudentMarks->hideColumn(0);
+
+    ui->txtEditStudentTheme->setPlainText(dbServ->getTheme(selectedStudentID));
+}
+
+void MainWindow::on_addPresidentToExamButton_clicked()
+{
+    bool memberIsNotSelected = ui->tvNewExamMembersFrom->selectionModel()->selectedIndexes().isEmpty();
+
+    if(!memberIsNotSelected) {
+        removePresidentOrSecretary(ui->twPresident);
+        addPresidentOrSecretary(ui->twPresident);
+    }
+}
+
+void MainWindow::on_addSecretaryToExamButton_clicked()
+{
+    bool memberIsNotSelected = ui->tvNewExamMembersFrom->selectionModel()->selectedIndexes().isEmpty();
+
+    if(!memberIsNotSelected) {
+        removePresidentOrSecretary(ui->twSecretary);
+        addPresidentOrSecretary(ui->twSecretary);
+    }
+}
+
+void MainWindow::on_removePresidentButton_clicked()
+{
+    removePresidentOrSecretary(ui->twPresident);
+}
+
+void MainWindow::on_removeSecretaryButton_clicked()
+{
+    removePresidentOrSecretary(ui->twSecretary);
 }

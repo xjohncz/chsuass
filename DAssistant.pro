@@ -27,5 +27,5 @@ HEADERS += mainwindow.h \
 FORMS += mainwindow.ui \
     dialog.ui \
     marksdialog.ui
-RESOURCES = res.qrc
+RESOURCES = 
 win32:LIBS += -lwsock32

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>699</width>
-    <height>605</height>
+    <width>893</width>
+    <height>727</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
        <enum>QTabWidget::West</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="tabsClosable">
        <bool>false</bool>
@@ -36,6 +36,9 @@
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QTabWidget" name="tabWidget_8">
+          <property name="tabShape">
+           <enum>QTabWidget::Rounded</enum>
+          </property>
           <property name="currentIndex">
            <number>0</number>
           </property>
@@ -46,6 +49,12 @@
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
              <widget class="QSplitter" name="splitter">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -181,6 +190,73 @@
                 </item>
                </layout>
               </widget>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_2">
+              <property name="maximumSize">
+               <size>
+                <width>270</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="title">
+               <string> Подробнее о студенте </string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_23" stretch="0,1,0,0">
+               <item>
+                <widget class="QLabel" name="label_5">
+                 <property name="text">
+                  <string>Оценки:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QTableView" name="tvStudentMarks">
+                 <property name="minimumSize">
+                  <size>
+                   <width>250</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>250</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="editTriggers">
+                  <set>QAbstractItemView::NoEditTriggers</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_4">
+                 <property name="text">
+                  <string>Тема ВКР:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPlainTextEdit" name="txtEditStudentTheme">
+                 <property name="minimumSize">
+                  <size>
+                   <width>250</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>250</width>
+                   <height>70</height>
+                  </size>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </widget>
             </item>
            </layout>
@@ -1030,6 +1106,12 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="addAllStudentsToExamButton">
+                      <property name="maximumSize">
+                       <size>
+                        <width>31</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="text">
                        <string>&gt;&gt;</string>
                       </property>
@@ -1037,6 +1119,12 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="addStudentToExamButton">
+                      <property name="maximumSize">
+                       <size>
+                        <width>31</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="text">
                        <string>&gt;</string>
                       </property>
@@ -1044,6 +1132,12 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="deleteStudentFromExamButton">
+                      <property name="maximumSize">
+                       <size>
+                        <width>31</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="text">
                        <string>&lt;</string>
                       </property>
@@ -1051,6 +1145,12 @@
                     </item>
                     <item>
                      <widget class="QPushButton" name="deleteAllStudentFromExamButton">
+                      <property name="maximumSize">
+                       <size>
+                        <width>31</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
                       <property name="text">
                        <string>&lt;&lt;</string>
                       </property>
@@ -1107,10 +1207,7 @@
                  </widget>
                 </item>
                 <item>
-                 <layout class="QVBoxLayout" name="verticalLayout_9" stretch="1,0,0">
-                  <property name="spacing">
-                   <number>0</number>
-                  </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_25">
                   <item>
                    <widget class="QGroupBox" name="groupBox">
                     <property name="title">
@@ -1137,6 +1234,12 @@
                        </item>
                        <item>
                         <widget class="QPushButton" name="addAllMemberToExamButton">
+                         <property name="maximumSize">
+                          <size>
+                           <width>31</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>&gt;&gt;</string>
                          </property>
@@ -1144,6 +1247,12 @@
                        </item>
                        <item>
                         <widget class="QPushButton" name="addMemberToExamButton">
+                         <property name="maximumSize">
+                          <size>
+                           <width>31</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>&gt;</string>
                          </property>
@@ -1151,6 +1260,12 @@
                        </item>
                        <item>
                         <widget class="QPushButton" name="deleteMemberFromExamButton">
+                         <property name="maximumSize">
+                          <size>
+                           <width>31</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>&lt;</string>
                          </property>
@@ -1158,6 +1273,12 @@
                        </item>
                        <item>
                         <widget class="QPushButton" name="deleteAllMemberFromExamButton">
+                         <property name="maximumSize">
+                          <size>
+                           <width>31</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>&lt;&lt;</string>
                          </property>
@@ -1198,37 +1319,11 @@
                    </widget>
                   </item>
                   <item>
-                   <layout class="QGridLayout" name="gridLayout" rowstretch="5,0">
+                   <layout class="QVBoxLayout" name="verticalLayout_9">
                     <property name="spacing">
                      <number>0</number>
                     </property>
-                    <item row="1" column="0">
-                     <widget class="QPushButton" name="addStudentToExamButton_2">
-                      <property name="maximumSize">
-                       <size>
-                        <width>41</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>&gt;</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="2">
-                     <widget class="QPushButton" name="removePresidentButton">
-                      <property name="maximumSize">
-                       <size>
-                        <width>31</width>
-                        <height>29</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>X</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="0" colspan="2">
+                    <item>
                      <widget class="QLabel" name="label_2">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -1241,65 +1336,105 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="1">
-                     <widget class="QTableWidget" name="tableWidget">
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>41</height>
-                       </size>
-                      </property>
-                     </widget>
+                    <item>
+                     <layout class="QGridLayout" name="gridLayout">
+                      <item row="0" column="0">
+                       <widget class="QPushButton" name="addPresidentToExamButton">
+                        <property name="maximumSize">
+                         <size>
+                          <width>31</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>&gt;</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="1" rowspan="2">
+                       <widget class="QTableWidget" name="twPresident">
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>70</height>
+                         </size>
+                        </property>
+                        <property name="editTriggers">
+                         <set>QAbstractItemView::NoEditTriggers</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QPushButton" name="removePresidentButton">
+                        <property name="maximumSize">
+                         <size>
+                          <width>31</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>&lt;</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </item>
                    </layout>
                   </item>
                   <item>
-                   <layout class="QGridLayout" name="gridLayout_2">
+                   <layout class="QVBoxLayout" name="verticalLayout_24">
                     <property name="spacing">
                      <number>0</number>
                     </property>
-                    <item row="0" column="0" colspan="2">
+                    <item>
                      <widget class="QLabel" name="label_3">
                       <property name="text">
                        <string>Секретарь:</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="0">
-                     <widget class="QPushButton" name="addStudentToExamButton_3">
-                      <property name="maximumSize">
-                       <size>
-                        <width>41</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>&gt;</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="2">
-                     <widget class="QPushButton" name="removeSecretaryButton">
-                      <property name="maximumSize">
-                       <size>
-                        <width>31</width>
-                        <height>29</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>X</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="1">
-                     <widget class="QTableWidget" name="tableWidget_2">
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>41</height>
-                       </size>
-                      </property>
-                     </widget>
+                    <item>
+                     <layout class="QGridLayout" name="gridLayout_2">
+                      <item row="0" column="0">
+                       <widget class="QPushButton" name="addSecretaryToExamButton">
+                        <property name="maximumSize">
+                         <size>
+                          <width>31</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>&gt;</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="1" rowspan="2">
+                       <widget class="QTableWidget" name="twSecretary">
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>70</height>
+                         </size>
+                        </property>
+                        <property name="editTriggers">
+                         <set>QAbstractItemView::NoEditTriggers</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QPushButton" name="removeSecretaryButton">
+                        <property name="maximumSize">
+                         <size>
+                          <width>31</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>&lt;</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </item>
                    </layout>
                   </item>
@@ -1319,88 +1454,194 @@
        <attribute name="title">
         <string>Список экзаменов</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_22">
+       <layout class="QHBoxLayout" name="horizontalLayout_33" stretch="0,1">
         <item>
-         <widget class="QTableView" name="tableView"/>
-        </item>
-        <item>
-         <widget class="QTabWidget" name="tabWidget_2">
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
-          <widget class="QWidget" name="tab_4">
-           <attribute name="title">
-            <string>Tab 1</string>
-           </attribute>
-           <widget class="QTableView" name="tableView_2">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>10</y>
-              <width>256</width>
-              <height>192</height>
-             </rect>
-            </property>
-           </widget>
-          </widget>
-          <widget class="QWidget" name="tab_5">
-           <attribute name="title">
-            <string>Tab 2</string>
-           </attribute>
-           <widget class="QTableView" name="tableView_5">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>10</y>
-              <width>591</width>
-              <height>151</height>
-             </rect>
-            </property>
-           </widget>
-           <widget class="QTabWidget" name="tabWidget_3">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>170</y>
-              <width>591</width>
-              <height>191</height>
-             </rect>
-            </property>
+         <layout class="QVBoxLayout" name="verticalLayout_22">
+          <item>
+           <widget class="QTableView" name="tvExamList"/>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_9">
+            <item>
+             <widget class="QPushButton" name="btnMakeExamCurrent">
+              <property name="text">
+               <string>Текущий</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnCreateReports">
+              <property name="text">
+               <string>Отчеты</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btnRemoveExam">
+              <property name="text">
+               <string>Удалить</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QTabWidget" name="tabWidget">
             <property name="currentIndex">
              <number>0</number>
             </property>
-            <widget class="QWidget" name="tab_6">
+            <widget class="QWidget" name="tab">
              <attribute name="title">
-              <string>Tab 1</string>
+              <string>Студенты</string>
              </attribute>
-             <widget class="QTableView" name="tableView_6">
-              <property name="geometry">
-               <rect>
-                <x>10</x>
-                <y>20</y>
-                <width>256</width>
-                <height>71</height>
-               </rect>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_10">
+              <item>
+               <widget class="QTableView" name="tvExamStudents"/>
+              </item>
+             </layout>
             </widget>
-            <widget class="QWidget" name="tab_7">
+            <widget class="QWidget" name="tab_2">
              <attribute name="title">
-              <string>Tab 2</string>
+              <string>Члены комиссии</string>
              </attribute>
-             <widget class="QTableView" name="tableView_7">
-              <property name="geometry">
-               <rect>
-                <x>20</x>
-                <y>20</y>
-                <width>256</width>
-                <height>71</height>
-               </rect>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_16">
+              <item>
+               <widget class="QTableView" name="tvExamMembers"/>
+              </item>
+             </layout>
             </widget>
            </widget>
-          </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_14">
+          <property name="title">
+           <string> Детали выступления студента </string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_23">
+           <item>
+            <widget class="QTabWidget" name="tabWidget_2">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <widget class="QWidget" name="tab_3">
+              <attribute name="title">
+               <string>Результаты выступления</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_27">
+               <item>
+                <widget class="QLabel" name="lblExamTask">
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPlainTextEdit" name="txtEditExamStudentTask"/>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="groupBox_15">
+                 <property name="title">
+                  <string> Оценки членов комиссии </string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_26">
+                  <item>
+                   <widget class="QTableView" name="tvExamStudentMarks"/>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="lblExamMiddleMark">
+                    <property name="text">
+                     <string>Среднее арифметическое: </string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="lblExamResultMark">
+                    <property name="text">
+                     <string>Итоговая оценка:</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_27">
+                 <property name="text">
+                  <string>Дополнительные вопросы членов комиссии:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QTableView" name="tvExamQuestions"/>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_24">
+                 <item>
+                  <spacer name="horizontalSpacer_12">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="pushButton_4">
+                   <property name="text">
+                    <string>Отчет</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tab_4">
+              <attribute name="title">
+               <string>Характеристика выступления</string>
+              </attribute>
+              <layout class="QVBoxLayout" name="verticalLayout_28">
+               <item>
+                <widget class="QLabel" name="label_29">
+                 <property name="text">
+                  <string>Характеристика ответов на вопросы: </string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPlainTextEdit" name="txtEditExamGeneralCharacteristic"/>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_30">
+                 <property name="text">
+                  <string>Отметить что:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPlainTextEdit" name="txtEditExamNotes"/>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_31">
+                 <property name="text">
+                  <string>Особые мнения:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPlainTextEdit" name="txtEditExamSpecialOpinions"/>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
        </layout>
@@ -1409,7 +1650,7 @@
        <attribute name="title">
         <string>Текущий экзамен</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_11">
+       <layout class="QVBoxLayout" name="verticalLayout_30">
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_27">
           <item>
@@ -1504,117 +1745,96 @@
          </layout>
         </item>
         <item>
-         <widget class="QTabWidget" name="tabWidget_5">
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
-          <widget class="QWidget" name="tab_10">
-           <attribute name="title">
-            <string>Студенты</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_12" stretch="4,0,2">
-            <item>
-             <widget class="QTableView" name="currentExamStudentListTableView">
-              <property name="selectionMode">
-               <enum>QAbstractItemView::SingleSelection</enum>
-              </property>
-              <property name="selectionBehavior">
-               <enum>QAbstractItemView::SelectRows</enum>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_28">
+         <layout class="QHBoxLayout" name="horizontalLayout_30" stretch="0,1">
+          <item>
+           <widget class="QGroupBox" name="groupBox_16">
+            <property name="title">
+             <string> Список студентов </string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_11">
+             <item>
+              <widget class="QTableView" name="currentExamStudentListTableView">
+               <property name="selectionMode">
+                <enum>QAbstractItemView::SingleSelection</enum>
+               </property>
+               <property name="selectionBehavior">
+                <enum>QAbstractItemView::SelectRows</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_28">
+               <item>
+                <spacer name="horizontalSpacer_9">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="recvResultsButton">
+                 <property name="text">
+                  <string>Результаты</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="sendStudentInfoButton">
+                 <property name="text">
+                  <string>Разослать</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTabWidget" name="tabWidget_6">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="tab_12">
+             <attribute name="title">
+              <string>Результаты</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_15">
               <item>
-               <spacer name="horizontalSpacer_9">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
+               <widget class="QStackedWidget" name="examTaskStackedWidget">
+                <property name="enabled">
+                 <bool>true</bool>
                 </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
+                <property name="currentIndex">
+                 <number>0</number>
                 </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="recvResultsButton">
-                <property name="text">
-                 <string>Результаты</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="sendStudentInfoButton">
-                <property name="text">
-                 <string>Разослать</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QTabWidget" name="tabWidget_6">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>250</height>
-               </size>
-              </property>
-              <property name="currentIndex">
-               <number>2</number>
-              </property>
-              <widget class="QWidget" name="tab_12">
-               <attribute name="title">
-                <string>Задание</string>
-               </attribute>
-               <layout class="QHBoxLayout" name="horizontalLayout_29">
-                <item>
-                 <widget class="QStackedWidget" name="examTaskStackedWidget">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="currentIndex">
+                <widget class="QWidget" name="page_2">
+                 <layout class="QVBoxLayout" name="verticalLayout_12">
+                  <property name="margin">
                    <number>0</number>
                   </property>
-                  <widget class="QWidget" name="page_2">
-                   <layout class="QVBoxLayout" name="verticalLayout_14" stretch="0,0,1">
+                  <item>
+                   <layout class="QHBoxLayout" name="horizontalLayout_31">
                     <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_31">
-                      <item>
-                       <widget class="QLabel" name="label_24">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="text">
-                         <string>Номер билета:</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QLineEdit" name="currentExamCardNumberEdit"/>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="currentExamSaveCardNumberButton">
-                        <property name="text">
-                         <string>Сохранить</string>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                    <item>
-                     <widget class="QLabel" name="label_25">
+                     <widget class="QLabel" name="label_24">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                         <horstretch>0</horstretch>
@@ -1622,118 +1842,327 @@
                        </sizepolicy>
                       </property>
                       <property name="text">
-                       <string>Вопросы:</string>
+                       <string>Номер билета:</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPlainTextEdit" name="currentExamCardQuestionsTextEdit">
+                     <widget class="QComboBox" name="cmbCurrentExamCardNumber">
                       <property name="sizePolicy">
-                       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
                       </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
-                       </size>
+                      <property name="editable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="sizeAdjustPolicy">
+                       <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
                       </property>
                      </widget>
                     </item>
-                   </layout>
-                  </widget>
-                  <widget class="QWidget" name="page_3">
-                   <layout class="QVBoxLayout" name="verticalLayout_15" stretch="0,0">
                     <item>
-                     <widget class="QLabel" name="label_26">
+                     <widget class="QPushButton" name="currentExamSaveCardNumberButton">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
                       <property name="text">
-                       <string>Тема диплома:</string>
+                       <string>Сохранить</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPlainTextEdit" name="currentExamThemeTextEdit">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
+                     <spacer name="horizontalSpacer_13">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
                       </property>
-                      <property name="maximumSize">
+                      <property name="sizeHint" stdset="0">
                        <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
+                        <width>40</width>
+                        <height>20</height>
                        </size>
                       </property>
-                     </widget>
+                     </spacer>
                     </item>
                    </layout>
-                  </widget>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-              <widget class="QWidget" name="tab_13">
-               <attribute name="title">
-                <string>Оценки</string>
-               </attribute>
-               <layout class="QHBoxLayout" name="horizontalLayout_30">
-                <item>
-                 <widget class="QTableView" name="currentExamStudentMarksTableView"/>
-                </item>
-               </layout>
-              </widget>
-              <widget class="QWidget" name="tab_14">
-               <attribute name="title">
-                <string>Члены комиссии/доп. вопросы</string>
-               </attribute>
-               <layout class="QVBoxLayout" name="verticalLayout_13">
-                <item>
-                 <widget class="QTableView" name="currentExamMemberListTableView"/>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_23">
-                  <property name="text">
-                   <string>Вопрос:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPlainTextEdit" name="currentExamMemberQuestionTextEdit"/>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_32">
-                  <item>
-                   <spacer name="horizontalSpacer_10">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>40</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="saveQuestionButton">
+                   <widget class="QLabel" name="label_25">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="text">
-                     <string>Сохранить</string>
+                     <string>Вопросы:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPlainTextEdit" name="currentExamCardQuestionsTextEdit">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>16777215</height>
+                     </size>
                     </property>
                    </widget>
                   </item>
                  </layout>
+                </widget>
+                <widget class="QWidget" name="page_3">
+                 <layout class="QVBoxLayout" name="verticalLayout_13">
+                  <property name="margin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="label_26">
+                    <property name="text">
+                     <string>Тема диплома:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPlainTextEdit" name="currentExamThemeTextEdit">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_28">
+                <property name="text">
+                 <string>Оценки членов комиссии:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QTableView" name="currentExamStudentMarksTableView"/>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_35">
+                <item>
+                 <widget class="QLabel" name="label_38">
+                  <property name="text">
+                   <string>Итоговая оценка:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="comboBox">
+                  <item>
+                   <property name="text">
+                    <string>2</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>3</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>4</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>5</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnCurrentExamSaveResultMark">
+                  <property name="text">
+                   <string>Сохранить</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_15">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
-              </widget>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </widget>
+              </item>
+              <item>
+               <widget class="QGroupBox" name="groupBox_17">
+                <property name="title">
+                 <string> Характеристика выступления </string>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_14">
+                 <item>
+                  <widget class="QLabel" name="label_36">
+                   <property name="text">
+                    <string>Характеристика ответов на вопросы: </string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPlainTextEdit" name="txtEditCurrentExamGeneralCharacteristic"/>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_35">
+                   <property name="text">
+                    <string>Отметить что:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPlainTextEdit" name="txtEditCurrentExamNotes"/>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_37">
+                   <property name="text">
+                    <string>Особые мнения:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPlainTextEdit" name="txtEditCurrentExamSpecialOpinions"/>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_29">
+                   <item>
+                    <spacer name="horizontalSpacer_14">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="btnCurrentExamSaveCharacteristic">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="text">
+                      <string>Сохранить</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="tab_14">
+             <attribute name="title">
+              <string>Члены комиссии/доп. вопросы</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_29">
+              <item>
+               <widget class="QLabel" name="label_32">
+                <property name="text">
+                 <string>Члены комиссии online:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QTableView" name="tvCurrentExamMembersOnline"/>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_33">
+                <property name="text">
+                 <string>Члены комиссии заявленные:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QTableView" name="tvCurrentExamMembers"/>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_23">
+                <property name="text">
+                 <string>Содержание вопроса:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPlainTextEdit" name="txtEditCurrentExamQuestion"/>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_32">
+                <item>
+                 <spacer name="horizontalSpacer_10">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="saveQuestionButton">
+                  <property name="text">
+                   <string>Сохранить</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_34">
+                <property name="text">
+                 <string>Все дополнительные вопросы:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QTableView" name="tvCurrentExamAdditionalQuestions"/>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
