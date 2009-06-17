@@ -35,6 +35,8 @@ protected:
     int getSelectedRowFromTableView(QTableView *view);
     void showRowInTableView(QTableView *view, int column, int id);
     void filterNewExamStudentsTableView(int column);
+    void addPresidentOrSecretary(QTableWidget *tableWidget);
+    void removePresidentOrSecretary(QTableWidget *tableWidget);
 
 private:
     void initSignalConnections();
@@ -66,6 +68,11 @@ private:
     //CURRENT EXAM
 
 private slots:
+    void on_addSecretaryToExamButton_clicked();
+    void on_addPresidentToExamButton_clicked();
+    void on_removeSecretaryButton_clicked();
+    void on_removePresidentButton_clicked();
+    void on_studentsTableView_pressed(QModelIndex index);
     void on_showStudentMarksButton_clicked();
     void on_saveNewExam_clicked();
     void on_deleteAllMemberFromExamButton_clicked();

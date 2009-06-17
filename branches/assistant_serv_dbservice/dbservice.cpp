@@ -201,9 +201,12 @@ void dbservice::initStudentMarks() {
 
     studentMarksTableModel = new QSqlRelationalTableModel(this, db);
     studentMarksTableModel->setTable("studentmarks");
-    studentMarksTableModel->setEditStrategy(QSqlRelationalTableModel::OnManualSubmit);
+    //studentMarksTableModel->setEditStrategy(QSqlRelationalTableModel::OnManualSubmit);
 
     studentMarksTableModel->setRelation(1, QSqlRelation("subjects", "subjectID", "subjectName"));
+
+    studentMarksTableModel->setHeaderData(1, Qt::Horizontal, tr("Дисциплина"));
+    studentMarksTableModel->setHeaderData(2, Qt::Horizontal, tr("Оценка"));
 
 }
 
@@ -359,6 +362,20 @@ QString dbservice::getExamTypeName(int examId) {
 
     return examType;
 
+}
+
+QString dbservice::getTheme(int studentId) {
+
+    QSqlQuery query(db);
+    query.prepare("SELECT theme FROM themes WHERE studentID=? LIMIT 1");
+    query.bindValue(0, studentId);
+    query.exec();
+
+    QString theme = "";
+    if(query.next())
+        theme = query.value(0).toString();;
+
+    return theme;
 }
 
 void dbservice::deleteRowFromTableModel(QSqlTableModel *model, int row) {
