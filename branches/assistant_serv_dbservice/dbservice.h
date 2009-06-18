@@ -30,15 +30,26 @@ public:
     QSqlTableModel *getThemesTableModel() { return themesTableModel; }
     QSqlTableModel *getMembersTableModel() { return membersTableModel; }
     QSqlRelationalTableModel *getStudentMarksTableModel() { return studentMarksTableModel; }
+    QSqlRelationalTableModel *getExamsTableModel() { return examsTableModel; }
     QStringListModel *getExamTypesModel() { return examTypesListModel; }
+
     QStringListModel *getGroupListModel() { return groupListModel; }
     QStringListModel *getYearListModel() { return yearListModel; }
+
     QSqlTableModel *getNewExamStudentsFromTableModel() { return newExamStudentsFromTableModel; }
     QStandardItemModel *getNewExamStudentsToItemModel() { return newExamStudentsToItemModel; }
     QStandardItemModel *getNewExamMembersToItemModel() { return newExamMembersToItemModel; }
-    QStandardItemModel *getCurrentExamMemberListModel() { return currentExamMemberListModel; }
+
+    QSqlQueryModel *getExamStudentListModel() { return examStudentListModel; }
+    QSqlQueryModel *getExamMemberListModel() { return examMemberListModel; }
+    QSqlQueryModel *getExamStudentMarksModel() { return examStudentMarksModel; }
+    QSqlQueryModel *getExamStudentAdditionalQuestionsModel() { return examStudentAdditionalQuestionsModel; }
+
+    QStandardItemModel *getCurrentExamMemberOnlineListModel() { return currentExamMemberOnlineListModel; }
     QSqlQueryModel *getCurrentExamStudentListModel() { return currentExamStudentListModel; }
+    QSqlQueryModel *getCurrentExamMemberListModel() { return currentExamMemberListModel; }
     QSqlQueryModel *getCurrentExamStudentMarksModel() { return currentExamStudentMarksModel; }
+    QSqlQueryModel *getCurrentExamAdditionalQuestionsModel() { return currentExamStudentAdditionalQuestionsModel; }
 
     void initGroups();
     void initStudents();
@@ -47,19 +58,57 @@ public:
     void initThemes();
     void initMembers();
     void initExamTypes();
+    void initExams();
     void initNewExam();
+    void initCurrentExam();
     void initStudentMarks();
+
     void filterStudents(int groupId, QSqlTableModel *stTableModel);
     void filterStudentMarks(int studentId);
+
     void refreshGroupListModel();
-    void fillCurrentExam(const int examId);
+    void fillCurrentExamStudentList(int examId) { fillExamStudentListById(currentExamStudentListModel, examId); }
+    void fillCurrentExamMemberList(int examId) { fillExamMemberListById(currentExamMemberListModel, examId); }
+    void fillCurrentExamStudentMarks(int examId, int studentId) { fillExamStudentMarksById(currentExamStudentMarksModel, examId, studentId); }
+    void fillCurrentExamAdditionalQuestions(int examId, int studentId) { fillExamAdditionalQuestionsById(currentExamStudentAdditionalQuestionsModel, examId, studentId); }
+
+    void fillExamStudentList(int examId) { fillExamStudentListById(examStudentListModel, examId); }
+    void fillExamMemberList(int examId) { fillExamMemberListById(examMemberListModel, examId); }
+    void fillExamStudentMarks(int examId, int studentId) { fillExamStudentMarksById(examStudentMarksModel, examId, studentId); }
+    void fillExamAdditionalQuestions(int examId, int studentId) { fillExamAdditionalQuestionsById(examStudentAdditionalQuestionsModel, examId, studentId); }
 
     bool userAuth(QString username, int &userID, QString &name);
+    void setStudentCardNumber(int studentId, int examId, int cardNum);
     int getStudentCardNumber(int studentId, int examId);
+    QString getCard(int cardNumber);
+
+    QString getStudentById(int studentId);
+    int getStudentResultMark(int studentId, int examId);
+    QString getStudentCharacteristic(int studentId, int examId);
+    QString getStudentNotes(int studentId, int examId);
+    QString getStudentSpecialOpinions(int studentId, int examId);
     int getStudentCount(int examId);
     int getCurrentExamId(int &typeId);
-    int getGroupId(const QString &groupName, const int year);
+    QString getPresident(int examId);
+    QString getSecretary(int examId);
+    int getThemeId(int studentId);
+    QString getThemeInstructor(int themeId);
+    QString getThemeConsultant(int themeId);
+    QStringList getExamMembers(int examId);
+    QStringList getExamMembersWithBusiness(int examId);
+    QDate getExamDate(int examId);
+    QTime getExamBeginTime(int examId);
+    QTime getExamEndTime(int examId);
+    int getWrcCount(int themeId);
+    int getPosterCount(int themeId);
+    int getQuestionsTime(int studentId, int examId);
+    QStringList getAdditionalQuestions(int studentId, int examId);
+
+    int getGroupId(const QString &groupName, int year);
+
+    void setExamCurrent(int examId);
     QString getExamTypeName(int examId);
+
     QString getTheme(int studentId);
 
     /* Data model manipulation */
@@ -99,17 +148,18 @@ public:
     QString submitStudentMarkChanges(bool &ok);
     /* End of data model manipulation */
 
-    void addMemberUserOnLogon(const int uid, const QString &name, const QString &username);
+    void addMemberUserOnLogon(int uid, const QString &name, const QString &username);
     void removeMemberUserOnDisconnect(const QString &username);
 
-    void addNewExamStudent(const int row);
-    int removeNewExamStudent(const int row);
+    void addNewExamStudent(int row);
+    int removeNewExamStudent(int row);
     bool newExamStudentIsInList(int id);
 
-    void addNewExamMember(const int row);
-    int removeNewExamMember(const int row);
+    void addNewExamMember(int row);
+    int removeNewExamMember(int row);
 
-    QString addNewExam(const QDate &date, const QString &type, bool isCurrent, bool &ok);
+    QString addNewExam(const QDate &date, const QString &type, int presidentId,
+                              int secretaryId, bool isCurrent, bool &ok);
 
     void importStudents(const QMap<int, QString> &students, int groupId);
     void importSubjects(const QStringList &subjects);
@@ -126,6 +176,10 @@ protected:
     void addRowToTableModel(QSqlTableModel *);
     void revertChanges(QSqlTableModel *);
     QString submitChanges(QSqlTableModel *, bool &ok);
+    void fillExamStudentListById(QSqlQueryModel *sqlModel, int examId);
+    void fillExamMemberListById(QSqlQueryModel *sqlModel, int examId);
+    void fillExamStudentMarksById(QSqlQueryModel *sqlModel, int examId, int studentId);
+    void fillExamAdditionalQuestionsById(QSqlQueryModel *sqlModel, int examId, int studentId);
 
 private:
     QSqlDatabase db;
@@ -138,6 +192,7 @@ private:
     QSqlTableModel *themesTableModel;
     QSqlTableModel *membersTableModel;
     QSqlRelationalTableModel *studentMarksTableModel;
+    QSqlRelationalTableModel *examsTableModel;
 
     QStringListModel *examTypesListModel;
 
@@ -145,14 +200,20 @@ private:
     QStringListModel *yearListModel;
 
     QSqlTableModel *newExamStudentsFromTableModel;
-    //QSqlTableModel *newExamMembersFromTableModel;
     QStandardItemModel *newExamStudentsToItemModel;
     QList<int> newExamStudentsId;
     QStandardItemModel *newExamMembersToItemModel;
 
-    QStandardItemModel *currentExamMemberListModel;
+    QSqlQueryModel *examStudentListModel;
+    QSqlQueryModel *examMemberListModel;
+    QSqlQueryModel *examStudentMarksModel;
+    QSqlQueryModel *examStudentAdditionalQuestionsModel;
+
+    QStandardItemModel *currentExamMemberOnlineListModel;
     QSqlQueryModel *currentExamStudentListModel;
+    QSqlQueryModel *currentExamMemberListModel;
     QSqlQueryModel *currentExamStudentMarksModel;
+    QSqlQueryModel *currentExamStudentAdditionalQuestionsModel;
 };
 
 #endif	/* _DBSERVICE_H */

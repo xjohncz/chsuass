@@ -34,7 +34,9 @@ MainWindow::MainWindow(QWidget *parent)
     initThemes();
     initMembers();
     initExamTypes();
+    initExams();
     initNewExam();
+    initCurrentExam();
 
 }
 
@@ -288,14 +290,34 @@ void MainWindow::initMembers() {
 
     connect(ui->membersTableView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)), membersMapper, SLOT(setCurrentModelIndex(QModelIndex)));
 
-    ui->tvCurrentExamMembersOnline->setModel(dbServ->getCurrentExamMemberListModel());
-
 }
 
 void MainWindow::initExamTypes() {
 
     dbServ->initExamTypes();
     ui->examTypeCombobox->setModel(dbServ->getExamTypesModel());
+
+}
+
+void MainWindow::initExams() {
+
+    dbServ->initExams();
+
+    ui->groupFilterComboBox->setModel(dbServ->getGroupListModel());
+    ui->yearFilterComboBox->setModel(dbServ->getYearListModel());
+
+    ui->tvExamList->setModel(dbServ->getExamsTableModel());
+
+    ui->tvExamList->hideColumn(0);
+    ui->tvExamList->hideColumn(3);
+    ui->tvExamList->hideColumn(4);
+    ui->tvExamList->hideColumn(6);
+    ui->tvExamList->hideColumn(7);
+
+    ui->tvExamStudents->setModel(dbServ->getExamStudentListModel());
+    ui->tvExamMembers->setModel(dbServ->getExamMemberListModel());
+    ui->tvExamStudentMarks->setModel(dbServ->getExamStudentMarksModel());
+    ui->tvExamQuestions->setModel(dbServ->getExamStudentAdditionalQuestionsModel());
 
 }
 
@@ -320,6 +342,16 @@ void MainWindow::initNewExam() {
 
     ui->tvNewExamMembersTo->setModel(dbServ->getNewExamMembersToItemModel());
     ui->tvNewExamMembersTo->hideColumn(0);
+
+}
+
+void MainWindow::initCurrentExam() {
+
+    dbServ->initCurrentExam();
+
+    ui->currentExamStudentMarksTableView->setModel(dbServ->getCurrentExamStudentMarksModel());
+    ui->currentExamStudentListTableView->setModel(dbServ->getCurrentExamStudentListModel());
+    ui->tvCurrentExamMembersOnline->setModel(dbServ->getCurrentExamMemberOnlineListModel());
 
 }
 
@@ -400,9 +432,6 @@ void MainWindow::on_browseInstructorButton_clicked()
 void MainWindow::on_refreshFilterListsButton_clicked()
 {
     dbServ->refreshGroupListModel();
-
-    ui->groupFilterComboBox->setModel(dbServ->getGroupListModel());
-    ui->yearFilterComboBox->setModel(dbServ->getYearListModel());
 }
 
 void MainWindow::on_filterButton_clicked()
@@ -434,9 +463,8 @@ void MainWindow::on_fillCurrentExamButton_clicked()
 
     currentExamID = examId;
 
-    dbServ->fillCurrentExam(currentExamID);
+    dbServ->fillCurrentExamStudentList(currentExamID);
 
-    ui->currentExamStudentListTableView->setModel(dbServ->getCurrentExamStudentListModel());
     ui->currentExamStudentListTableView->hideColumn(0);
     ui->currentExamStudentListTableView->setColumnWidth(4, 125);
 
@@ -457,7 +485,7 @@ void MainWindow::on_serverButton_clicked()
     }
 }
 
-/* FIXME: dbservice and not working! */
+/* : dbservice and not working! */
 void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
 {
     //int row = index.row();
@@ -475,7 +503,7 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
         query.bindValue(1, currentExamSelectedStudentID);
         query.exec();
         if(query.next()) {
-            /* !!!!!FIXME!!!! */
+            /* !!!!!!!!! */
             //ui->cmbCurrentExamCardNumber->setText(query.value(0).toString());
             ui->currentExamCardQuestionsTextEdit->setPlainText(query.value(1).toString());
         }
@@ -496,7 +524,7 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
                             "WHERE (((exammarks.examID)=%1) AND ((exammarks.studentID)=%2))").arg(currentExamID).arg(currentExamSelectedStudentID);
     dbServ->getCurrentExamStudentMarksModel()->setQuery(modelQuery, dbServ->getDatabase());
 
-    ui->currentExamStudentMarksTableView->setModel(dbServ->getCurrentExamStudentMarksModel());
+
 }
 
 void MainWindow::on_sendStudentInfoButton_clicked()
@@ -510,15 +538,10 @@ void MainWindow::on_sendStudentInfoButton_clicked()
         daemon->sendStudentInfo(currentExamSelectedStudentID, 0);
 }
 
-/* FIXME: dbservice */
 void MainWindow::on_currentExamSaveCardNumberButton_clicked()
 {
-    QSqlQuery query;
-    query.prepare("CALL setCardNumber(?,?,?)");
-    query.bindValue(0, currentExamID);
-    query.bindValue(1, currentExamSelectedStudentID);
-    query.bindValue(2, ui->cmbCurrentExamCardNumber->currentText().toInt());
-    query.exec();
+    int cardNum = ui->cmbCurrentExamCardNumber->currentText().toInt();
+    dbServ->setStudentCardNumber(currentExamSelectedStudentID, currentExamID, cardNum);
 
     on_currentExamStudentListTableView_clicked(ui->currentExamStudentListTableView->selectionModel()->selectedIndexes().at(0));
 }
@@ -618,8 +641,9 @@ void MainWindow::on_exportCardsButton_clicked()
         return;
 
     QMap<int, QString> cards = dbServ->getCards();
-    QString cardReport = reportcreator::createCardReport(cards);
-    reportcreator::writeReport(fileName, cardReport);
+    reportcreator cardReport;
+    cardReport.createCardReport(cards);
+    cardReport.writeReport(fileName);
 }
 
 void MainWindow::on_importSubjectsButton_clicked()
@@ -804,8 +828,13 @@ void MainWindow::on_saveNewExam_clicked()
     QDate date = ui->examDateEdit->date();
     QString examType = ui->examTypeCombobox->currentText();
     bool isCurrent = ui->isCurrentExamCheckBox->isChecked();
+    QModelIndex idx = ui->twPresident->model()->index(0, 0);
+    int presidentId = ui->twPresident->model()->data(idx).toInt();
+    idx = ui->twSecretary->model()->index(0, 0);
+    int secretaryId = ui->twSecretary->model()->data(idx).toInt();
 
-    QString err = dbServ->addNewExam(date, examType, isCurrent, ok);
+    QString err = dbServ->addNewExam(date, examType, isCurrent, presidentId, secretaryId, ok);
+    dbServ->getExamsTableModel()->select();
     if(!ok)
         QMessageBox::warning(this, tr("Ошибка сохранения экзамена"), tr("База данных вернула ошибку: %1").arg(err));
 }
@@ -854,9 +883,9 @@ void MainWindow::on_studentsTableView_pressed(QModelIndex index)
 
 void MainWindow::on_addPresidentToExamButton_clicked()
 {
-    bool memberIsNotSelected = ui->tvNewExamMembersFrom->selectionModel()->selectedIndexes().isEmpty();
+    bool memberIsEmpty = ui->tvNewExamMembersFrom->selectionModel()->selection().isEmpty();
 
-    if(!memberIsNotSelected) {
+    if(!memberIsEmpty) {
         removePresidentOrSecretary(ui->twPresident);
         addPresidentOrSecretary(ui->twPresident);
     }
@@ -864,9 +893,9 @@ void MainWindow::on_addPresidentToExamButton_clicked()
 
 void MainWindow::on_addSecretaryToExamButton_clicked()
 {
-    bool memberIsNotSelected = ui->tvNewExamMembersFrom->selectionModel()->selectedIndexes().isEmpty();
+    bool memberIsEmpty = ui->tvNewExamMembersFrom->selectionModel()->selection().isEmpty();
 
-    if(!memberIsNotSelected) {
+    if(!memberIsEmpty) {
         removePresidentOrSecretary(ui->twSecretary);
         addPresidentOrSecretary(ui->twSecretary);
     }
@@ -880,4 +909,167 @@ void MainWindow::on_removePresidentButton_clicked()
 void MainWindow::on_removeSecretaryButton_clicked()
 {
     removePresidentOrSecretary(ui->twSecretary);
+}
+
+void MainWindow::on_tvExamList_pressed(QModelIndex index)
+{
+    if(!ui->tvExamList->selectionModel()->selection().isEmpty()) {
+        int row = index.row();
+        QModelIndex idx = ui->tvExamList->model()->index(row, 0);
+        int examId = ui->tvExamList->model()->data(idx).toInt();
+
+        dbServ->fillExamStudentList(examId);
+        ui->tvExamStudents->hideColumn(0);
+
+        dbServ->fillExamMemberList(examId);
+    }
+}
+
+void MainWindow::on_tvExamStudents_pressed(QModelIndex index)
+{
+    if(!ui->tvExamList->selectionModel()->selection().isEmpty() &&
+       !ui->tvExamStudents->selectionModel()->selection().isEmpty()) {        
+        QModelIndex idx = ui->tvExamList->selectionModel()->selectedRows(0).at(0);
+        int examId = ui->tvExamList->model()->data(idx).toInt();
+
+        int row = index.row();
+        idx = ui->tvExamStudents->model()->index(row, 0);
+        int studentId = ui->tvExamStudents->model()->data(idx).toInt();
+
+        dbServ->fillExamStudentMarks(examId, studentId);
+        dbServ->fillExamAdditionalQuestions(examId, studentId);
+
+        QString examType = dbServ->getExamTypeName(examId);
+        if(examType == trUtf8("Государственный экзамен")) {
+
+            int cardNum = dbServ->getStudentCardNumber(studentId, examId);
+            QString card = dbServ->getCard(cardNum);
+
+            ui->lblExamTask->setText(tr("Билет №%1:").arg(cardNum));
+            ui->txtEditExamStudentTask->setPlainText(card);
+
+        } else if(examType == trUtf8("Защита диплома")) {
+
+            QString theme = dbServ->getTheme(studentId);
+
+            ui->lblExamTask->setText(tr("Тема ВКР:"));
+            ui->txtEditExamStudentTask->setPlainText(theme);
+
+        }
+
+        int marksColCount = ui->tvExamStudentMarks->model()->columnCount();
+        int marksRowCount = ui->tvExamStudentMarks->model()->rowCount();
+
+        int sum = 0;
+        int marksCount = 0;
+        for(int i = 0; i < marksRowCount; i++) {
+            for(int j = 4; j < marksColCount; j++) {
+                if(examType == trUtf8("Государственный экзамен") && j >= marksColCount - 3)
+                    break;
+
+                QModelIndex idx = ui->tvExamStudentMarks->model()->index(i, j);
+                int mark = ui->tvExamStudentMarks->model()->data(idx).toInt();
+                sum += mark;
+                ++marksCount;
+            }
+        }
+
+        float middleMark = 0.0;
+        if(marksCount != 0)
+            middleMark = (float) sum / (float) marksCount;
+
+        ui->lblExamMiddleMark->setText(tr("Среднее арифметическое: %1").arg(middleMark));
+
+        int resultMark = dbServ->getStudentResultMark(studentId, examId);
+        ui->lblExamResultMark->setText(tr("Итоговая оценка: %1").arg(resultMark));
+
+        QString character = dbServ->getStudentCharacteristic(studentId, examId);
+        ui->txtEditExamGeneralCharacteristic->setPlainText(character);
+
+        QString notes = dbServ->getStudentNotes(studentId, examId);
+        ui->txtEditExamNotes->setPlainText(notes);
+
+        QString opinions = dbServ->getStudentSpecialOpinions(studentId, examId);
+        ui->txtEditExamSpecialOpinions->setPlainText(opinions);
+
+    }
+}
+
+void MainWindow::on_pushButton_4_clicked()
+{
+    if(ui->tvExamList->selectionModel()->selection().isEmpty() ||
+       ui->tvExamStudents->selectionModel()->selection().isEmpty()) {
+
+        return;
+    }
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранение отчета..."), QDir::currentPath(),
+                                                    tr("Файлы html (*.html)"));
+
+    if(fileName.isNull())
+        return;
+
+    QModelIndex idx = ui->tvExamList->selectionModel()->selectedRows(0).at(0);
+    int examId = ui->tvExamList->model()->data(idx).toInt();
+
+    idx = ui->tvExamStudents->selectionModel()->selectedRows(0).at(0);
+    int studentId = ui->tvExamStudents->model()->data(idx).toInt();
+
+    QString student = dbServ->getStudentById(studentId);
+    QString president = dbServ->getPresident(examId);
+    QDate date = dbServ->getExamDate(examId);
+    QTime begin_time = dbServ->getExamBeginTime(examId);
+    QTime end_time = dbServ->getExamEndTime(examId);
+    QString character = dbServ->getStudentCharacteristic(studentId, examId);
+    QString notes = dbServ->getStudentNotes(studentId, examId);
+    QString opinions = dbServ->getStudentSpecialOpinions(studentId, examId);
+    int resultMark = dbServ->getStudentResultMark(studentId, examId);
+
+    reportcreator report;
+    QString examType = dbServ->getExamTypeName(examId);
+    if(examType == trUtf8("Государственный экзамен")) {
+
+        QStringList members = dbServ->getExamMembers(examId);
+        int cardNum = dbServ->getStudentCardNumber(studentId, examId);
+        QString card = dbServ->getCard(cardNum);
+        QStringList cardQuestions = card.split(QString("\n"), QString::SkipEmptyParts, Qt::CaseInsensitive);
+
+        report.createGEKReport(student, president, members, date, begin_time, end_time,
+                               cardNum, cardQuestions.at(0), cardQuestions.at(1), cardQuestions.at(2),
+                               character, notes, opinions, resultMark);
+
+    } else if(examType == trUtf8("Защита диплома")) {
+
+        QStringList members = dbServ->getExamMembersWithBusiness(examId);
+        QString theme = dbServ->getTheme(studentId);
+        int themeId = dbServ->getThemeId(studentId);
+        QString secretary = dbServ->getSecretary(examId);
+        QString instructor = dbServ->getThemeInstructor(themeId);
+        QString consultant = dbServ->getThemeConsultant(themeId);
+        int wrccount = dbServ->getWrcCount(themeId);
+        int postercount = dbServ->getPosterCount(themeId);
+        int questionsTime = dbServ->getQuestionsTime(studentId, examId);
+        QStringList addQuestions = dbServ->getAdditionalQuestions(studentId, examId);
+
+        report.createGAKReport(student, president, secretary, instructor, consultant,
+                               members, date, begin_time, end_time, theme, wrccount, postercount,
+                               questionsTime, addQuestions, character, notes, opinions, resultMark);
+
+    }
+
+    report.writeReport(fileName);
+
+}
+
+void MainWindow::on_btnMakeExamCurrent_clicked()
+{
+    if(ui->tvExamList->selectionModel()->selection().isEmpty()) {
+
+        return;
+    }
+
+    QModelIndex idx = ui->tvExamList->selectionModel()->selectedRows(0).at(0);
+    int examId = ui->tvExamList->model()->data(idx).toInt();
+
+    dbServ->setExamCurrent(examId);
 }

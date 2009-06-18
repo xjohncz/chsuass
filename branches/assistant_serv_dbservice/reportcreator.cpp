@@ -1,19 +1,20 @@
 #include "reportcreator.h"
 
+#include <QCoreApplication>
 #include <QFile>
 #include <QTextStream>
 #include <QTextCodec>
 #include <QDir>
 
-reportcreator::reportcreator(/*dbservice *dbs*/)
-        //:dbServ(dbs)
+reportcreator::reportcreator(const QString &rep)
 {
+    report = rep;
 }
 
 reportcreator::~reportcreator() {
 }
 
-QString reportcreator::createCardReport(const QMap<int, QString> &map) {
+void reportcreator::createCardReport(const QMap<int, QString> &map) {
 
     QString templatePath = QDir::currentPath() + "/templates/card/";
 
@@ -75,28 +76,28 @@ QString reportcreator::createCardReport(const QMap<int, QString> &map) {
     resultReport = resultReport + textStream.readAll();
     file.close();
 
-    return resultReport;
+    report = resultReport;
 
 }
 
 void reportcreator::insertList(const QStringList &list, const QString &replaceString, const QString &htmlString, const QString &spanString,
-                           QString &report) {
+                               QString &resReport) {
 
     if(list.isEmpty())
-        report.replace(replaceString, "");
+        resReport.replace(replaceString, "");
     else {
-        report.replace(replaceString, list.at(0));
+        resReport.replace(replaceString, list.at(0));
         for(int i = 1; i < list.count(); i++) {
-            int idx = report.indexOf(spanString);
+            int idx = resReport.indexOf(spanString);
             QString replStr = htmlString;
             replStr.replace(replaceString, list.at(i));
-            report.insert(idx, replStr);
+            resReport.insert(idx, replStr);
         }
     }
 
 }
 
-QString reportcreator::createGEKReport(const QString &student, const QString &president, const QStringList &members,
+void reportcreator::createGEKReport(const QString &student, const QString &president, const QStringList &members,
                                    const QDate &date, const QTime &begin_time, const QTime &end_time,
                                    int cardNumber, const QString &question1, const QString &question2, const QString &question3,
                                    const QString &characteristic, const QString &notes, const QString &opinions,
@@ -191,11 +192,11 @@ QString reportcreator::createGEKReport(const QString &student, const QString &pr
     QStringList opinionsList = opinions.split("\n", QString::SkipEmptyParts, Qt::CaseInsensitive);
     insertList(opinionsList, "%opinion%", reportOpinion, "<span id=\"special_opinion\"></span>", resultReport);
 
-    return resultReport;
+    report = resultReport;
 
 }
 
-QString reportcreator::createGAKReport(const QString &student, const QString &president, const QString &secretary,
+void reportcreator::createGAKReport(const QString &student, const QString &president, const QString &secretary,
                                    const QString &instructor, const QString &consultant, const QStringList &members,
                                    const QDate &date, const QTime &begin_time, const QTime &end_time,
                                    const QString &theme, int wrccount, int postercount, int questions_time,
@@ -302,10 +303,10 @@ QString reportcreator::createGAKReport(const QString &student, const QString &pr
     QStringList opinionsList = opinions.split("\n", QString::SkipEmptyParts, Qt::CaseInsensitive);
     insertList(opinionsList, "%opinion%", reportOpinion, "<span id=\"special_opinion\"></span>", resultReport);
 
-    return resultReport;
+    report = resultReport;
 }
 
-void reportcreator::writeReport(const QString &fileName, const QString &report) {
+void reportcreator::writeReport(const QString &fileName) {
 
     QTextCodec *cp1251_codec = QTextCodec::codecForName("cp1251");
     QFile file(fileName);

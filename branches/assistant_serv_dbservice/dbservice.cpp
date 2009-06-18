@@ -2,14 +2,9 @@
 
 dbservice::dbservice(QObject *parent)
         : QObject(parent),
-        connected(false),
-        groupListModel(new QStringListModel(this)),
-        yearListModel(new QStringListModel(this)),
-        currentExamMemberListModel(new QStandardItemModel(0, 3, this)),
-        currentExamStudentListModel(new QSqlQueryModel(this)),
-        currentExamStudentMarksModel(new QSqlQueryModel(this))
+        connected(false)
 {
-
+    initCurrentExam();
 }
 
 dbservice::~dbservice()
@@ -169,7 +164,36 @@ void dbservice::initExamTypes() {
 
 }
 
+void dbservice::initExams() {
+
+    if(!connected)
+        return;
+
+    groupListModel = new QStringListModel(this);
+    yearListModel = new QStringListModel(this);
+
+    examsTableModel = new QSqlRelationalTableModel(this, db);
+    examsTableModel->setTable("exams");
+
+    examsTableModel->setRelation(1, QSqlRelation("examtypes", "typeID", "typeName"));
+
+    examsTableModel->setHeaderData(1, Qt::Horizontal, tr("Тип экзамена"));
+    examsTableModel->setHeaderData(2, Qt::Horizontal, tr("Дата"));
+    examsTableModel->setHeaderData(5, Qt::Horizontal, tr("Текущий"));
+
+    examsTableModel->select();
+
+    examStudentListModel = new QSqlQueryModel(this);
+    examMemberListModel = new QSqlQueryModel(this);
+    examStudentMarksModel = new QSqlQueryModel(this);
+    examStudentAdditionalQuestionsModel = new QSqlQueryModel(this);
+
+}
+
 void dbservice::initNewExam() {
+
+    if(!connected)
+        return;
 
     newExamStudentsFromTableModel = new QSqlTableModel(this, db);
     newExamStudentsFromTableModel->setTable("students");
@@ -191,6 +215,19 @@ void dbservice::initNewExam() {
     newExamMembersToItemModel->setHeaderData(2, Qt::Horizontal, tr("Имя"));
     newExamMembersToItemModel->setHeaderData(3, Qt::Horizontal, tr("Отчество"));
     newExamMembersToItemModel->setHeaderData(4, Qt::Horizontal, tr("Логин"));
+
+}
+
+void dbservice::initCurrentExam() {
+
+    if(!connected)
+        return;
+
+    currentExamMemberOnlineListModel = new QStandardItemModel(0, 3, this);
+    currentExamStudentListModel = new QSqlQueryModel(this);
+    currentExamMemberListModel = new QSqlQueryModel(this);
+    currentExamStudentMarksModel = new QSqlQueryModel(this);
+    currentExamStudentAdditionalQuestionsModel = new QSqlQueryModel(this);
 
 }
 
@@ -255,21 +292,6 @@ void dbservice::refreshGroupListModel() {
 
 }
 
-void dbservice::fillCurrentExam(const int examId) {
-
-    currentExamStudentListModel->setQuery(QString("SELECT students.studentID, students.studentNumber, students.surname, "
-                                                "students.name, students.patronymic, groups.groupName "
-                                                "FROM students INNER JOIN groups "
-                                                "WHERE ((students.groupID=groups.groupID) AND "
-                                                "(students.studentID IN (SELECT studentID FROM examstudentlist WHERE examID=%1)))").arg(examId), db);
-    currentExamStudentListModel->setHeaderData(1, Qt::Horizontal, tr("Номер зач."));
-    currentExamStudentListModel->setHeaderData(2, Qt::Horizontal, tr("Фамилия"));
-    currentExamStudentListModel->setHeaderData(3, Qt::Horizontal, tr("Имя"));
-    currentExamStudentListModel->setHeaderData(4, Qt::Horizontal, tr("Отчество"));
-    currentExamStudentListModel->setHeaderData(5, Qt::Horizontal, tr("Название группы"));
-
-}
-
 bool dbservice::userAuth(QString username, int &userID, QString &name)
 {
     bool status = false;
@@ -292,6 +314,17 @@ bool dbservice::userAuth(QString username, int &userID, QString &name)
     return status;
 }
 
+void dbservice::setStudentCardNumber(int studentId, int examId, int cardNum) {
+
+    QSqlQuery query;
+    query.prepare("CALL setCardNumber(?,?,?)");
+    query.bindValue(0, examId);
+    query.bindValue(1, studentId);
+    query.bindValue(2, cardNum);
+    query.exec();
+
+}
+
 int dbservice::getStudentCardNumber(int studentId, int examId) {
 
     QSqlQuery query;
@@ -302,6 +335,103 @@ int dbservice::getStudentCardNumber(int studentId, int examId) {
     query.next();
 
     return query.value(0).toInt();
+
+}
+
+QString dbservice::getCard(int cardNumber) {
+
+    QSqlQuery query;
+    query.prepare("SELECT questions FROM cards WHERE cardNumber=?");
+    query.bindValue(0, cardNumber);
+    query.exec();
+
+    QString res = NULL;
+    if(query.next())
+        res = query.value(0).toString();
+
+    return res;
+
+}
+
+QString dbservice::getStudentById(int studentId) {
+
+    QSqlQuery query;
+    query.prepare("SELECT students.surname, students.name, students.patronymic "
+                  "FROM students WHERE studentID=?");
+    query.bindValue(0, studentId);
+    query.exec();
+
+    QString res = NULL;
+    if(query.next())
+        res = query.value(0).toString() + " " +
+              query.value(1).toString() + " " +
+              query.value(2).toString();
+
+    return res;
+
+}
+
+int dbservice::getStudentResultMark(int studentId, int examId) {
+
+    QSqlQuery query;
+    query.prepare("SELECT resultMark FROM examstudentlist WHERE studentID=? AND examID=?");
+    query.bindValue(0, studentId);
+    query.bindValue(1, examId);
+    query.exec();
+
+    int res = -1;
+    if(query.next())
+        res = query.value(0).toInt();
+
+    return res;
+
+}
+
+QString dbservice::getStudentCharacteristic(int studentId, int examId) {
+
+    QSqlQuery query;
+    query.prepare("SELECT answersCharacteristic FROM examstudentlist WHERE studentID=? AND examID=?");
+    query.bindValue(0, studentId);
+    query.bindValue(1, examId);
+    query.exec();
+
+    QString res = NULL;
+    if(query.next())
+        res = query.value(0).toString();
+
+    return res;
+
+}
+
+QString dbservice::getStudentNotes(int studentId, int examId) {
+
+    QSqlQuery query;
+    query.prepare("SELECT notes FROM examstudentlist WHERE studentID=? AND examID=?");
+    query.bindValue(0, studentId);
+    query.bindValue(1, examId);
+    query.exec();
+
+    QString res = NULL;
+    if(query.next())
+        res = query.value(0).toString();
+
+    return res;
+
+}
+
+QString dbservice::getStudentSpecialOpinions(int studentId, int examId) {
+
+    QSqlQuery query;
+    query.prepare("SELECT specialOpinions FROM examstudentlist WHERE studentID=? AND examID=?");
+    query.bindValue(0, studentId);
+    query.bindValue(1, examId);
+    query.exec();
+
+    QString res = NULL;
+    if(query.next())
+        res = query.value(0).toString();
+
+    return res;
 
 }
 
@@ -336,7 +466,7 @@ int dbservice::getCurrentExamId(int &typeId) {
 
 }
 
-int dbservice::getGroupId(const QString &groupName, const int year) {
+int dbservice::getGroupId(const QString &groupName, int year) {
 
     QSqlQuery query;
     query.prepare("SELECT groupID FROM groups WHERE (groupName=?) AND (year_=?)");
@@ -349,6 +479,15 @@ int dbservice::getGroupId(const QString &groupName, const int year) {
         groupId = query.value(0).toInt();
 
     return groupId;
+
+}
+
+void dbservice::setExamCurrent(int examId) {
+
+    QSqlQuery query(db);
+    query.prepare("CALL setExamCurrent(?)");
+    query.bindValue(0, examId);
+    query.exec();
 
 }
 
@@ -373,9 +512,265 @@ QString dbservice::getTheme(int studentId) {
 
     QString theme = "";
     if(query.next())
-        theme = query.value(0).toString();;
+        theme = query.value(0).toString();
 
     return theme;
+}
+
+QString dbservice::getPresident(int examId) {
+
+    QSqlQuery query(db);
+    query.prepare("SELECT sacmembers.surname, sacmembers.name, sacmembers.patronymic "
+                    "FROM sacmembers INNER JOIN exams ON sacmembers.memberID=exams.presidentID "
+                    "WHERE exams.examID=?");
+    query.bindValue(0, examId);
+    query.exec();
+
+    QString pres = "";
+    if(query.next())
+        pres = query.value(0).toString() + " " +
+               query.value(1).toString() + " " +
+               query.value(2).toString();
+
+    return pres;
+
+}
+
+QString dbservice::getSecretary(int examId) {
+
+    QSqlQuery query(db);
+    query.prepare("SELECT sacmembers.surname, sacmembers.name, sacmembers.patronymic "
+                    "FROM sacmembers INNER JOIN exams ON sacmembers.memberID=exams.secretaryID "
+                    "WHERE exams.examID=?");
+    query.bindValue(0, examId);
+    query.exec();
+
+    QString secr = "";
+    if(query.next())
+        secr = query.value(0).toString() + " " +
+               query.value(1).toString() + " " +
+               query.value(2).toString();
+
+    return secr;
+
+}
+
+int dbservice::getThemeId(int studentId) {
+
+    QSqlQuery query(db);
+    query.prepare("SELECT themeID FROM themes WHERE studentID=? LIMIT 1");
+    query.bindValue(0, studentId);
+    query.exec();
+
+    int themeId = -1;
+    if(query.next())
+        themeId = query.value(0).toInt();
+
+    return themeId;
+
+}
+
+QString dbservice::getThemeInstructor(int themeId) {
+
+    QSqlQuery query(db);
+    query.prepare("SELECT sacmembers.surname, sacmembers.name, sacmembers.patronymic "
+                    "FROM sacmembers INNER JOIN themes ON sacmembers.memberID=themes.instructorID "
+                    "WHERE themes.themeID=?");
+    query.bindValue(0, themeId);
+    query.exec();
+
+    QString instr = "";
+    if(query.next())
+        instr = query.value(0).toString() + " " +
+               query.value(1).toString() + " " +
+               query.value(2).toString();
+
+    return instr;
+
+}
+
+QString dbservice::getThemeConsultant(int themeId) {
+
+    QSqlQuery query(db);
+    query.prepare("SELECT sacmembers.surname, sacmembers.name, sacmembers.patronymic "
+                    "FROM sacmembers INNER JOIN themes ON sacmembers.memberID=themes.consultantID "
+                    "WHERE themes.themeID=?");
+    query.bindValue(0, themeId);
+    query.exec();
+
+    QString cons = "";
+    if(query.next())
+        cons = query.value(0).toString() + " " +
+               query.value(1).toString() + " " +
+               query.value(2).toString();
+
+    return cons;
+
+}
+
+QStringList dbservice::getExamMembers(int examId) {
+
+    QSqlQuery query(db);
+    query.prepare("SELECT sacmembers.surname, sacmembers.name, sacmembers.patronymic "
+                    "FROM sacmembers INNER JOIN exammemberlist ON sacmembers.memberID=exammemberlist.memberID "
+                    "WHERE exammemberlist.examID=?");
+    query.bindValue(0, examId);
+    query.exec();
+
+    QStringList memberList;
+    while(query.next()) {
+        QString member = query.value(0).toString() + " " +
+               query.value(1).toString() + " " +
+               query.value(2).toString();
+
+        memberList.append(member);
+    }
+
+    return memberList;
+
+}
+
+QStringList dbservice::getExamMembersWithBusiness(int examId) {
+
+    QSqlQuery query(db);
+    query.prepare("SELECT sacmembers.surname, sacmembers.name, sacmembers.patronymic, sacmembers.business "
+                    "FROM sacmembers INNER JOIN exammemberlist ON sacmembers.memberID=exammemberlist.memberID "
+                    "WHERE exammemberlist.examID=?");
+    query.bindValue(0, examId);
+    query.exec();
+
+    QStringList memberList;
+    while(query.next()) {
+        QString member = query.value(0).toString() + " " +
+               query.value(1).toString() + " " +
+               query.value(2).toString() + " - " +
+               query.value(3).toString();
+
+        memberList.append(member);
+    }
+
+    return memberList;
+
+}
+
+QDate dbservice::getExamDate(int examId) {
+
+    QSqlQuery query(db);
+    query.prepare("SELECT exams.examDate FROM exams "
+                    "WHERE examID=?");
+    query.bindValue(0, examId);
+    query.exec();
+
+    QDate date;
+    if(query.next())
+        date = query.value(0).toDate();
+
+    return date;
+}
+
+QTime dbservice::getExamBeginTime(int examId) {
+
+    QSqlQuery query(db);
+    query.prepare("SELECT exams.beginTime FROM exams "
+                    "WHERE examID=?");
+    query.bindValue(0, examId);
+    query.exec();
+
+    QTime time;
+    if(query.next())
+        time = query.value(0).toTime();
+
+    return time;
+
+}
+
+QTime dbservice::getExamEndTime(int examId) {
+
+    QSqlQuery query(db);
+    query.prepare("SELECT exams.endTime FROM exams "
+                    "WHERE examID=?");
+    query.bindValue(0, examId);
+    query.exec();
+
+    QTime time;
+    if(query.next())
+        time = query.value(0).toTime();
+
+    return time;
+
+}
+
+int dbservice::getWrcCount(int themeId) {
+
+    QSqlQuery query(db);
+    query.prepare("SELECT themes.wrccount FROM themes "
+                    "WHERE themes.themeID=?");
+    query.bindValue(0, themeId);
+    query.exec();
+
+    int wrccount = -1;
+    if(query.next())
+        wrccount = query.value(0).toInt();
+
+    return wrccount;
+
+}
+
+int dbservice::getPosterCount(int themeId) {
+
+    QSqlQuery query(db);
+    query.prepare("SELECT themes.postercount FROM themes "
+                    "WHERE themes.themeID=?");
+    query.bindValue(0, themeId);
+    query.exec();
+
+    int postercount = -1;
+    if(query.next())
+        postercount = query.value(0).toInt();
+
+    return postercount;
+
+}
+
+int dbservice::getQuestionsTime(int studentId, int examId) {
+
+    QSqlQuery query(db);
+    query.prepare("SELECT examstudentlist.questionsTime FROM examstudentlist "
+                    "WHERE examstudentlist.studentID=? AND examstudentlist.examID=?");
+    query.bindValue(0, studentId);
+    query.bindValue(1, examId);
+    query.exec();
+
+    int time = -1;
+    if(query.next())
+        time = query.value(0).toInt();
+
+    return time;
+
+}
+
+QStringList dbservice::getAdditionalQuestions(int studentId, int examId) {
+
+    QSqlQuery query(db);
+    query.prepare("SELECT additionalquestions.question, sacmembers.surname, sacmembers.name, sacmembers.patronymic "
+                    "FROM additionalquestions INNER JOIN sacmembers ON additionalquestions.memberID=sacmembers.memberID "
+                    "WHERE additionalquestions.studentID=? AND additionalquestions.examID=?");
+    query.bindValue(0, studentId);
+    query.bindValue(1, examId);
+    query.exec();
+
+    QStringList additionalQuestions;
+    while(query.next()) {
+        QString question = query.value(0).toString() + " - " +
+                           query.value(1).toString() + " " +
+                           query.value(2).toString() + " " +
+                           query.value(3).toString();
+
+        additionalQuestions.append(question);
+    }
+
+    return additionalQuestions;
+
 }
 
 void dbservice::deleteRowFromTableModel(QSqlTableModel *model, int row) {
@@ -427,6 +822,69 @@ QString dbservice::submitChanges(QSqlTableModel *model, bool &ok) {
     }
 
     return result;
+}
+
+void dbservice::fillExamStudentListById(QSqlQueryModel *sqlModel, int examId) {
+
+    sqlModel->setQuery(QString("SELECT students.studentID, students.studentNumber, students.surname, "
+                                                "students.name, students.patronymic, groups.groupName "
+                                                "FROM students INNER JOIN groups "
+                                                "WHERE ((students.groupID=groups.groupID) AND "
+                                                "(students.studentID IN (SELECT studentID FROM examstudentlist WHERE examID=%1)))").arg(examId), db);
+    sqlModel->setHeaderData(1, Qt::Horizontal, tr("Номер зач."));
+    sqlModel->setHeaderData(2, Qt::Horizontal, tr("Фамилия"));
+    sqlModel->setHeaderData(3, Qt::Horizontal, tr("Имя"));
+    sqlModel->setHeaderData(4, Qt::Horizontal, tr("Отчество"));
+    sqlModel->setHeaderData(5, Qt::Horizontal, tr("Название группы"));
+
+}
+
+void dbservice::fillExamMemberListById(QSqlQueryModel *sqlModel, int examId) {
+
+    sqlModel->setQuery(QString("SELECT sacmembers.surname, sacmembers.name, sacmembers.patronymic, sacmembers.login "
+                                            "FROM sacmembers INNER JOIN exammemberlist ON sacmembers.memberID=exammemberlist.memberID "
+                                            "WHERE exammemberlist.examID=%1").arg(examId), db);
+
+    sqlModel->setHeaderData(0, Qt::Horizontal, tr("Фамилия"));
+    sqlModel->setHeaderData(1, Qt::Horizontal, tr("Имя"));
+    sqlModel->setHeaderData(2, Qt::Horizontal, tr("Отчество"));
+    sqlModel->setHeaderData(3, Qt::Horizontal, tr("Логин"));
+
+}
+
+void dbservice::fillExamStudentMarksById(QSqlQueryModel *sqlModel, int examId, int studentId) {
+
+    sqlModel->setQuery(QString("SELECT sacmembers.surname, sacmembers.name, sacmembers.patronymic, sacmembers.login, "
+                                "exammarks.mark1, exammarks.mark2, exammarks.mark3, exammarks.mark4, exammarks.mark5, exammarks.mark6 "
+                                "FROM sacmembers INNER JOIN exammarks ON sacmembers.memberID=exammarks.memberID "
+                                "WHERE exammarks.examID=%1 AND exammarks.studentID=%2").arg(examId).arg(studentId), db);
+
+    sqlModel->setHeaderData(0, Qt::Horizontal, tr("Фамилия"));
+    sqlModel->setHeaderData(1, Qt::Horizontal, tr("Имя"));
+    sqlModel->setHeaderData(2, Qt::Horizontal, tr("Отчество"));
+    sqlModel->setHeaderData(3, Qt::Horizontal, tr("Логин"));
+    sqlModel->setHeaderData(4, Qt::Horizontal, tr("Оц_1"));
+    sqlModel->setHeaderData(5, Qt::Horizontal, tr("Оц_2"));
+    sqlModel->setHeaderData(6, Qt::Horizontal, tr("Оц_3"));
+    sqlModel->setHeaderData(7, Qt::Horizontal, tr("Оц_4"));
+    sqlModel->setHeaderData(8, Qt::Horizontal, tr("Оц_5"));
+    sqlModel->setHeaderData(9, Qt::Horizontal, tr("Оц_6"));
+
+}
+
+void dbservice::fillExamAdditionalQuestionsById(QSqlQueryModel *sqlModel, int examId, int studentId) {
+
+    sqlModel->setQuery(QString("SELECT sacmembers.surname, sacmembers.name, sacmembers.patronymic, sacmembers.login, "
+                                "additionalquestions.question "
+                                "FROM sacmembers INNER JOIN additionalquestions ON sacmembers.memberID=additionalquestions.memberID "
+                                "WHERE additionalquestions.examID=%1 AND additionalquestions.studentID=%2").arg(examId).arg(studentId), db);
+
+    sqlModel->setHeaderData(0, Qt::Horizontal, tr("Фамилия"));
+    sqlModel->setHeaderData(1, Qt::Horizontal, tr("Имя"));
+    sqlModel->setHeaderData(2, Qt::Horizontal, tr("Отчество"));
+    sqlModel->setHeaderData(3, Qt::Horizontal, tr("Логин"));
+    sqlModel->setHeaderData(4, Qt::Horizontal, tr("Вопрос"));
+
 }
 
 /* Data model manipulation */
@@ -482,23 +940,23 @@ void dbservice::addMemberUserOnLogon(int uid, const QString &name, const QString
     item = new QStandardItem(username);
     itemList.append(item);
 
-    currentExamMemberListModel->appendRow(itemList);
+    currentExamMemberOnlineListModel->appendRow(itemList);
 
 }
 
 void dbservice::removeMemberUserOnDisconnect(const QString &username) {
 
-    for(int i = 0; i < currentExamMemberListModel->rowCount(); i++) {
-        QString itemText = currentExamMemberListModel->item(i, 2)->text();
+    for(int i = 0; i < currentExamMemberOnlineListModel->rowCount(); i++) {
+        QString itemText = currentExamMemberOnlineListModel->item(i, 2)->text();
         if(itemText == username) {
-            currentExamMemberListModel->removeRow(i);
+            currentExamMemberOnlineListModel->removeRow(i);
             break;
         }
     }
 
 }
 
-void dbservice::addNewExamStudent(const int row) {
+void dbservice::addNewExamStudent(int row) {
 
     QModelIndex index = newExamStudentsFromTableModel->index(row, 0);
     int stId = newExamStudentsFromTableModel->data(index).toInt();
@@ -527,7 +985,7 @@ void dbservice::addNewExamStudent(const int row) {
 
 }
 
-int dbservice::removeNewExamStudent(const int row) {
+int dbservice::removeNewExamStudent(int row) {
 
     QModelIndex index = newExamStudentsToItemModel->index(row, 0);
     int studentId = newExamStudentsToItemModel->data(index).toInt();
@@ -540,7 +998,7 @@ int dbservice::removeNewExamStudent(const int row) {
 
 }
 
-void dbservice::addNewExamMember(const int row) {
+void dbservice::addNewExamMember(int row) {
 
     QModelIndex index = membersTableModel->index(row, 0);
     int memberId = membersTableModel->data(index).toInt();
@@ -573,7 +1031,7 @@ void dbservice::addNewExamMember(const int row) {
 
 }
 
-int dbservice::removeNewExamMember(const int row) {
+int dbservice::removeNewExamMember(int row) {
 
     QModelIndex index = newExamMembersToItemModel->index(row, 0);
     int memberId = newExamMembersToItemModel->data(index).toInt();
@@ -594,7 +1052,8 @@ bool dbservice::newExamStudentIsInList(int id) {
 
 }
 
-QString dbservice::addNewExam(const QDate &date, const QString &type, bool isCurrent, bool &ok) {
+QString dbservice::addNewExam(const QDate &date, const QString &type, int presidentId,
+                              int secretaryId, bool isCurrent, bool &ok) {
 
     ok = false;
     QString res = "";
@@ -621,10 +1080,13 @@ QString dbservice::addNewExam(const QDate &date, const QString &type, bool isCur
     }
 
     QSqlQuery examQuery(db);
-    examQuery.prepare("INSERT INTO exams (typeID, examDate, isCurrent) VALUES (:typeId, :date, :isCurrent)");
+    examQuery.prepare("INSERT INTO exams (typeID, examDate, isCurrent, presidentID, secretaryID) VALUES "
+                      "(:typeId, :date, :isCurrent, :presidentID, :secretaryID)");
     examQuery.bindValue(":typeId", typeId);
     examQuery.bindValue(":date", date);
     examQuery.bindValue(":isCurrent", isCurrent);
+    examQuery.bindValue(":presidentID", presidentId);
+    examQuery.bindValue(":secretaryID", secretaryId);
     if(!examQuery.exec()) {
         db.rollback();
         res = db.lastError().text();

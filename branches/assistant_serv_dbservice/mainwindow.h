@@ -47,7 +47,9 @@ private:
     void initThemes();
     void initMembers();
     void initExamTypes();
+    void initExams();
     void initNewExam();
+    void initCurrentExam();
 
     void showSelectDialog(const QString &tableName, IdType type);
 
@@ -68,6 +70,10 @@ private:
     //CURRENT EXAM
 
 private slots:
+    void on_btnMakeExamCurrent_clicked();
+    void on_pushButton_4_clicked();
+    void on_tvExamStudents_pressed(QModelIndex index);
+    void on_tvExamList_pressed(QModelIndex index);
     void on_addSecretaryToExamButton_clicked();
     void on_addPresidentToExamButton_clicked();
     void on_removeSecretaryButton_clicked();
