@@ -60,44 +60,6 @@ bool DaemonService::sendMessage(const QByteArray &buffer) {
 
 }
 
-//int DaemonService::readIntoBuffer(int bytes, QByteArray &buffer) {
-//
-//    int bytesRead = 0;
-//
-//    while(bytesRead < bytes) {
-//
-//        QByteArray inputBuffer = socket->read(bytes - bytesRead);
-//
-//        if(inputBuffer.isEmpty()) {
-//            socket->disconnectFromHost();
-//            socket->waitForDisconnected();
-//        }
-//
-//        buffer.append(inputBuffer);
-//        bytesRead += inputBuffer.size();
-//    }
-//
-//    return bytesRead;
-//}
-//
-//int DaemonService::getIntFromMessage() {
-//
-//    uint bytesRead = 0;
-//    QByteArray buffer;
-//
-//    bytesRead = readIntoBuffer(sizeof(int), buffer);
-//
-//    if(bytesRead < sizeof(int))
-//        return 0;
-//
-//    int res = 0;
-//    memcpy(&res, buffer, sizeof(int));
-//    res = ntohl(res);
-//
-//    return res;
-//
-//}
-
 void DaemonService::readHeader() {
 
     QDataStream in(socket);
@@ -141,20 +103,6 @@ void DaemonService::readBody() {
 
 bool DaemonService::readGreeting() {
 
-//    QByteArray buffer;
-//    int usrLen = 0;
-//
-//    usrLen = getIntFromMessage();
-//    if(usrLen == 0)
-//        return false;
-//
-//    int bytesRead = readIntoBuffer(usrLen, buffer);
-//    if(bytesRead < usrLen)
-//        return false;
-//
-//    userName = buffer;
-//    buffer.clear();
-
     QDataStream in(socket);
     QTextStream in_text(socket);
     QTextCodec *utf8_codec = QTextCodec::codecForName("utf-8");
@@ -170,20 +118,6 @@ bool DaemonService::readGreeting() {
 }
 
 bool DaemonService::readResults(QString &doc) {
-
-//    QByteArray buffer;
-//    int docLen = 0;
-//
-//    docLen = getIntFromMessage();
-//    if(docLen == 0)
-//        return false;
-//
-//    int bytesRead = readIntoBuffer(docLen, buffer);
-//    if(bytesRead < docLen)
-//        return false;
-//
-//    doc = buffer;
-//    buffer.clear();
 
     QDataStream in(socket);
     QTextStream in_text(socket);
