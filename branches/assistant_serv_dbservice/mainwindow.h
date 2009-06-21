@@ -5,6 +5,7 @@
 #include <QtGui>
 #include <QCloseEvent>
 #include <QStandardItemModel>
+#include <QtWebKit>
 
 #include "serverdaemon.h"
 #include "dbservice.h"
@@ -31,12 +32,18 @@ public:
 
 protected:
     void closeEvent(QCloseEvent *event);
+    bool eventFilter(QObject *, QEvent *);
+
+    void initEventFilterInstalls();
+    void showTableViewTooltip(QTableView *object, QEvent *event, const QString &name, int column);
 
     int getSelectedRowFromTableView(QTableView *view);
     void showRowInTableView(QTableView *view, int column, int id);
     void filterNewExamStudentsTableView(int column);
     void addPresidentOrSecretary(QTableWidget *tableWidget);
     void removePresidentOrSecretary(QTableWidget *tableWidget);
+
+    void createStudentReport(int studentId, int examId, const QString &fileName);
 
 private:
     void initSignalConnections();
@@ -69,9 +76,19 @@ private:
     int currentExamSelectedStudentID;
     //CURRENT EXAM
 
+    QWebPage *webPage;
+    QHttp *http;
+
 private slots:
+    void onRequestFinished(int, bool);
+    void on_saveQuestionButton_clicked();
+    void on_btnCurrentExamSaveCharacteristic_clicked();
+    void on_btnCurrentExamSaveResultMark_clicked();
+    void on_btnCurrentExamSaveWrcCount_clicked();
+    void on_btnSaveCurrentExamTime_clicked();
+    void on_btnExamPrintStudentReport_clicked();
+    void on_btnExamSaveStudentReport_clicked();
     void on_btnMakeExamCurrent_clicked();
-    void on_pushButton_4_clicked();
     void on_tvExamStudents_pressed(QModelIndex index);
     void on_tvExamList_pressed(QModelIndex index);
     void on_addSecretaryToExamButton_clicked();
@@ -93,7 +110,7 @@ private slots:
     void on_cancelMembersButton_clicked();
     void on_addMemberButton_clicked();
     void on_deleteMemberButton_clicked();
-    void on_applyThemesButton_clicked();
+    //void on_applyThemesButton_clicked();
     void on_cancelThemesButton_clicked();
     void on_addThemeButton_clicked();
     void on_deleteThemeButton_clicked();

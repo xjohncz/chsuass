@@ -35,6 +35,7 @@ public:
 
     QStringListModel *getGroupListModel() { return groupListModel; }
     QStringListModel *getYearListModel() { return yearListModel; }
+    QStringListModel *getCardListModel() { return cardListModel; }
 
     QSqlTableModel *getNewExamStudentsFromTableModel() { return newExamStudentsFromTableModel; }
     QStandardItemModel *getNewExamStudentsToItemModel() { return newExamStudentsToItemModel; }
@@ -67,6 +68,7 @@ public:
     void filterStudentMarks(int studentId);
 
     void refreshGroupListModel();
+    void refreshCardListModel();
     void fillCurrentExamStudentList(int examId) { fillExamStudentListById(currentExamStudentListModel, examId); }
     void fillCurrentExamMemberList(int examId) { fillExamMemberListById(currentExamMemberListModel, examId); }
     void fillCurrentExamStudentMarks(int examId, int studentId) { fillExamStudentMarksById(currentExamStudentMarksModel, examId, studentId); }
@@ -81,6 +83,14 @@ public:
     void setStudentCardNumber(int studentId, int examId, int cardNum);
     int getStudentCardNumber(int studentId, int examId);
     QString getCard(int cardNumber);
+
+    void setExamTime(int examId, const QTime &begin_time, const QTime &end_time);
+    void setWrcCount(int themeId, int wrccount);
+    void setPosterCount(int themeId, int postercount);
+    void setStudentCharacteristic(int studentId, int examId, const QString &character,
+                                  const QString &notes, const QString &opinions);
+    void setStudentResultMark(int studentId, int examId, int resultMark);
+    void addAdditionalQuestion(int memberId, int studentId, int examId, const QString &question);
 
     QString getStudentById(int studentId);
     int getStudentResultMark(int studentId, int examId);
@@ -198,6 +208,8 @@ private:
 
     QStringListModel *groupListModel;
     QStringListModel *yearListModel;
+
+    QStringListModel *cardListModel;
 
     QSqlTableModel *newExamStudentsFromTableModel;
     QStandardItemModel *newExamStudentsToItemModel;

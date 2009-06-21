@@ -13,6 +13,7 @@ dbservice::~dbservice()
         disconnect();
 }
 
+// подключение к БД
 bool dbservice::connect(QString dbuser, QString dbpass, QString dbname, QString dbhost, int dbport)
 {
     if (!connected)
@@ -31,6 +32,7 @@ bool dbservice::connect(QString dbuser, QString dbpass, QString dbname, QString 
     return connected;
 }
 
+// отключение от БД
 void dbservice::disconnect()
 {
     if(db.isOpen())
@@ -38,6 +40,7 @@ void dbservice::disconnect()
     connected = false;
 }
 
+// инициализация моделей групп
 void dbservice::initGroups() {
 
     if(!connected)
@@ -54,6 +57,7 @@ void dbservice::initGroups() {
 
 }
 
+// инициализация моделей студентов
 void dbservice::initStudents() {
 
     if(!connected)
@@ -69,6 +73,7 @@ void dbservice::initStudents() {
     studentsTableModel->setHeaderData(4, Qt::Horizontal, tr("Отчество"));
 }
 
+// инициализация моделей дисциплин
 void dbservice::initSubjects() {
 
     if(!connected)
@@ -84,6 +89,7 @@ void dbservice::initSubjects() {
 
 }
 
+// инициализация моделей билетов
 void dbservice::initCards() {
 
     if(!connected)
@@ -100,6 +106,7 @@ void dbservice::initCards() {
 
 }
 
+// инициализация моделей тем ВКР
 void dbservice::initThemes() {
 
     if(!connected)
@@ -118,6 +125,7 @@ void dbservice::initThemes() {
 
 }
 
+// инициализация моделей членов комиссии
 void dbservice::initMembers() {
 
     if(!connected)
@@ -148,6 +156,7 @@ void dbservice::initMembers() {
 //    newExamMembersFromTableModel->select();
 }
 
+// инициализация моделей типов экзаменов
 void dbservice::initExamTypes() {
 
     if(!connected)
@@ -164,6 +173,7 @@ void dbservice::initExamTypes() {
 
 }
 
+// инициализация моделей списка экзаменов
 void dbservice::initExams() {
 
     if(!connected)
@@ -190,6 +200,7 @@ void dbservice::initExams() {
 
 }
 
+// инициализация моделей подготовки нового экзамена
 void dbservice::initNewExam() {
 
     if(!connected)
@@ -218,10 +229,13 @@ void dbservice::initNewExam() {
 
 }
 
+// инициализация моделей текущего экзамена
 void dbservice::initCurrentExam() {
 
     if(!connected)
         return;
+
+    cardListModel = new QStringListModel(this);
 
     currentExamMemberOnlineListModel = new QStandardItemModel(0, 3, this);
     currentExamStudentListModel = new QSqlQueryModel(this);
@@ -231,6 +245,7 @@ void dbservice::initCurrentExam() {
 
 }
 
+// инициализация моделей оценок студентов
 void dbservice::initStudentMarks() {
 
     if(!connected)
@@ -247,6 +262,7 @@ void dbservice::initStudentMarks() {
 
 }
 
+// отбор студентов по группе
 void dbservice::filterStudents(int groupId, QSqlTableModel *stTableModel) {
 
     if(!connected)
@@ -257,6 +273,7 @@ void dbservice::filterStudents(int groupId, QSqlTableModel *stTableModel) {
 
 }
 
+// отбор оценок из БД по студенту
 void dbservice::filterStudentMarks(int studentId) {
 
     if(!connected)
@@ -267,12 +284,13 @@ void dbservice::filterStudentMarks(int studentId) {
 
 }
 
+// обновление списка групп
 void dbservice::refreshGroupListModel() {
 
     if(!connected)
         return;
 
-    QSqlQuery query;
+    QSqlQuery query(db);
     query.prepare("SELECT DISTINCT groupName FROM groups ORDER BY groupName");
     query.exec();
 
@@ -292,6 +310,25 @@ void dbservice::refreshGroupListModel() {
 
 }
 
+// обновление списка билетов
+void dbservice::refreshCardListModel() {
+
+    if(!connected)
+        return;
+
+    QSqlQuery query(db);
+    query.prepare("SELECT cardNumber FROM cards ORDER BY cardNumber");
+    query.exec();
+
+    QStringList cardList;
+    while(query.next())
+        cardList.append(query.value(0).toString());
+
+    cardListModel->setStringList(cardList);
+
+}
+
+// аутентификация пользователя в БД
 bool dbservice::userAuth(QString username, int &userID, QString &name)
 {
     bool status = false;
@@ -314,6 +351,7 @@ bool dbservice::userAuth(QString username, int &userID, QString &name)
     return status;
 }
 
+// сохранение номера билета, выпавшего студенту на ГЭК-е
 void dbservice::setStudentCardNumber(int studentId, int examId, int cardNum) {
 
     QSqlQuery query;
@@ -325,6 +363,7 @@ void dbservice::setStudentCardNumber(int studentId, int examId, int cardNum) {
 
 }
 
+// выборка номера билета студента
 int dbservice::getStudentCardNumber(int studentId, int examId) {
 
     QSqlQuery query;
@@ -338,6 +377,7 @@ int dbservice::getStudentCardNumber(int studentId, int examId) {
 
 }
 
+// выборка содержания билета по номеру
 QString dbservice::getCard(int cardNumber) {
 
     QSqlQuery query;
@@ -353,6 +393,83 @@ QString dbservice::getCard(int cardNumber) {
 
 }
 
+// установка времени начала и окончания экзамена
+void dbservice::setExamTime(int examId, const QTime &begin_time, const QTime &end_time) {
+
+    QSqlQuery query(db);
+    query.prepare("UPDATE exams SET beginTime=?, endTime=? WHERE examID=?");
+    query.bindValue(0, begin_time);
+    query.bindValue(1, end_time);
+    query.bindValue(2, examId);
+    query.exec();
+
+}
+
+// установка значения кол-ва листов ВКР
+void dbservice::setWrcCount(int themeId, int wrccount) {
+
+    QSqlQuery query(db);
+    query.prepare("UPDATE themes SET wrccount=? WHERE themeID=?");
+    query.bindValue(0, wrccount);
+    query.bindValue(1, themeId);
+    query.exec();
+
+}
+
+// установка значения кол-ва плакатов у студента на защите ВКР
+void dbservice::setPosterCount(int themeId, int postercount) {
+
+    QSqlQuery query(db);
+    query.prepare("UPDATE themes SET postercount=? WHERE themeID=?");
+    query.bindValue(0, postercount);
+    query.bindValue(1, themeId);
+    query.exec();
+
+}
+
+// сохранение общей характеристики выступления студента
+void dbservice::setStudentCharacteristic(int studentId, int examId,
+                              const QString &character, const QString &notes, const QString &opinions) {
+
+    QSqlQuery query(db);
+    query.prepare("UPDATE examstudentlist SET answersCharacteristic=?, notes=?, "
+                  "specialOpionions=? WHERE studentID=? AND examID=?");
+    query.bindValue(0, character);
+    query.bindValue(1, notes);
+    query.bindValue(2, opinions);
+    query.bindValue(3, studentId);
+    query.bindValue(4, examId);
+    query.exec();
+
+}
+
+// сохранение результирующей оценки студента
+void dbservice::setStudentResultMark(int studentId, int examId, int resultMark) {
+
+    QSqlQuery query(db);
+    query.prepare("UPDATE examstudentlist SET resultMark=? WHERE studentID=? AND examID=?");
+    query.bindValue(0, resultMark);
+    query.bindValue(1, studentId);
+    query.bindValue(2, examId);
+    query.exec();
+
+}
+
+// добавление вопроса от члена комиссии студенту
+void dbservice::addAdditionalQuestion(int memberId, int studentId, int examId, const QString &question) {
+
+    QSqlQuery query(db);
+    query.prepare("INSERT INTO additionalquestions (studentID, examID, memberID, question) "
+                  "VALUES (?, ?, ?, ?)");
+    query.bindValue(0, studentId);
+    query.bindValue(1, examId);
+    query.bindValue(2, memberId);
+    query.bindValue(3, question);
+    query.exec();
+
+}
+
+// найти студента по id
 QString dbservice::getStudentById(int studentId) {
 
     QSqlQuery query;
@@ -371,6 +488,7 @@ QString dbservice::getStudentById(int studentId) {
 
 }
 
+// выборка значения результирующей оценки студента
 int dbservice::getStudentResultMark(int studentId, int examId) {
 
     QSqlQuery query;
@@ -387,6 +505,7 @@ int dbservice::getStudentResultMark(int studentId, int examId) {
 
 }
 
+// выборка характеристика ответов студента на экзамене
 QString dbservice::getStudentCharacteristic(int studentId, int examId) {
 
     QSqlQuery query;
@@ -403,6 +522,7 @@ QString dbservice::getStudentCharacteristic(int studentId, int examId) {
 
 }
 
+// выборка заметок
 QString dbservice::getStudentNotes(int studentId, int examId) {
 
     QSqlQuery query;
@@ -419,6 +539,7 @@ QString dbservice::getStudentNotes(int studentId, int examId) {
 
 }
 
+// выборка особых мнений
 QString dbservice::getStudentSpecialOpinions(int studentId, int examId) {
 
     QSqlQuery query;
@@ -435,6 +556,7 @@ QString dbservice::getStudentSpecialOpinions(int studentId, int examId) {
 
 }
 
+// получение кол-ва студентов на экзамене
 int dbservice::getStudentCount(int examId) {
 
     QSqlQuery query;
@@ -448,6 +570,7 @@ int dbservice::getStudentCount(int examId) {
 
 }
 
+// получение id текущего экзамена
 int dbservice::getCurrentExamId(int &typeId) {
 
     QSqlQuery query;
@@ -466,6 +589,7 @@ int dbservice::getCurrentExamId(int &typeId) {
 
 }
 
+// получение id группы по имени и году выпуска
 int dbservice::getGroupId(const QString &groupName, int year) {
 
     QSqlQuery query;
@@ -482,6 +606,7 @@ int dbservice::getGroupId(const QString &groupName, int year) {
 
 }
 
+// выставить заданные экзамен текущим
 void dbservice::setExamCurrent(int examId) {
 
     QSqlQuery query(db);
@@ -491,6 +616,7 @@ void dbservice::setExamCurrent(int examId) {
 
 }
 
+// получить название типа экзамена
 QString dbservice::getExamTypeName(int examId) {
 
     QSqlQuery query(QString("SELECT typeName FROM examtypes WHERE typeId = (SELECT typeId FROM exams WHERE examId = %1 LIMIT 1)").arg(examId), db);
@@ -503,6 +629,7 @@ QString dbservice::getExamTypeName(int examId) {
 
 }
 
+// получить тему ВКР по id студента
 QString dbservice::getTheme(int studentId) {
 
     QSqlQuery query(db);
@@ -517,6 +644,7 @@ QString dbservice::getTheme(int studentId) {
     return theme;
 }
 
+// выборка председателя на экзамене
 QString dbservice::getPresident(int examId) {
 
     QSqlQuery query(db);
@@ -536,6 +664,7 @@ QString dbservice::getPresident(int examId) {
 
 }
 
+// выборка секретаря на экзамене
 QString dbservice::getSecretary(int examId) {
 
     QSqlQuery query(db);
@@ -555,6 +684,7 @@ QString dbservice::getSecretary(int examId) {
 
 }
 
+// выборка id темы по id студента
 int dbservice::getThemeId(int studentId) {
 
     QSqlQuery query(db);
@@ -570,6 +700,7 @@ int dbservice::getThemeId(int studentId) {
 
 }
 
+// получить руководителя ВКР
 QString dbservice::getThemeInstructor(int themeId) {
 
     QSqlQuery query(db);
@@ -589,6 +720,7 @@ QString dbservice::getThemeInstructor(int themeId) {
 
 }
 
+// получить консультанта ВКР
 QString dbservice::getThemeConsultant(int themeId) {
 
     QSqlQuery query(db);
@@ -608,6 +740,7 @@ QString dbservice::getThemeConsultant(int themeId) {
 
 }
 
+// получить список членов комиссии
 QStringList dbservice::getExamMembers(int examId) {
 
     QSqlQuery query(db);
@@ -630,6 +763,7 @@ QStringList dbservice::getExamMembers(int examId) {
 
 }
 
+// получить расширенный список членов комиссии (вместе с их родом деятельности)
 QStringList dbservice::getExamMembersWithBusiness(int examId) {
 
     QSqlQuery query(db);
@@ -653,6 +787,7 @@ QStringList dbservice::getExamMembersWithBusiness(int examId) {
 
 }
 
+// получить дату экзамена
 QDate dbservice::getExamDate(int examId) {
 
     QSqlQuery query(db);
@@ -668,6 +803,7 @@ QDate dbservice::getExamDate(int examId) {
     return date;
 }
 
+// получить начало экзамена
 QTime dbservice::getExamBeginTime(int examId) {
 
     QSqlQuery query(db);
@@ -684,6 +820,7 @@ QTime dbservice::getExamBeginTime(int examId) {
 
 }
 
+// получить время окончания экзамена
 QTime dbservice::getExamEndTime(int examId) {
 
     QSqlQuery query(db);
@@ -700,6 +837,7 @@ QTime dbservice::getExamEndTime(int examId) {
 
 }
 
+// получить кол-во страниц ВКР
 int dbservice::getWrcCount(int themeId) {
 
     QSqlQuery query(db);
@@ -716,6 +854,7 @@ int dbservice::getWrcCount(int themeId) {
 
 }
 
+// получить кол-во плакатов на экзамене
 int dbservice::getPosterCount(int themeId) {
 
     QSqlQuery query(db);
@@ -732,6 +871,7 @@ int dbservice::getPosterCount(int themeId) {
 
 }
 
+// получить время ответов на вопросы
 int dbservice::getQuestionsTime(int studentId, int examId) {
 
     QSqlQuery query(db);
@@ -748,6 +888,7 @@ int dbservice::getQuestionsTime(int studentId, int examId) {
     return time;
 
 }
+
 
 QStringList dbservice::getAdditionalQuestions(int studentId, int examId) {
 
@@ -841,14 +982,14 @@ void dbservice::fillExamStudentListById(QSqlQueryModel *sqlModel, int examId) {
 
 void dbservice::fillExamMemberListById(QSqlQueryModel *sqlModel, int examId) {
 
-    sqlModel->setQuery(QString("SELECT sacmembers.surname, sacmembers.name, sacmembers.patronymic, sacmembers.login "
+    sqlModel->setQuery(QString("SELECT sacmembers.memberID, sacmembers.surname, sacmembers.name, sacmembers.patronymic, sacmembers.login "
                                             "FROM sacmembers INNER JOIN exammemberlist ON sacmembers.memberID=exammemberlist.memberID "
                                             "WHERE exammemberlist.examID=%1").arg(examId), db);
 
-    sqlModel->setHeaderData(0, Qt::Horizontal, tr("Фамилия"));
-    sqlModel->setHeaderData(1, Qt::Horizontal, tr("Имя"));
-    sqlModel->setHeaderData(2, Qt::Horizontal, tr("Отчество"));
-    sqlModel->setHeaderData(3, Qt::Horizontal, tr("Логин"));
+    sqlModel->setHeaderData(1, Qt::Horizontal, tr("Фамилия"));
+    sqlModel->setHeaderData(2, Qt::Horizontal, tr("Имя"));
+    sqlModel->setHeaderData(3, Qt::Horizontal, tr("Отчество"));
+    sqlModel->setHeaderData(4, Qt::Horizontal, tr("Логин"));
 
 }
 
@@ -959,16 +1100,16 @@ void dbservice::removeMemberUserOnDisconnect(const QString &username) {
 void dbservice::addNewExamStudent(int row) {
 
     QModelIndex index = newExamStudentsFromTableModel->index(row, 0);
-    int stId = newExamStudentsFromTableModel->data(index).toInt();
+    int stId = index.data().toInt();
 
     index = newExamStudentsFromTableModel->index(row, 2);
-    QString surname = newExamStudentsFromTableModel->data(index).toString();
+    QString surname = index.data().toString();
 
     index = newExamStudentsFromTableModel->index(row, 3);
-    QString name = newExamStudentsFromTableModel->data(index).toString();
+    QString name = index.data().toString();
 
     index = newExamStudentsFromTableModel->index(row, 4);
-    QString patronymic = newExamStudentsFromTableModel->data(index).toString();
+    QString patronymic = index.data().toString();
 
     QList<QStandardItem *> itemList;
     QStandardItem *item = new QStandardItem(QString::number(stId));
@@ -988,7 +1129,7 @@ void dbservice::addNewExamStudent(int row) {
 int dbservice::removeNewExamStudent(int row) {
 
     QModelIndex index = newExamStudentsToItemModel->index(row, 0);
-    int studentId = newExamStudentsToItemModel->data(index).toInt();
+    int studentId = index.data().toInt();
 
     newExamStudentsToItemModel->removeRow(row);
     int pos = newExamStudentsId.indexOf(studentId);
@@ -1001,19 +1142,19 @@ int dbservice::removeNewExamStudent(int row) {
 void dbservice::addNewExamMember(int row) {
 
     QModelIndex index = membersTableModel->index(row, 0);
-    int memberId = membersTableModel->data(index).toInt();
+    int memberId = index.data().toInt();
 
     index = membersTableModel->index(row, 1);
-    QString surname = membersTableModel->data(index).toString();
+    QString surname = index.data().toString();
 
     index = membersTableModel->index(row, 2);
-    QString name = membersTableModel->data(index).toString();
+    QString name = index.data().toString();
 
     index = membersTableModel->index(row, 3);
-    QString patronymic = membersTableModel->data(index).toString();
+    QString patronymic = index.data().toString();
 
     index = membersTableModel->index(row, 5);
-    QString login = membersTableModel->data(index).toString();
+    QString login = index.data().toString();
 
     QList<QStandardItem *> itemList;
     QStandardItem *item = new QStandardItem(QString::number(memberId));
@@ -1034,7 +1175,7 @@ void dbservice::addNewExamMember(int row) {
 int dbservice::removeNewExamMember(int row) {
 
     QModelIndex index = newExamMembersToItemModel->index(row, 0);
-    int memberId = newExamMembersToItemModel->data(index).toInt();
+    int memberId = index.data().toInt();
 
     newExamMembersToItemModel->removeRow(row);
 
@@ -1097,7 +1238,7 @@ QString dbservice::addNewExam(const QDate &date, const QString &type, int presid
 
     for(int i = 0; i < newExamStudentsToItemModel->rowCount(); i++) {
         QModelIndex index = newExamStudentsToItemModel->index(i, 0);
-        int studentId = newExamStudentsToItemModel->data(index).toInt();
+        int studentId = index.data().toInt();
 
         QSqlQuery studentQuery(db);
         studentQuery.prepare("INSERT INTO examstudentlist (examID, studentID) VALUES (:examId, :studentId)");
@@ -1112,7 +1253,7 @@ QString dbservice::addNewExam(const QDate &date, const QString &type, int presid
 
     for(int i = 0; i < newExamMembersToItemModel->rowCount(); i++) {
         QModelIndex index = newExamMembersToItemModel->index(i, 0);
-        int memberId = newExamMembersToItemModel->data(index).toInt();
+        int memberId = index.data().toInt();
 
         QSqlQuery memberQuery(db);
         memberQuery.prepare("INSERT INTO exammemberlist (examID, memberID) VALUES (:examId, :memberId)");
