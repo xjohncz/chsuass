@@ -23,6 +23,9 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
+      <property name="elideMode">
+       <enum>Qt::ElideNone</enum>
+      </property>
       <property name="tabsClosable">
        <bool>false</bool>
       </property>
@@ -40,7 +43,7 @@
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>3</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab_16">
            <attribute name="title">
@@ -456,6 +459,13 @@
                   </widget>
                  </item>
                  <item>
+                  <widget class="QPushButton" name="printCardsButton">
+                   <property name="text">
+                    <string>Печать...</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
                   <widget class="QPushButton" name="deleteCardButton">
                    <property name="text">
                     <string>Удалить</string>
@@ -503,6 +513,12 @@
               <layout class="QVBoxLayout" name="verticalLayout_4">
                <item>
                 <widget class="QTableView" name="themesTableView">
+                 <property name="selectionMode">
+                  <enum>QAbstractItemView::SingleSelection</enum>
+                 </property>
+                 <property name="selectionBehavior">
+                  <enum>QAbstractItemView::SelectRows</enum>
+                 </property>
                  <property name="gridStyle">
                   <enum>Qt::DashLine</enum>
                  </property>
@@ -549,7 +565,17 @@
                     <item row="1" column="1">
                      <layout class="QHBoxLayout" name="horizontalLayout_13">
                       <item>
-                       <widget class="QLineEdit" name="idStudentEdit"/>
+                       <widget class="QLineEdit" name="themeStudentEdit">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="readOnly">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
                       </item>
                       <item>
                        <widget class="QPushButton" name="browseStudentButton">
@@ -582,7 +608,11 @@
                     <item row="2" column="1">
                      <layout class="QHBoxLayout" name="horizontalLayout_14">
                       <item>
-                       <widget class="QLineEdit" name="idConsultantEdit"/>
+                       <widget class="QLineEdit" name="themeConsultantEdit">
+                        <property name="readOnly">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
                       </item>
                       <item>
                        <widget class="QPushButton" name="browseConsultantButton">
@@ -615,7 +645,11 @@
                     <item row="3" column="1">
                      <layout class="QHBoxLayout" name="horizontalLayout_15">
                       <item>
-                       <widget class="QLineEdit" name="idInstructorEdit"/>
+                       <widget class="QLineEdit" name="themeInstructorEdit">
+                        <property name="readOnly">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
                       </item>
                       <item>
                        <widget class="QPushButton" name="browseInstructorButton">
@@ -650,7 +684,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSpinBox" name="sbCurrentExamWrcCount_2">
+                     <widget class="QSpinBox" name="sbThemesWrcCount">
                       <property name="maximum">
                        <number>1000</number>
                       </property>
@@ -664,7 +698,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QSpinBox" name="sbCurrentExamPosterCount_2"/>
+                     <widget class="QSpinBox" name="sbThemesPosterCount"/>
                     </item>
                     <item>
                      <spacer name="horizontalSpacer_17">
@@ -707,16 +741,145 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="addThemeButton">
+                  <widget class="QPushButton" name="saveThemeButton">
+                   <property name="text">
+                    <string>Сохранить</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_6">
+           <attribute name="title">
+            <string>Руководители ВКР</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="horizontalLayout_39">
+            <item>
+             <widget class="QGroupBox" name="groupBox_18">
+              <property name="title">
+               <string> Руководители ВКР </string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_32">
+               <item>
+                <widget class="QTableView" name="instructorsTableView">
+                 <property name="gridStyle">
+                  <enum>Qt::DashLine</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="groupBox_19">
+                 <property name="title">
+                  <string> Детали </string>
+                 </property>
+                 <layout class="QFormLayout" name="formLayout_5">
+                  <property name="fieldGrowthPolicy">
+                   <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+                  </property>
+                  <property name="labelAlignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                  </property>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_44">
+                    <property name="text">
+                     <string>Фамилия:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="instructorSurnameEdit"/>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_45">
+                    <property name="text">
+                     <string>Имя:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLineEdit" name="instructorNameEdit"/>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_46">
+                    <property name="text">
+                     <string>Отчество:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QLineEdit" name="instructorPatronymicEdit"/>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_47">
+                    <property name="text">
+                     <string>Деятельность:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QPlainTextEdit" name="instructorBusinessTextEdit">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>16777215</width>
+                      <height>100</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_38">
+                 <item>
+                  <spacer name="horizontalSpacer_18">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="deleteInstructorButton">
+                   <property name="text">
+                    <string>Удалить</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="addInstructorButton">
                    <property name="text">
                     <string>Добавить</string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QPushButton" name="cancelThemesButton">
+                  <widget class="QPushButton" name="cancelInstructorsButton">
                    <property name="text">
-                    <string>Изменить</string>
+                    <string>Отменить</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="applyInstructorsButton">
+                   <property name="text">
+                    <string>Применить</string>
                    </property>
                   </widget>
                  </item>
@@ -1507,7 +1670,7 @@
             <item>
              <widget class="QPushButton" name="btnCreateReports">
               <property name="text">
-               <string>Отчеты</string>
+               <string>Печать отчетов</string>
               </property>
              </widget>
             </item>
@@ -1688,6 +1851,15 @@
                </item>
                <item>
                 <widget class="QPlainTextEdit" name="txtEditExamSpecialOpinions"/>
+               </item>
+               <item>
+                <widget class="QWebView" name="webView">
+                 <property name="url">
+                  <url>
+                   <string>about:blank</string>
+                  </url>
+                 </property>
+                </widget>
                </item>
               </layout>
              </widget>
@@ -1877,6 +2049,12 @@
                <widget class="QStackedWidget" name="examTaskStackedWidget">
                 <property name="enabled">
                  <bool>true</bool>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>120</height>
+                 </size>
                 </property>
                 <property name="currentIndex">
                  <number>1</number>
@@ -2096,6 +2274,11 @@
                  <widget class="QComboBox" name="cmbCurrentExamResultMark">
                   <item>
                    <property name="text">
+                    <string>0</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
                     <string>2</string>
                    </property>
                   </item>
@@ -2306,6 +2489,13 @@
                  </spacer>
                 </item>
                 <item>
+                 <widget class="QPushButton" name="removeQuestionButton">
+                  <property name="text">
+                   <string>Удалить</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QPushButton" name="saveQuestionButton">
                   <property name="text">
                    <string>Сохранить</string>
@@ -2322,7 +2512,14 @@
                </widget>
               </item>
               <item>
-               <widget class="QTableView" name="tvCurrentExamAdditionalQuestions"/>
+               <widget class="QTableView" name="tvCurrentExamAdditionalQuestions">
+                <property name="selectionMode">
+                 <enum>QAbstractItemView::SingleSelection</enum>
+                </property>
+                <property name="selectionBehavior">
+                 <enum>QAbstractItemView::SelectRows</enum>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -2334,23 +2531,193 @@
       </widget>
       <widget class="QWidget" name="tab_5">
        <attribute name="title">
-        <string>Page</string>
+        <string>Настройки</string>
        </attribute>
-       <widget class="QWebView" name="webView">
-        <property name="geometry">
-         <rect>
-          <x>80</x>
-          <y>210</y>
-          <width>461</width>
-          <height>361</height>
-         </rect>
-        </property>
-        <property name="url">
-         <url>
-          <string>about:blank</string>
-         </url>
-        </property>
-       </widget>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="groupBox_20">
+          <property name="title">
+           <string> Сетевые настройки</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_33">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_40">
+             <item>
+              <widget class="QLabel" name="label_48">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Номер порта:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="sbPort">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_20">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="cbUseGradient">
+             <property name="text">
+              <string>Использовать Яндекс.Склонятор</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="cbUseProxy">
+             <property name="text">
+              <string>Использовать прокси</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_21">
+             <property name="title">
+              <string> Настройки прокси </string>
+             </property>
+             <layout class="QFormLayout" name="formLayout_6">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_49">
+                <property name="text">
+                 <string>Тип прокси:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="cbProxyType">
+                <item>
+                 <property name="text">
+                  <string>SOCKS5</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>HTTP</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_50">
+                <property name="text">
+                 <string>IP-адрес:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="leProxyIp">
+                <property name="inputMask">
+                 <string>000.000.000.000; </string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="echoMode">
+                 <enum>QLineEdit::Password</enum>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_51">
+                <property name="text">
+                 <string>Имя пользователя:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="leProxyUsername"/>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_52">
+                <property name="text">
+                 <string>Пароль:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLineEdit" name="leProxyPassword"/>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_41">
+             <item>
+              <spacer name="horizontalSpacer_19">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnSaveSettings">
+               <property name="text">
+                <string>Сохранить</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <spacer name="horizontalSpacer_21">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="0">
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>

@@ -10,7 +10,7 @@ class ServerDaemon : public QTcpServer
 
 public:
     ServerDaemon(QObject *parent);
-    void getAuthenticationResult(int result, int client, int memberId, int stCount);
+    void getAuthenticationResult(int result, int client, int memberId, int stCount, int lastSentStudentId);
     void sendStudentInfo(int studenID, int cardNumber);
     void setCurrentExamId(int examId) { currentExamId = examId; }
     bool sendStudents(const QString &students, int client) {

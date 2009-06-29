@@ -18,7 +18,7 @@ class DaemonService : public QThread
 public:
     DaemonService(QObject *parent, int socketDescriptorInit, int client);
     int getClientID();
-    void getAuthenticationResult(int result, int memberId, int stCount);
+    void getAuthenticationResult(int result, int memberId, int stCount, int lastSentStudentId);
     bool sendStudentInfo(int studentID, int cardNumber);
     void setCurrentExamId(int examId) { currentExamId = examId; }
     bool sendStudents(const QString &students);
@@ -50,7 +50,8 @@ private:
     void readBody();
     bool readGreeting();
     bool readResults(QString &doc);
-    bool sendGreetingReply(int replyOpcode, int stCount);
+    bool sendPong();
+    bool sendGreetingReply(int replyOpcode, int stCount, int lastSentStudentId);
 
     /* Class fields */
 //    NetworkState netState;

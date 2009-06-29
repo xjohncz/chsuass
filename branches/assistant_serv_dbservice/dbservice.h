@@ -27,7 +27,8 @@ public:
     QSqlTableModel *getStudentsTableModel() { return studentsTableModel; }
     QSqlTableModel *getSubjectsTableModel() { return subjectsTableModel; }
     QSqlTableModel *getCardsTableModel() { return cardsTableModel; }
-    QSqlTableModel *getThemesTableModel() { return themesTableModel; }
+    QSqlQueryModel *getThemesModel() { return themesModel; }
+    QSqlTableModel *getInstructorsTableModel() { return instructorsTableModel; }
     QSqlTableModel *getMembersTableModel() { return membersTableModel; }
     QSqlRelationalTableModel *getStudentMarksTableModel() { return studentMarksTableModel; }
     QSqlRelationalTableModel *getExamsTableModel() { return examsTableModel; }
@@ -52,17 +53,24 @@ public:
     QSqlQueryModel *getCurrentExamStudentMarksModel() { return currentExamStudentMarksModel; }
     QSqlQueryModel *getCurrentExamAdditionalQuestionsModel() { return currentExamStudentAdditionalQuestionsModel; }
 
+    QSqlTableModel *getSelectionDialogModel() { return selectionDialogModel; }
+
     void initGroups();
     void initStudents();
     void initSubjects();
     void initCards();
     void initThemes();
+    void fillThemes();
+    void initInstructors();
     void initMembers();
     void initExamTypes();
     void initExams();
     void initNewExam();
     void initCurrentExam();
     void initStudentMarks();
+
+    void initSelectionDialogModel();
+    void fillSelectionDialogModel(const QString &tableName);
 
     void filterStudents(int groupId, QSqlTableModel *stTableModel);
     void filterStudentMarks(int studentId);
@@ -88,11 +96,14 @@ public:
     void setWrcCount(int themeId, int wrccount);
     void setPosterCount(int themeId, int postercount);
     void setStudentCharacteristic(int studentId, int examId, const QString &character,
-                                  const QString &notes, const QString &opinions);
+                                  const QString &notes, const QString &opinions, int questionsTime);
     void setStudentResultMark(int studentId, int examId, int resultMark);
     void addAdditionalQuestion(int memberId, int studentId, int examId, const QString &question);
+    void removeAdditionalQuestion(int questionId);
 
     QString getStudentById(int studentId);
+    QString getMemberById(int memberId);
+    QString getInstructorById(int instructorId);
     int getStudentResultMark(int studentId, int examId);
     QString getStudentCharacteristic(int studentId, int examId);
     QString getStudentNotes(int studentId, int examId);
@@ -142,10 +153,14 @@ public:
     void revertCardChanges();
     QString submitCardChanges(bool &ok);
 
-    void addTheme();
-    void deleteTheme(int row);
-    void revertThemeChanges();
-    QString submitThemeChanges(bool &ok);
+    void saveTheme(int themeId, const QString &theme, int studentId,
+                   int consultantId, int instructorId, int wrccount, int postercount);
+    void deleteTheme(int themeId);
+
+    void addInstructor();
+    void deleteInstructor(int row);
+    void revertInstructorChanges();
+    QString submitInstructorChanges(bool &ok);
 
     void addMember();
     void deleteMember(int row);
@@ -170,6 +185,7 @@ public:
 
     QString addNewExam(const QDate &date, const QString &type, int presidentId,
                               int secretaryId, bool isCurrent, bool &ok);
+    void removeExam(int examId);
 
     void importStudents(const QMap<int, QString> &students, int groupId);
     void importSubjects(const QStringList &subjects);
@@ -199,7 +215,8 @@ private:
     QSqlTableModel *studentsTableModel;
     QSqlTableModel *subjectsTableModel;
     QSqlTableModel *cardsTableModel;
-    QSqlTableModel *themesTableModel;
+    QSqlQueryModel *themesModel;
+    QSqlTableModel *instructorsTableModel;
     QSqlTableModel *membersTableModel;
     QSqlRelationalTableModel *studentMarksTableModel;
     QSqlRelationalTableModel *examsTableModel;
@@ -226,6 +243,8 @@ private:
     QSqlQueryModel *currentExamMemberListModel;
     QSqlQueryModel *currentExamStudentMarksModel;
     QSqlQueryModel *currentExamStudentAdditionalQuestionsModel;
+
+    QSqlTableModel *selectionDialogModel;
 };
 
 #endif	/* _DBSERVICE_H */

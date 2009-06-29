@@ -84,7 +84,7 @@ void reportcreator::insertList(const QStringList &list, const QString &replaceSt
                                QString &resReport) {
 
     if(list.isEmpty())
-        resReport.replace(replaceString, "");
+        resReport.replace(replaceString, "_");
     else {
         resReport.replace(replaceString, list.at(0));
         for(int i = 1; i < list.count(); i++) {
