@@ -1,0 +1,33 @@
+<students examType="Государственный экзамен" examId="3" memberId="0" studentCount="1" >
+ <student surname="Брусова" patronymic="Анатольевна" id="23" cardNumber="12" name="Тамара" >
+  <marks/>
+  <memberMarks>
+   <mark1>0</mark1>
+   <mark2>0</mark2>
+   <mark3>0</mark3>
+   <resMark>0</resMark>
+  </memberMarks>
+ </student>
+ <student surname="Васильев" patronymic="Владимирович" id="24" cardNumber="13" name="Сергей" >
+  <marks>
+   <mark subject="Физика" >5</mark>
+   <mark subject="Информатика" >5</mark>
+   <mark subject="Алгебра и геометрия" >4</mark>
+  </marks>
+  <memberMarks>
+   <mark1>0</mark1>
+   <mark2>0</mark2>
+   <mark3>0</mark3>
+   <resMark>0</resMark>
+  </memberMarks>
+ </student>
+ <student surname="Егоров" patronymic="Сергеевич" id="25" cardNumber="15" name="Владимир" >
+  <marks/>
+  <memberMarks>
+   <mark1>0</mark1>
+   <mark2>0</mark2>
+   <mark3>0</mark3>
+   <resMark>0</resMark>
+  </memberMarks>
+ </student>
+</students>
