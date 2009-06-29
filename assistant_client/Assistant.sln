@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assistant", "Assistant\Assistant.csproj", "{CF30A0E1-6033-4FA6-914C-91725BC49777}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assistant_GEK", "Assistant\Assistant_GEK.csproj", "{CF30A0E1-6033-4FA6-914C-91725BC49777}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
