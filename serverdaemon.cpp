@@ -58,11 +58,11 @@ void ServerDaemon::slotRemoveUser(QString username, DaemonService *service) {
     emit signalRemoveUser(username);
 }
 
-void ServerDaemon::getAuthenticationResult(int result, int client, int memberId, int stCount) {
+void ServerDaemon::getAuthenticationResult(int result, int client, int memberId, int stCount, int lastSentStudentId) {
 
     for(int i = 0; i < clients.count(); i++)
         if(clients.at(i)->getClientID() == client) {
-            clients.at(i)->getAuthenticationResult(result, memberId, stCount);
+            clients.at(i)->getAuthenticationResult(result, memberId, stCount, lastSentStudentId);
             break;
         }
 

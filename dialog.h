@@ -2,9 +2,8 @@
 #define DIALOG_H
 
 #include <QtGui/QDialog>
-#include <QSqlTableModel>
-#include <QString>
-#include <QSqlDatabase>
+#include "dbservice.h"
+
 
 namespace Ui {
     class Dialog;
@@ -16,7 +15,7 @@ class Dialog : public QDialog {
 public:
     explicit Dialog(QWidget *parent = 0);
     virtual ~Dialog();
-    void setTableName(const QString &tableName, const QSqlDatabase &db);
+    void setTableName(const QString &tableName, dbservice *dbService);
 
 signals:
     void idSelected(int id);
@@ -27,9 +26,11 @@ protected:
 private:
     Ui::Dialog *m_ui;
 
+    dbservice *dbServ;
     QSqlTableModel *model;
 
 private slots:
+    void on_filterButton_clicked();
     void on_selectButton_clicked();
 };
 

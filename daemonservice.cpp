@@ -94,6 +94,12 @@ void DaemonService::readBody() {
     case OpcodeByeMsg:
         socket->disconnectFromHost();
         break;
+
+    case OpcodePing:
+        qDebug() << "recv ping";
+        sendPong();
+        break;
+
     default:
         socket->disconnectFromHost();
 
@@ -133,17 +139,32 @@ bool DaemonService::readResults(QString &doc) {
 
 }
 
-bool DaemonService::sendGreetingReply(int replyOpcode, int stCount) {
+bool DaemonService::sendPong() {
+
+    qDebug() << "send pong";
+
+    QByteArray buffer;
+    QDataStream stream(&buffer, QIODevice::WriteOnly);
+
+    stream  << (int) htonl(OpcodePong)
+            << (int) 0;
+
+    return sendMessage(buffer);
+
+}
+
+bool DaemonService::sendGreetingReply(int replyOpcode, int stCount, int lastSentStudentId) {
 
     QByteArray buffer;
     QDataStream stream(&buffer, QIODevice::WriteOnly);
 
     if(replyOpcode == OpcodeAccessGranted) {
         stream  << (int) htonl(replyOpcode)
-                << (int) htonl(3 * sizeof(int))
+                << (int) htonl(4 * sizeof(int))
                 << (int) htonl(currentExamId)
                 << (int) htonl(userId)
-                << (int) htonl(stCount);
+                << (int) htonl(stCount)
+                << (int) htonl(lastSentStudentId);
     } else
         stream  << (int) htonl(replyOpcode)
                 << (int) 0;
@@ -152,10 +173,10 @@ bool DaemonService::sendGreetingReply(int replyOpcode, int stCount) {
 
 }
 
-void DaemonService::getAuthenticationResult(int result, int memberId, int stCount) {
+void DaemonService::getAuthenticationResult(int result, int memberId, int stCount, int lastSentStudentId) {
 
     userId = memberId;
-    qDebug() << sendGreetingReply(result, stCount);
+    qDebug() << sendGreetingReply(result, stCount, lastSentStudentId);
 
     if(result != OpcodeAccessGranted)
         socket->disconnectFromHost();

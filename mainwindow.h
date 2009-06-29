@@ -46,12 +46,15 @@ protected:
     void createStudentReport(int studentId, int examId, const QString &fileName);
 
 private:
+    void readConfig();
+
     void initSignalConnections();
 
     void initGroups();
     void initSubjects();
     void initCards();
     void initThemes();
+    void initInstructors();
     void initMembers();
     void initExamTypes();
     void initExams();
@@ -59,6 +62,8 @@ private:
     void initCurrentExam();
 
     void showSelectDialog(const QString &tableName, IdType type);
+
+    void startPrint();
 
     Ui::MainWindowClass *ui;
 
@@ -70,17 +75,41 @@ private:
 
     IdType currentIdType;
 
+    //THEMES
+    int themeStudentId;
+    int themeConsultantId;
+    int themeInstructorId;
+    //THEMES
+
     //CURRENT EXAM
     int currentExamID;
     int currentExamTypeID;
     int currentExamSelectedStudentID;
+    int currentExamSentStudentId;
     //CURRENT EXAM
 
-    QWebPage *webPage;
+    //PRINTER SETTINGS
+    QPrinter *printer;
+    QStringList printList;
+    int printIndex;
+    //PRINTER
+
     QHttp *http;
 
 private slots:
-    void onRequestFinished(int, bool);
+    void on_printCardsButton_clicked();
+    void on_btnSaveSettings_clicked();
+    void printWebView(bool);
+    void on_btnCreateReports_clicked();
+    void on_removeQuestionButton_clicked();
+    void on_btnRemoveExam_clicked();
+    void on_saveThemeButton_clicked();
+    void on_themesTableView_pressed(QModelIndex index);
+    void on_applyInstructorsButton_clicked();
+    void on_cancelInstructorsButton_clicked();
+    void on_addInstructorButton_clicked();
+    void on_deleteInstructorButton_clicked();
+    //void onRequestFinished(int, bool);
     void on_saveQuestionButton_clicked();
     void on_btnCurrentExamSaveCharacteristic_clicked();
     void on_btnCurrentExamSaveResultMark_clicked();
@@ -111,8 +140,8 @@ private slots:
     void on_addMemberButton_clicked();
     void on_deleteMemberButton_clicked();
     //void on_applyThemesButton_clicked();
-    void on_cancelThemesButton_clicked();
-    void on_addThemeButton_clicked();
+    //void on_cancelThemesButton_clicked();
+    //void on_addThemeButton_clicked();
     void on_deleteThemeButton_clicked();
     void on_applySubjectsButton_clicked();
     void on_cancelSubkectsButton_clicked();
@@ -129,7 +158,6 @@ private slots:
 private slots:
     void on_recvResultsButton_clicked();
     void on_showStudentInfoButton_clicked();
-    void on_saveExamTimeButton_clicked();
     void on_applyStudentsButton_clicked();
     void on_cancelStudentsButton_clicked();
     void on_addStudentButton_clicked();

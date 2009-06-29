@@ -15,10 +15,17 @@ MainWindow::MainWindow(QWidget *parent)
     xlsRead(new xlsreader()),
     daemon(new ServerDaemon(this)),
     selectedGroupID(0),
+
+    themeStudentId(-1),
+    themeConsultantId(-1),
+    themeInstructorId(-1),
+
     currentExamID(-1),
     currentExamTypeID(-1),
     currentExamSelectedStudentID(-1),
-    webPage(new QWebPage(this))
+    currentExamSentStudentId(-1),
+    printer(new QPrinter()),
+    printIndex(0)
 {
     ui->setupUi(this);
 
@@ -38,13 +45,19 @@ MainWindow::MainWindow(QWidget *parent)
     initSubjects();
     initCards();
     initThemes();
+    initInstructors();
     initMembers();
     initExamTypes();
     initExams();
     initNewExam();
     initCurrentExam();
 
-    //ui->webView->hide();
+    dbServ->initSelectionDialogModel();
+    printer->setPageMargins(25, 20, 15, 20, QPrinter::Millimeter);
+    ui->webView->hide();
+    connect(ui->webView, SIGNAL(loadFinished(bool)), this, SLOT(printWebView(bool)));
+
+    ui->tabWidget_7->removeTab(3);
     //ui->webView->load(QUrl::fromLocalFile("C:/Development/myreport.html"));
 
     //http = new QHttp(this);
@@ -56,13 +69,56 @@ MainWindow::MainWindow(QWidget *parent)
     //http->get(QString(trUtf8("/inflect.xml?name=%1")).arg(QString(QUrl::toPercentEncoding(trUtf8("Вася Пупкин")))));
 }
 
-void MainWindow::onRequestFinished(int id, bool err) {
+//void MainWindow::onRequestFinished(int id, bool err) {
+//
+//    QString str = http->readAll();
+//    QTextCodec *codec = QTextCodec::codecForName("CP1251");
+//    QByteArray array(str.toStdString().c_str());
+//    str = codec->toUnicode(array);
+//    QMessageBox::information(this, "", str);
+//
+//}
 
-    QString str = http->readAll();
-    QTextCodec *codec = QTextCodec::codecForName("CP1251");
-    QByteArray array(str.toStdString().c_str());
-    str = codec->toUnicode(array);
-    QMessageBox::information(this, "", str);
+void MainWindow::startPrint() {
+
+    QString fileName = printList.at(printIndex);
+    ui->webView->load(fileName);
+
+}
+
+void MainWindow::printWebView(bool ok) {
+
+    //QMessageBox::warning(this, tr("Ошибка печати"), printList.at(printIndex));
+    if(ok) {
+        ui->webView->print(printer);
+        printIndex++;
+        if(printIndex < printList.count())
+            ui->webView->load(printList.at(printIndex));
+        else {
+            printIndex = 0;
+            printList.clear();
+        }
+    } else {
+        QMessageBox::warning(this, tr("Ошибка печати"), tr("Не удалось загрузить страницу"));
+    }
+
+}
+
+void MainWindow::readConfig() {
+
+//    QString fileName = QCoreApplication::applicationDirPath() + "/config.xml";
+//    QFile file(fileName);
+//    file.open(QIODevice::ReadOnly);
+//    QTextStream textStream(&file);
+//
+//    QTextCodec *utf8_codec = QTextCodec::codecForName("utf-8");
+//    textStream.setCodec(utf8_codec);
+//
+//    QString config = textStream.readAll();
+//
+//    file.close();
+//
+//    QDomDocument
 
 }
 
@@ -102,6 +158,9 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event) {
     } else if(object == ui->themesTableView->viewport()) {
         if(event->type() == QEvent::MouseMove) {
             showTableViewTooltip(ui->themesTableView, event, tr("Тема"), 1);
+            showTableViewTooltip(ui->themesTableView, event, tr("Студент"), 3);
+            showTableViewTooltip(ui->themesTableView, event, tr("Консультант"), 5);
+            showTableViewTooltip(ui->themesTableView, event, tr("Руководитель"), 7);
         }
     }
 
@@ -129,7 +188,7 @@ void MainWindow::showTableViewTooltip(QTableView *view, QEvent *event, const QSt
     QPoint loc_mousePos = m_event->pos();
     QModelIndex index = view->indexAt(loc_mousePos);
 
-    if(index.column() == column) {
+    if(index.column() == column && !index.data().isNull()) {
         QString data = index.data().toString();
         QString text = tr("<p>%1: %2</p>").arg(name, data);
 
@@ -195,7 +254,7 @@ void MainWindow::addPresidentOrSecretary(QTableWidget *tableWidget) {
         QStringList headers;
         headers << tr("id") << tr("Фамилия") << tr("Имя")
                 << tr("Отчество") << tr("Деятельность") << tr("Логин");
-        ui->twPresident->setHorizontalHeaderLabels(headers);
+        tableWidget->setHorizontalHeaderLabels(headers);
 
         int row = rowList.at(0).row();
 
@@ -284,14 +343,14 @@ void MainWindow::slotClientAuthentication(QString username, int client)
 
     bool status = dbServ->userAuth(username, uid, name);
     if (!status) {
-        daemon->getAuthenticationResult(OpcodeUserNotFound, client, uid, 0);
+        daemon->getAuthenticationResult(OpcodeUserNotFound, client, uid, 0, -1);
     } else {
 
         dbServ->addMemberUserOnLogon(uid, name, username);
 
         int studentCount = dbServ->getStudentCount(currentExamID);
 
-        daemon->getAuthenticationResult(OpcodeAccessGranted, client, uid, studentCount);
+        daemon->getAuthenticationResult(OpcodeAccessGranted, client, uid, studentCount, currentExamSentStudentId);
     }
 }
 
@@ -377,18 +436,44 @@ void MainWindow::initCards() {
 void MainWindow::initThemes() {
 
     dbServ->initThemes();
-    ui->themesTableView->setModel(dbServ->getThemesTableModel());
+    dbServ->fillThemes();
+
+    ui->themesTableView->setModel(dbServ->getThemesModel());
     ui->themesTableView->hideColumn(0);
+    ui->themesTableView->hideColumn(2);
+    ui->themesTableView->hideColumn(4);
+    ui->themesTableView->hideColumn(6);
     ui->themesTableView->setColumnWidth(1, 500);
 
     QDataWidgetMapper *themesMapper = new QDataWidgetMapper(this);
-    themesMapper->setModel(dbServ->getThemesTableModel());
+    themesMapper->setModel(dbServ->getThemesModel());
     themesMapper->addMapping(ui->themeTextEdit, 1);
-    themesMapper->addMapping(ui->idStudentEdit, 2);
-    themesMapper->addMapping(ui->idConsultantEdit, 3);
-    themesMapper->addMapping(ui->idInstructorEdit, 4);
+    themesMapper->addMapping(ui->themeStudentEdit, 3);
+    //themesMapper->addMapping(ui->themeConsultantEdit, 5);
+    //themesMapper->addMapping(ui->themeInstructorEdit, 7);
+    //themesMapper->addMapping(ui->sbThemesWrcCount, 8);
+    //themesMapper->addMapping(ui->sbThemesPosterCount, 9);
 
     connect(ui->themesTableView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)), themesMapper, SLOT(setCurrentModelIndex(QModelIndex)));
+}
+
+void MainWindow::initInstructors() {
+
+    dbServ->initInstructors();
+    ui->instructorsTableView->setModel(dbServ->getInstructorsTableModel());
+    ui->instructorsTableView->hideColumn(0);
+
+    ui->instructorsTableView->setColumnWidth(4, 450);
+
+    QDataWidgetMapper *instructorsMapper = new QDataWidgetMapper(this);
+    instructorsMapper->setModel(dbServ->getInstructorsTableModel());
+    instructorsMapper->addMapping(ui->instructorSurnameEdit, 1);
+    instructorsMapper->addMapping(ui->instructorNameEdit, 2);
+    instructorsMapper->addMapping(ui->instructorPatronymicEdit, 3);
+    instructorsMapper->addMapping(ui->instructorBusinessTextEdit, 4);
+
+    connect(ui->instructorsTableView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex, QModelIndex)), instructorsMapper, SLOT(setCurrentModelIndex(QModelIndex)));
+
 }
 
 void MainWindow::initMembers() {
@@ -438,6 +523,7 @@ void MainWindow::initExams() {
 
     ui->tvExamStudentMarks->setModel(dbServ->getExamStudentMarksModel());
     ui->tvExamQuestions->setModel(dbServ->getExamStudentAdditionalQuestionsModel());
+    ui->tvExamQuestions->hideColumn(0);
 
 }
 
@@ -471,12 +557,15 @@ void MainWindow::initCurrentExam() {
 
     ui->currentExamStudentListTableView->setModel(dbServ->getCurrentExamStudentListModel());
     ui->tvCurrentExamMembers->setModel(dbServ->getCurrentExamMemberListModel());
-    ui->tvCurrentExamMembers->hideColumn(0);
+    //ui->tvCurrentExamMembers->hideColumn(0);
 
     ui->currentExamStudentMarksTableView->setModel(dbServ->getCurrentExamStudentMarksModel());
     ui->tvCurrentExamAdditionalQuestions->setModel(dbServ->getCurrentExamAdditionalQuestionsModel());
+    //ui->tvCurrentExamAdditionalQuestions->hideColumn(0);
 
     ui->tvCurrentExamMembersOnline->setModel(dbServ->getCurrentExamMemberOnlineListModel());
+    //ui->tvCurrentExamMembersOnline->hideColumn(0);
+
     ui->cmbCurrentExamCardNumber->setModel(dbServ->getCardListModel());
 
 }
@@ -488,7 +577,7 @@ void MainWindow::showSelectDialog(const QString &tableName, IdType type) {
     Dialog *dial = new Dialog(this);
     connect(dial, SIGNAL(idSelected(int)), this, SLOT(onIdSelected(int)));
 
-    dial->setTableName(tableName, dbServ->getDatabase());
+    dial->setTableName(tableName, dbServ);
     dial->setModal(true);
     dial->show();
 
@@ -499,13 +588,18 @@ void MainWindow::onIdSelected(int id) {
     switch(currentIdType) {
 
     case Student:
-        ui->idStudentEdit->setText(QString::number(id));
+        themeStudentId = id;
+        ui->themeStudentEdit->setText(dbServ->getStudentById(id));
         break;
     case Consultant:
-        ui->idConsultantEdit->setText(QString::number(id));
+        themeConsultantId = id;
+        if(id != -1)
+            ui->themeConsultantEdit->setText(dbServ->getMemberById(id));
         break;
     case Instructor:
-        ui->idInstructorEdit->setText(QString::number(id));
+        themeInstructorId = id;
+        if(id != -1)
+            ui->themeInstructorEdit->setText(dbServ->getInstructorById(id));
         break;
     }
 
@@ -548,7 +642,7 @@ void MainWindow::on_browseConsultantButton_clicked()
 
 void MainWindow::on_browseInstructorButton_clicked()
 {
-    showSelectDialog("sacmembers", Instructor);
+    showSelectDialog("instructors", Instructor);
 }
 
 void MainWindow::on_refreshFilterListsButton_clicked()
@@ -586,11 +680,13 @@ void MainWindow::on_fillCurrentExamButton_clicked()
     currentExamID = examId;
 
     dbServ->fillCurrentExamStudentList(currentExamID);
-    dbServ->fillCurrentExamMemberList(currentExamID);
-    dbServ->refreshCardListModel();
-
     ui->currentExamStudentListTableView->hideColumn(0);
     ui->currentExamStudentListTableView->setColumnWidth(4, 125);
+
+    dbServ->fillCurrentExamMemberList(currentExamID);
+    ui->tvCurrentExamMembers->hideColumn(0);
+
+    dbServ->refreshCardListModel();
 
     ui->examTaskStackedWidget->setCurrentIndex(currentExamTypeID - 1);
     ui->examTaskStackedWidget->setVisible(true);
@@ -600,7 +696,7 @@ void MainWindow::on_fillCurrentExamButton_clicked()
 void MainWindow::on_serverButton_clicked()
 {
     if(!daemon->isListening()) {
-        if(!daemon->listen()) {
+        if(!daemon->listen(QHostAddress::Any, 10255)) {
             QMessageBox::critical(this, tr("Ошибка запуска сервера"), tr("Не удалось запустить TCP-сервер"));
             return;
         }
@@ -622,6 +718,7 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
 
     dbServ->fillCurrentExamStudentMarks(currentExamID, currentExamSelectedStudentID);
     dbServ->fillCurrentExamAdditionalQuestions(currentExamID, currentExamSelectedStudentID);
+    ui->tvCurrentExamAdditionalQuestions->hideColumn(0);
 
     QString examType = dbServ->getExamTypeName(currentExamID);
     if(examType == trUtf8("Государственный экзамен")) {
@@ -677,8 +774,11 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
 
     int resultMark = dbServ->getStudentResultMark(currentExamSelectedStudentID, currentExamID);
     int cmbIndex = ui->cmbCurrentExamResultMark->findText(QString::number(resultMark));
+
     if(cmbIndex != -1)
         ui->cmbCurrentExamResultMark->setCurrentIndex(cmbIndex);
+    else
+        ui->cmbCurrentExamResultMark->setCurrentIndex(0);
 
     int questionsTime = dbServ->getQuestionsTime(currentExamSelectedStudentID, currentExamID);
     ui->sbCurrentExamQuestionTime->setValue(questionsTime);
@@ -696,6 +796,11 @@ void MainWindow::on_currentExamStudentListTableView_clicked(QModelIndex index)
 
 void MainWindow::on_sendStudentInfoButton_clicked()
 {
+    if(currentExamSelectedStudentID == -1)
+        return;
+
+    currentExamSentStudentId = currentExamSelectedStudentID;
+
     QString examType = dbServ->getExamTypeName(currentExamID);
 
     if(examType == trUtf8("Государственный экзамен")) {
@@ -765,13 +870,11 @@ void MainWindow::on_applyStudentsButton_clicked()
         QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных вернула ошибку: %1").arg(err));
 }
 
-void MainWindow::on_saveExamTimeButton_clicked()
-{
-
-}
-
 void MainWindow::on_showStudentInfoButton_clicked()
 {
+    if(ui->groupsTableView->selectionModel()->selection().isEmpty())
+        return;
+
     QString fileName = QFileDialog::getOpenFileName(this, tr("Импорт группы..."), QDir::currentPath(),
                                                     tr("Файлы Excel (*.xls)"));
     if(fileName.isNull())
@@ -846,24 +949,71 @@ void MainWindow::on_applySubjectsButton_clicked()
 
 void MainWindow::on_deleteThemeButton_clicked()
 {
-    int row = getSelectedRowFromTableView(ui->themesTableView);
-    dbServ->deleteTheme(row);
+    if(ui->themesTableView->selectionModel()->selection().isEmpty())
+        return;
+
+    QModelIndex idx = ui->themesTableView->selectionModel()->selectedRows(0).at(0);
+    int themeId = idx.data().toInt();
+
+    dbServ->deleteTheme(themeId);
+    dbServ->fillThemes();;
+
 }
 
-void MainWindow::on_addThemeButton_clicked()
+void MainWindow::on_saveThemeButton_clicked()
+{    
+    int themeId = -1;
+    if(themeStudentId != -1)
+        themeId = dbServ->getThemeId(themeStudentId);
+
+    QString theme = ui->themeTextEdit->toPlainText();
+    int wrccount = ui->sbThemesWrcCount->value();
+    int postercount = ui->sbThemesPosterCount->value();
+
+    dbServ->saveTheme(themeId, theme, themeStudentId, themeConsultantId, themeInstructorId,
+                      wrccount, postercount);
+    dbServ->fillThemes();
+}
+
+//void MainWindow::on_addThemeButton_clicked()
+//{
+//    dbServ->addTheme();
+//}
+
+//void MainWindow::on_cancelThemesButton_clicked()
+//{
+//    dbServ->revertThemeChanges();
+//}
+
+//void MainWindow::on_applyThemesButton_clicked()
+//{
+//    bool ok;
+//    QString err = dbServ->submitThemeChanges(ok);
+//
+//    if(!ok)
+//        QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных вернула ошибку: %1").arg(err));
+//}
+
+void MainWindow::on_deleteInstructorButton_clicked()
 {
-    dbServ->addTheme();
+    int row = getSelectedRowFromTableView(ui->instructorsTableView);
+    dbServ->deleteInstructor(row);
 }
 
-void MainWindow::on_cancelThemesButton_clicked()
+void MainWindow::on_addInstructorButton_clicked()
 {
-    dbServ->revertThemeChanges();
+    dbServ->addInstructor();
 }
 
-void MainWindow::on_applyThemesButton_clicked()
+void MainWindow::on_cancelInstructorsButton_clicked()
+{
+    dbServ->revertInstructorChanges();
+}
+
+void MainWindow::on_applyInstructorsButton_clicked()
 {
     bool ok;
-    QString err = dbServ->submitThemeChanges(ok);
+    QString err = dbServ->submitInstructorChanges(ok);
 
     if(!ok)
         QMessageBox::warning(this, tr("Ошибка применения изменений"), tr("База данных вернула ошибку: %1").arg(err));
@@ -984,6 +1134,26 @@ void MainWindow::on_deleteAllMemberFromExamButton_clicked()
 
 void MainWindow::on_saveNewExam_clicked()
 {
+    if(ui->tvNewExamStudentsTo->model()->rowCount() == 0) {
+        QMessageBox::information(this, tr("Добавление экзамена"), tr("Список студентов не должен быть пуст."));
+        return;
+    }
+
+    if(ui->tvNewExamMembersTo->model()->rowCount() == 0) {
+        QMessageBox::information(this, tr("Добавление экзамена"), tr("Комиссия не должна быть пустой."));
+        return;
+    }
+
+    if(ui->twPresident->model()->rowCount() == 0) {
+        QMessageBox::information(this, tr("Добавление экзамена"), tr("Не выбран председатель."));
+        return;
+    }
+
+    if(ui->twSecretary->model()->rowCount() == 0) {
+        QMessageBox::information(this, tr("Добавление экзамена"), tr("Не выбран секретарь."));
+        return;
+    }
+
     bool ok;
     QDate date = ui->examDateEdit->date();
     QString examType = ui->examTypeCombobox->currentText();
@@ -1001,6 +1171,9 @@ void MainWindow::on_saveNewExam_clicked()
 
 void MainWindow::on_showStudentMarksButton_clicked()
 {
+    if(ui->studentsTableView->selectionModel()->selection().isEmpty())
+        return;
+
     int selectedStudentRow = getSelectedRowFromTableView(ui->studentsTableView);
     QModelIndex selectedStudentIndex = dbServ->getStudentsTableModel()->index(selectedStudentRow, 0);
     int studentId = selectedStudentIndex.data().toInt();
@@ -1070,6 +1243,7 @@ void MainWindow::on_tvExamList_pressed(QModelIndex index)
         ui->tvExamStudents->hideColumn(0);
 
         dbServ->fillExamMemberList(examId);
+        ui->tvExamStudents->hideColumn(0);
     }
 }
 
@@ -1086,6 +1260,7 @@ void MainWindow::on_tvExamStudents_pressed(QModelIndex index)
 
         dbServ->fillExamStudentMarks(examId, studentId);
         dbServ->fillExamAdditionalQuestions(examId, studentId);
+        ui->tvExamQuestions->hideColumn(0);
 
         QString examType = dbServ->getExamTypeName(examId);
         if(examType == trUtf8("Государственный экзамен")) {
@@ -1189,6 +1364,8 @@ void MainWindow::on_btnExamPrintStudentReport_clicked()
         return;
     }
 
+    int printCount = printList.count();
+
     QModelIndex idx = ui->tvExamList->selectionModel()->selectedRows(0).at(0);
     int examId = idx.data().toInt();
 
@@ -1199,29 +1376,23 @@ void MainWindow::on_btnExamPrintStudentReport_clicked()
     tempDir.mkdir("TempHTMLReport");
     tempDir.cd("TempHTMLReport");
 
-    QString fileName = tempDir.absolutePath() + "/temp.html";
+    QPrintDialog *dialog = new QPrintDialog(printer, this);
+    dialog->setWindowTitle(tr("Print Document"));
+    if (dialog->exec() != QDialog::Accepted)
+        return;
+
+    QString fileName = tempDir.absolutePath() + QString("/temp%1.html").arg(printCount);
     createStudentReport(studentId, examId, fileName);
 
-    webPage->mainFrame()->load(QUrl::fromLocalFile(fileName));
+    printList.append(fileName);
 
-    QPrinter printer;
-    printer.setPageMargins(25, 20, 15, 20, QPrinter::Millimeter);
+    if(printIndex == 0)
+        startPrint();
 
-    QPrintPreviewDialog *dialog = new QPrintPreviewDialog(&printer, this);
-    connect(dialog, SIGNAL(paintRequested(QPrinter *)),
-            webPage->mainFrame(), SLOT(print(QPrinter *)));
-    dialog->exec();
-
-//    QPrintDialog *dialog = new QPrintDialog(&printer, this);
-//    dialog->setWindowTitle(tr("Print Document"));
-//    if (dialog->exec() != QDialog::Accepted)
-//        return;
-//    webPage->mainFrame()->print(&printer);
-
-//    tempDir.remove("temp.html");
-//    tempDir.remove("chsu_logo.jpg");
-//    tempDir.cdUp();
-//    tempDir.rmdir("TempHTMLReport");
+    //tempDir.remove("temp.html");
+    //tempDir.remove("chsu_logo.jpg");
+    //tempDir.cdUp();
+    //tempDir.rmdir("TempHTMLReport");
 #endif
 }
 
@@ -1258,8 +1429,10 @@ void MainWindow::on_btnCurrentExamSaveCharacteristic_clicked()
     QString characteristic = ui->txtEditCurrentExamGeneralCharacteristic->toPlainText();
     QString notes = ui->txtEditCurrentExamNotes->toPlainText();
     QString opinions = ui->txtEditCurrentExamSpecialOpinions->toPlainText();
+    int questionsTime = ui->sbCurrentExamQuestionTime->value();
 
-    dbServ->setStudentCharacteristic(currentExamSelectedStudentID, currentExamID, characteristic, notes, opinions);
+    dbServ->setStudentCharacteristic(currentExamSelectedStudentID, currentExamID, characteristic,
+                                     notes, opinions, questionsTime);
 }
 
 void MainWindow::on_saveQuestionButton_clicked()
@@ -1277,4 +1450,158 @@ void MainWindow::on_saveQuestionButton_clicked()
     dbServ->addAdditionalQuestion(memberId, currentExamSelectedStudentID, currentExamID, question);
     dbServ->fillCurrentExamAdditionalQuestions(currentExamID, currentExamSelectedStudentID);
 
+}
+
+void MainWindow::on_removeQuestionButton_clicked()
+{
+    if(ui->tvCurrentExamAdditionalQuestions->selectionModel()->selection().isEmpty())
+        return;
+
+    QModelIndex idx = ui->tvCurrentExamAdditionalQuestions->selectionModel()->selectedRows(0).at(0);
+    int questionId = idx.data().toInt();
+
+    dbServ->removeAdditionalQuestion(questionId);
+    dbServ->fillCurrentExamAdditionalQuestions(currentExamID, currentExamSelectedStudentID);
+}
+
+void MainWindow::on_themesTableView_pressed(QModelIndex index)
+{
+    int row = index.row();
+
+    QModelIndex idx = ui->themesTableView->model()->index(row, 2);
+    themeStudentId = idx.data().toInt();
+
+    idx = ui->themesTableView->model()->index(row, 4);
+    if(idx.data().isNull())
+        themeConsultantId = -1;
+    else
+        themeConsultantId = idx.data().toInt();
+
+    idx = ui->themesTableView->model()->index(row, 6);
+    if(idx.data().isNull())
+        themeInstructorId = -1;
+    else
+        themeInstructorId = idx.data().toInt();
+
+    idx = ui->themesTableView->model()->index(row, 5);
+    QString consultant = idx.data().toString();
+    ui->themeConsultantEdit->setText(consultant);
+
+    idx = ui->themesTableView->model()->index(row, 7);
+    QString instructor = idx.data().toString();
+    ui->themeInstructorEdit->setText(instructor);
+
+    idx = ui->themesTableView->model()->index(row, 8);
+    int wrccount = idx.data().toInt();
+    ui->sbThemesWrcCount->setValue(wrccount);
+
+    idx = ui->themesTableView->model()->index(row, 9);
+    int postercount = idx.data().toInt();
+    ui->sbThemesPosterCount->setValue(postercount);
+}
+
+void MainWindow::on_btnRemoveExam_clicked()
+{
+    if(ui->tvExamList->selectionModel()->selection().isEmpty())
+        return;
+
+    QModelIndex idx = ui->tvExamList->selectionModel()->selectedRows(0).at(0);
+    int examId = idx.data().toInt();
+
+    dbServ->removeExam(examId);
+    dbServ->getExamsTableModel()->select();
+}
+
+void MainWindow::on_btnCreateReports_clicked()
+{
+#ifndef QT_NO_PRINTER
+    if(ui->tvExamList->selectionModel()->selection().isEmpty()) {
+
+        return;
+    }
+
+    QModelIndex idx = ui->tvExamList->selectionModel()->selectedRows(0).at(0);
+    int examId = idx.data().toInt();
+
+    QPrintDialog *dialog = new QPrintDialog(printer, this);
+    dialog->setWindowTitle(tr("Печать документов"));
+    if (dialog->exec() != QDialog::Accepted)
+        return;
+
+    int printCount = printList.count();
+
+    for(int i = 0; i < ui->tvExamStudents->model()->rowCount(); i++) {
+
+        idx = ui->tvExamStudents->model()->index(i, 0);
+        int studentId = idx.data().toInt();
+
+        QDir tempDir = QDir::homePath();
+        tempDir.mkdir("TempHTMLReport");
+        tempDir.cd("TempHTMLReport");
+
+        QString fileName = tempDir.absolutePath() + QString("/temp%1.html").arg(printCount);
+        createStudentReport(studentId, examId, fileName);
+
+        printList.append(fileName);
+        printCount++;
+        //ui->webView->load(QUrl::fromLocalFile(fileName + QString("_%1").arg(printCount)));
+
+        //ui->webView->print(printer);
+
+        //tempDir.remove("temp.html");
+        //tempDir.remove("chsu_logo.jpg");
+        //tempDir.cdUp();
+        //tempDir.rmdir("TempHTMLReport");
+    }
+
+    if(printIndex == 0)
+        startPrint();
+#endif
+}
+
+void MainWindow::on_btnSaveSettings_clicked()
+{
+    QDomDocument doc;
+    QDomElement root = doc.createElement("config");
+    doc.appendChild(root);
+
+    QDomElement el = doc.createElement("port");
+    el.setNodeValue(QString::number(ui->sbPort->value()));
+    root.appendChild(el);
+    el = doc.createElement("usegradient");
+    if(ui->cbUseGradient->isChecked())
+        el.setNodeValue("1");
+    else
+        el.setNodeValue("0");
+
+    el = doc.createElement("useproxy");
+    //if(ui->cbUseProxy->isChecked())
+
+}
+
+void MainWindow::on_printCardsButton_clicked()
+{
+#ifndef QT_NO_PRINTER
+    QDir tempDir = QDir::homePath();
+    tempDir.mkdir("TempHTMLReport");
+    tempDir.cd("TempHTMLReport");
+
+    int printCount = printList.count();
+    QString fileName = tempDir.absolutePath() + QString("/temp%1.html").arg(printCount);
+
+    QMap<int, QString> cards = dbServ->getCards();
+    reportcreator cardReport;
+    cardReport.createCardReport(cards);
+    cardReport.writeReport(fileName);
+
+    QPrintDialog *dialog = new QPrintDialog(printer, this);
+    dialog->setWindowTitle(tr("Печать билетов"));
+    if (dialog->exec() != QDialog::Accepted)
+        return;
+
+    printList.append(fileName);
+
+    if(printIndex == 0)
+        startPrint();
+#endif
 }
